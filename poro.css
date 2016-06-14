@@ -1,0 +1,21 @@
+/*
+simple css sheet
+*/
+
+* {
+	margin:0;
+	padding:0;
+	background:#FF0000
+}
+
+body{
+	background:#FF0000;
+	color : #800000;
+	font-family: Impact,Haettenschweiler,Franklin Gothic Bold,Charcoal,Helvetica Inserat,Bitstream Vera Sans Bold,Arial Black,sans serif;  
+	font-size:20px;
+	
+}
+#sidebar img{
+	width: 10%;
+	height: auto;
+}
