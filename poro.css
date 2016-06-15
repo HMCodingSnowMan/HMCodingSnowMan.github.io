@@ -8,6 +8,7 @@ simple css sheet
 	
 }
 
+
 body{
 	background:#000000;
 	color : #ffffff;
@@ -24,5 +25,11 @@ body{
 	display : inline;
 }
 
+@media only screen and (max-width:500px){
+	.widget2 img{
+		width : 30%;
+		height:auto;
+	}
+}
 /*layout*/
 
