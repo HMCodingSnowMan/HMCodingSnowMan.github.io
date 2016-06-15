@@ -26,8 +26,13 @@ body{
 }
 
 @media only screen and (max-width:500px){
+	img{
+		width: 10%;
+		height:auto;
+		
+	}
 	.widget2 img{
-		width : 30%;
+		width : 50%;
 		height:auto;
 	}
 }
