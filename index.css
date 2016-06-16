@@ -1,0 +1,101 @@
+/*
+Basic css style for my home page
+-Hans Marasigan
+*/
+* {
+	margin:0;
+	padding:0;
+	font-size:100%; 
+	line-height:1;
+}
+
+/*working on nav*/
+.circle{
+	text-align:center;
+	position:relative;
+	width:150px;
+	height:150px;
+	border: 10px solid orange;
+	background: white;
+	-moz-border-radius: 100px;
+	-webkit-border-radius: 100px;
+	border-radius: 150px
+}
+.circle:hover{
+	border: 10px solid red;
+	box-shadow: 0 0 10px blue;
+}
+.circle:click{
+	
+}
+
+/* working on body */
+body {
+	text-align: center;
+	color:white;
+	background-image:url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-333570.jpg");
+}
+
+/*editing links; hiding the stuffs*/
+a{
+	font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif; 
+	background-color:black;
+	color:white;
+}
+a:link{
+	text-decoration:none;
+}
+a:visited{
+	text-decoration:none;
+}
+a:active {
+    text-decoration: underline;
+}
+
+
+/*making the buttons*/
+#home{
+	background-image: url("https://i.ytimg.com/vi/A6uE9IY6bjA/maxresdefault.jpg");
+	background-repeat:no-repeat;
+	background-size: 180%;
+	background-position: 40% 70%;
+	float:left;
+	margin:5%;
+}
+
+#about{
+	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-9/11227637_10205449095602605_4202424018121263196_n.jpg?oh=3e9c6bd5ad539c29e96380e0bf58b415&oe=57C7A858");
+	background-repeat:no-repeat;
+	background-size: 180%;
+	background-position: 40% 50%;
+	float:left;
+	margin:5%;
+}
+#lol{	
+	background-image: url("http://vignette3.wikia.nocookie.net/leagueoflegends/images/c/c6/Urf_Poro.jpg/revision/latest?cb=20150220155531");
+	background-repeat:no-repeat;
+	background-size: 180%;
+	background-position: 40% 50%;
+	float:left;
+	clear:both;
+	margin:3%;
+}
+#ssb{
+	background-image: url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-113095.jpg");
+	background-repeat:no-repeat;
+	background-size: 180%;
+	background-position: 50% 50%;
+	float:left;
+	margin:3%;
+	
+}
+#ow{
+	background-image: url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-390951.jpg");
+	background-repeat:no-repeat;
+	background-size: 180%;
+	background-position: 50% 30%;
+	float:left;
+	margin:3%;
+}
+
+	
