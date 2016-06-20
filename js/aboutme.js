@@ -36,8 +36,6 @@ function getAllButtons(){
 	 alert("there are " + num + "buttons");
  }
 
- var addFun= function(){
-	 allButtons.onclick=getAllButtons();
- }
+
  
  
