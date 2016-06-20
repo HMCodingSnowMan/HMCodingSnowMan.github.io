@@ -16,7 +16,7 @@ bluered.style.background="red";
  
 
 var allButtons = document.getElementsByTagName("button");
-
+addFun();
 var bodyEl= document.getElementsByClassName("rButton");
 
 function getAllButtons(){
