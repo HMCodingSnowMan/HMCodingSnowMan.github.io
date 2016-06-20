@@ -12,11 +12,15 @@ clickerButton.addEventListener("click", onButtonClick);
 var bluered= document.getElementByTagName("body");
 bluered.style.background="red";
  */
- 
- 
+
 
 var allButtons = document.getElementsByTagName("button");
 var bodyEl= document.getElementsByClassName("rButton");
+ var addFun= function(){
+	 allButtons.onclick=getAllButtons();
+ }
+ addFun();
+
 
 function getAllButtons(){
 	 //var allButtons = document.getElementsByTagName("p");
@@ -32,9 +36,8 @@ function getAllButtons(){
 	 alert("there are " + num + "buttons");
  }
 
- function addFun(){
+ var addFun= function(){
 	 allButtons.onclick=getAllButtons();
  }
- 
  
  
