@@ -22,7 +22,7 @@ var bodyEl= document.getElementsByClassName("rButton");
  addFun();
 
 
-function getAllButtons(){
+var getAllButtons()= function(){
 	 //var allButtons = document.getElementsByTagName("p");
 	
 	
