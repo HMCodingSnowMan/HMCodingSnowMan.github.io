@@ -1,26 +1,56 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8">
-    <title>aboutMe</title>
+    <title>AboutMe</title>
+	<link rel="stylesheet" href="css/aboutme.css">
   </head>
   <body>
-	<div class="buttonList">
-<!-- 		<div class="button">red</div>
-		<div class="button">blue</div>
-		<div class="button">green</div>
-		<div class="button">java</div>
-		<div class="button">python</div>
-		<div class="button">c/c++</div>
-		<div class="button">javascript</div>
-		 -->
-		<p class="rButton">red</p>
-		<p class="rButton">blue</p>
-		<p class="rButton">green</p>
+	<div class="MainContainer">
+		<div id=allAboutMe>
+			<ul>
+				<li><button id="education" onclick="infoButtonClick(1)">Education</button></li>
+				<li><button id="projects" onclick="infoButtonClick(2)">Projects</button></li>
+				<li><button id="job" onclick="infoButtonClick(3)">Employment</button></li>
+				<li><button id="interests" onclick="infoButtonClick(4)">Interests</button></li>
+
+			</ul>
+		</div>
+		<div id="infoCont">
+			<div class ="info" id="defaultImage">
+				<img src=https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-174616.jpg>
+			</div>
+			<div class ="info" id="eduInfo">
+				<h1>I am educated</h1>
+			</div>
+			<!---Ending Education Container------>
+			
+			<div class ="info" id="projInfo">
+				<h1>I did stuff</h1>
+			</div>
+			<!---Ending Project Container------>
+			
+			<div class ="info" id=jobInfo>
+				<h1>I am apple</h1>
+			</div>
+			<!---Ending Job Container------>
+			
+			<div class ="info" id="intInfo">
+				<h1>I am interest</h1>
+			</div>
+			<!---Ending Interests Container------>
+			
+		<!---Ending Info Container------>
+		</div>
+		<div class="bgButtons"><h2>Would you like to change my background?<h2>
+			<ul>
+				<li><button id="redButton" onclick="redBg()">Red</button></li>
+				<li><button id="blueButton" onclick="blueBg()">Blue</button></li>
+				<li><button id="greenButton" onclick="greenBg()">Green</button></li>
+			</ul>
+		</div><!---End Background Buttons!--->
 		
-		<button>tada</button>
+		<button id="reset" onclick="resetAll()">ResetAll</button>
 	</div>
-		
 	<script src="js/aboutme.js"></script>
   </body>
 </html>
