@@ -16,13 +16,13 @@ bluered.style.background="red";
 
 var allButtons = document.getElementsByTagName("button");
 var bodyEl= document.getElementsByClassName("rButton");
- var addFun= function(){
-	 allButtons.onclick=getAllButtons();
- }
- addFun();
+var bodyMain= document.querySelector("body");
+var bList=document.querySelector(".bgButtons");
+var infoGroup=document.querySelectorAll(".info");
 
 
-var getAllButtons()= function(){
+
+function getAllButtons(){
 	 //var allButtons = document.getElementsByTagName("p");
 	
 	
@@ -36,6 +36,49 @@ var getAllButtons()= function(){
 	 alert("there are " + num + "buttons");
  }
 
+function redBg(){
 
+	bList.style.background="red";
+	bodyMain.style.background="black";
+	bodyMain.style.color="white";
+	
+}
+function blueBg(){
+
+	bList.style.background="blue";
+	bodyMain.style.background="black";
+	bodyMain.style.color="white";
+	
+}
+function greenBg(){
+
+	bList.style.background="green";
+	bodyMain.style.background="black";
+	bodyMain.style.color="white";
+	
+}
+function infoButtonClick(a){
+	hideAll();
+	console.log(infoGroup[a]);
+	infoGroup[a].style.visibility="visible";
+
+	
+	
+}
+ function resetAll(){
+	bList.style.background="white";
+	bodyMain.style.background="white";
+	read();
+	hideAll();
+ }
  
- 
+function hideAll(){
+	for(i=0;i<infoGroup.length;i++){
+		infoGroup[i].style.visibility="hidden";
+	}
+	
+}
+
+function read(){
+	console.log(infoGroup);
+}
