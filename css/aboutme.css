@@ -1,0 +1,50 @@
+* {
+	margin:0;
+	padding:0;
+	text-align:center;
+}
+/* allAboutme Button Set*/
+#allAboutMe li{
+	display:inline;
+}
+#allAboutMe ul{
+	text-align:center;
+	background-color:blue;
+}
+/*info container*/
+#infoCont {
+	width:70%;
+	height:100%;
+	border-style:double;
+	border-width:5px;
+	padding:5%;
+	margin:5%;
+	
+}
+
+#infoCont img{
+	width:50%;
+	height:auto;
+}
+#eduInfo, #projInfo, #jobInfo, #intInfo{
+	//visibility:hidden;
+	position:relative;
+	float:left;
+	width:400px;
+	height:500px;
+	clear: both;
+}
+/* background buttons*/
+
+.bgButtons{
+	width:30%;
+	height:30%;
+	background-color:red;
+	text-align:center;
+}
+.bgButtons ul{
+	list-style:none;
+}
+.bgButtons li{
+	display:inline;
+}
