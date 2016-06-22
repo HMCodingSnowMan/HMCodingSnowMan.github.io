@@ -60,21 +60,22 @@ function greenBg(){
 function infoButtonClick(a){
 	hideAll();
 	console.log(infoGroup[a]);
-	infoGroup[a].style.visibility="visible";
+	infoGroup[a].style.display="block";
 
 	
 	
 }
  function resetAll(){
-	bList.style.background="white";
+	bList.style.background="red";
 	bodyMain.style.background="white";
 	read();
 	hideAll();
+	infoButtonClick(0);
  }
  
 function hideAll(){
 	for(i=0;i<infoGroup.length;i++){
-		infoGroup[i].style.visibility="hidden";
+		infoGroup[i].style.display="none";
 	}
 	
 }
