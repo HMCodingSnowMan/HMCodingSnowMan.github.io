@@ -39,25 +39,52 @@ body {
 }
 
 /* working on the nav background*/
+#nav{
+	margin: 0 auto;
+	height:200px;
+	width:400px;
+	background-color:gray;
+	border-style:solid;
+}
 
 /*working on bar dividers*/
 .bar{
 	height:100px;
-	width:100%;
+	width:700px;
 	background-color:black;
+	margin:0 auto;
 }
 /*working on social dividers*/
 #social{
-	height:200px;
-	width:100%;
-	background-color:red;
+	height:415px;
+	width:500px;
+	margin: 0 auto;
+	background-color:gray;
+
+
 }
-#social li{
-	display:inline;
+
+#social ul{
+	list-style:none;
+	background-color:gray;
+	
+
 }
-img{
+#social li{	
+	background-color:gray;
+	border-style:solid;
+	border-color:black;
+}
+
+#social img{
 	background-color:white;
+	background-image:none;
 }
+
+#social a{
+	background-color:gray;
+}
+
 /*editing links; hiding the stuffs*/
 a{
 	font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif; 
@@ -82,8 +109,9 @@ a:active {
 	background-repeat:no-repeat;
 	background-size: 180%;
 	background-position: 40% 50%;
-	
-	margin:5%;
+	padding:50px;
+	margin:auto 0;
+	top:100px
 }
 /*
 #home{
@@ -121,5 +149,60 @@ a:active {
 	float:left;
 	margin:3%;
 } */
+/*making rocket buttons*/
+.fly{
+	height:96px;
+	width:134px;
+	color:red;
+	display:inline-block;
+	float:left;
+	padding:0;
+	background-image:none;
+	border-color:black;
+	border-style:solid;
+	border-width:2;
+	font-size:40px;
+	color:white;
+	
+}	
+#one{
+	background-color:red;
+	
+}
+#two{
+	background-color:blue;
+}
+#three{
+	background-color:green;
+}
+#four{
+	background-color:orange;
+}
+#five{
+	background-color:purple;
+}
 
+
+#rocket1{
+	height:100px;
+	width:450px;
+	background-color:silver;
+	margin:0 auto;
+	border-style:solid;
+}
+#rocket2{
+	height:100px;
+	width:400px;
+	background-color:silver;
+	margin:0 auto;
+	border-style:solid;
+}
+#fire{
+	height:0;
+	width:0;
+	margin:0 auto;
+	border-left:200px solid transparent;
+	border-right:200px solid transparent;
+	border-top:300px solid red;
+}
 	
