@@ -40,21 +40,21 @@ function redBg(){
 
 	bList.style.background="red";
 	bodyMain.style.background="black";
-	bodyMain.style.color="white";
+	bodyMain.style.color="yellow";
 	
 }
 function blueBg(){
 
 	bList.style.background="blue";
 	bodyMain.style.background="black";
-	bodyMain.style.color="white";
+	bodyMain.style.color="orange";
 	
 }
 function greenBg(){
 
 	bList.style.background="green";
 	bodyMain.style.background="black";
-	bodyMain.style.color="white";
+	bodyMain.style.color="brown";
 	
 }
 function infoButtonClick(a){
@@ -62,22 +62,22 @@ function infoButtonClick(a){
 	console.log(infoGroup[a]);
 	infoGroup[a].style.display="block";
 
-	
-	
 }
+
  function resetAll(){
 	bList.style.background="red";
 	bodyMain.style.background="white";
 	read();
 	hideAll();
 	infoButtonClick(0);
+	bList.style.borderStyle="double";
+	bodyMain.style.color="black";
  }
  
 function hideAll(){
 	for(i=0;i<infoGroup.length;i++){
 		infoGroup[i].style.display="none";
 	}
-	
 }
 
 function read(){

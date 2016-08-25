@@ -7,6 +7,9 @@ Basic css style for my home page
 	padding:0;
 	font-size:100%; 
 	line-height:1;
+	background-color: white;
+	background-image: url("http://www.transparenttextures.com/patterns/cubes.png");
+	/* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 }
 
 /*working on nav*/
@@ -16,7 +19,7 @@ Basic css style for my home page
 	width:150px;
 	height:150px;
 	border: 10px solid orange;
-	background: white;
+	background: blue;
 	-moz-border-radius: 100px;
 	-webkit-border-radius: 100px;
 	border-radius: 150px
@@ -32,10 +35,29 @@ Basic css style for my home page
 /* working on body */
 body {
 	text-align: center;
-	color:white;
-	background-image:url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-333570.jpg");
+
 }
 
+/* working on the nav background*/
+
+/*working on bar dividers*/
+.bar{
+	height:100px;
+	width:100%;
+	background-color:black;
+}
+/*working on social dividers*/
+#social{
+	height:200px;
+	width:100%;
+	background-color:red;
+}
+#social li{
+	display:inline;
+}
+img{
+	background-color:white;
+}
 /*editing links; hiding the stuffs*/
 a{
 	font-family: Avant Garde,Avantgarde,Century Gothic,CenturyGothic,AppleGothic,sans-serif; 
@@ -54,6 +76,16 @@ a:active {
 
 
 /*making the buttons*/
+
+#about{
+	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-9/11227637_10205449095602605_4202424018121263196_n.jpg?oh=3e9c6bd5ad539c29e96380e0bf58b415&oe=57C7A858");
+	background-repeat:no-repeat;
+	background-size: 180%;
+	background-position: 40% 50%;
+	
+	margin:5%;
+}
+/*
 #home{
 	background-image: url("https://i.ytimg.com/vi/A6uE9IY6bjA/maxresdefault.jpg");
 	background-repeat:no-repeat;
@@ -63,14 +95,6 @@ a:active {
 	margin:5%;
 }
 
-#about{
-	background-image: url("https://scontent.xx.fbcdn.net/v/t1.0-9/11227637_10205449095602605_4202424018121263196_n.jpg?oh=3e9c6bd5ad539c29e96380e0bf58b415&oe=57C7A858");
-	background-repeat:no-repeat;
-	background-size: 180%;
-	background-position: 40% 50%;
-	float:left;
-	margin:5%;
-}
 #lol{	
 	background-image: url("http://vignette3.wikia.nocookie.net/leagueoflegends/images/c/c6/Urf_Poro.jpg/revision/latest?cb=20150220155531");
 	background-repeat:no-repeat;
@@ -80,7 +104,7 @@ a:active {
 	clear:both;
 	margin:3%;
 }
-#ssb{
+ #ssb{
 	background-image: url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-113095.jpg");
 	background-repeat:no-repeat;
 	background-size: 180%;
@@ -96,6 +120,6 @@ a:active {
 	background-position: 50% 30%;
 	float:left;
 	margin:3%;
-}
+} */
 
 	
