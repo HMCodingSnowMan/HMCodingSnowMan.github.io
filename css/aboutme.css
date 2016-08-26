@@ -36,10 +36,11 @@ ul{
 	height:900px;
 	border-style:double;
 	border-width:5px;
-	padding:10%;
+	padding:50px;
 	margin:0 auto;
 	background-color:#006df2;
 	background-image: url("https://www.transparenttextures.com/patterns/diamond-upholstery.png");
+	overflow:auto;
 /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 	
 }
