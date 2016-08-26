@@ -12,6 +12,13 @@ Basic css style for my home page
 	/* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 }
 
+#logo{
+	height:300px;
+	width:400px;
+	background-color:red;
+	margin:0 auto;
+}
+
 /*working on nav*/
 .circle{
 	text-align:center;
@@ -61,7 +68,6 @@ body {
 	margin: 0 auto;
 	background-color:gray;
 
-
 }
 
 #social ul{
@@ -79,6 +85,10 @@ body {
 #social img{
 	background-color:white;
 	background-image:none;
+}
+
+#social img:hover{
+	box-shadow:0 0 10px white;
 }
 
 #social a{
@@ -181,7 +191,10 @@ a:active {
 #five{
 	background-color:purple;
 }
+.fly:hover{
 
+	box-shadow: 0 0 10px blue;
+}
 
 #rocket1{
 	height:100px;
