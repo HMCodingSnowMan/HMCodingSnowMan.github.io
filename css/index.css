@@ -7,8 +7,7 @@ Basic css style for my home page
 	padding:0;
 	font-size:100%; 
 	line-height:1;
-	background-color: #b8a97b;
-	background-image: url("http://www.transparenttextures.com/patterns/cubes.png");
+
 	/* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 }
 
@@ -42,6 +41,8 @@ Basic css style for my home page
 /* working on body */
 body {
 	text-align: center;
+	background-color: #b8a97b;
+	background-image: url("http://www.transparenttextures.com/patterns/cubes.png");
 
 }
 
@@ -193,7 +194,7 @@ a:active {
 }
 .fly:hover{
 
-	box-shadow: 0 0 10px blue;
+	box-shadow: 0 0 10px white;
 }
 
 #rocket1{
