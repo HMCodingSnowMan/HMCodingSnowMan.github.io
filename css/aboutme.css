@@ -119,3 +119,8 @@ a.backButton{
     text-decoration: none;
     color: initial;
 }
+
+.sectHider{
+	border-style:double;
+	background-color:purple;
+}

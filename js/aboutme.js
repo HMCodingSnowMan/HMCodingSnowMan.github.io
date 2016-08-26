@@ -19,9 +19,11 @@ var bodyEl= document.getElementsByClassName("rButton");
 var bodyMain= document.querySelector("body");
 var bList=document.querySelector(".bgButtons");
 var infoGroup=document.querySelectorAll(".info");
+var compList= document.getElementById("csList");
+var geoList=document.getElementById("gList");
 
-
-
+var cs=0;
+var geog=0;
 function getAllButtons(){
 	 //var allButtons = document.getElementsByTagName("p");
 	
@@ -82,4 +84,28 @@ function hideAll(){
 
 function read(){
 	console.log(infoGroup);
+}
+
+function hideSect(a){
+
+	if (a==0){
+		this.cs=this.cs+1;
+		console.log("cs is " + this.cs);
+		if (this.cs%2==1){
+			compList.style.display="none";
+		}
+		else{
+			compList.style.display="block";
+		}
+	}
+	else{
+		this.geog=this.geog+1;
+		console.log("geog is "+ this.geog);
+		if (this.geog%2==1){
+			geoList.style.display="none";	
+		}
+		else{
+			geoList.style.display="block";
+		}
+	}
 }
