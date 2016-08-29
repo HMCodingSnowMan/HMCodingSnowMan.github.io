@@ -4,8 +4,9 @@
     <title>AboutMe</title>
 	<link rel="stylesheet" href="css/aboutme.css">
   </head>
+  
   <body>
-	<div class="MainContainer">
+	<div id="mainContainer">
 		<div id=allAboutMe>
 			<ul>
 				<li id="education" onclick="infoButtonClick(1)">Education</li>
@@ -15,6 +16,8 @@
 
 			</ul>
 		</div>
+		<!--ending allAboutMe-->
+		
 		<div id="infoCont">
 			<div class ="info" id="defaultImage">
 				<h1> Welcome to my WebPage!</h1>
@@ -32,6 +35,8 @@
 				</ul>
 					
 			</div>
+			<!---ending default--->		
+			
 			<div class ="info" id="eduInfo">
 			
 				<h1>University of California Santa Barbara</h1>
@@ -158,22 +163,30 @@
 			</div>
 			<!---Ending Interests Container------>
 			
-		<!---Ending Info Container------>
+		
 		</div>
+		<!---Ending Info Container------>
+		
+		
+		<!----beginning other sections---->
 		<div class="bgButtons"><h2>Would you like to change my background?</h2>
 			<ul>
 				<li><button id="redButton" onclick="redBg()">Red</button></li>
 				<li><button id="blueButton" onclick="blueBg()">Blue</button></li>
 				<li><button id="greenButton" onclick="greenBg()">Green</button></li>
 			</ul>
-		</div><!---End Background Buttons!--->
+		</div>
+		<!---End Background Buttons!--->
 		
 		<div class="resetButtons"><h2>Would you like to Reset? Or go Home?</h2>
 			<button id="reset" onclick="resetAll()">ResetAll</button>
 			<a href="index.html" class="backButton">Back to Index</a>
-			</div>
-		</div><!---End Reset button div-->
+		</div>
+		<!---End Reset button div-->
+		
 	</div>
+	<!----ending Main Container-----> 
 	<script src="js/aboutme.js"></script>
   </body>
+  <!---ending body----->
 </html>
