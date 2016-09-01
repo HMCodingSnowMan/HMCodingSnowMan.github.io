@@ -22,16 +22,16 @@ img{
 #infoCont{
 	width:700px;
 	height:900px;
-    border: 10px solid #ffd700;
+    border: 20px solid transparent;
     padding: 50px;
 	
 	margin:0 auto;
 	margin-top:20px;
-	
+	border-image:url("../src/strawFrame.png") 20% stretch;
 	background-color:silver;
 	overflow:auto;
 }
 #infoCont li{
 	display:inline;
-	
+
 }
