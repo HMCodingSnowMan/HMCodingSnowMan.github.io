@@ -47,12 +47,9 @@ body{
 	height:900px;
     border: 10px solid #ffd700;
     padding: 15px;
-
-
-	
 	padding:50px;
 	margin:0 auto;
-	background-color:#f2f2f2;
+	background-color:silver;
 	overflow:auto;
 /* This is mostly intended for prototyping; please download the pattern and re-host for production environments. Thank you! */
 	
@@ -61,22 +58,24 @@ body{
 #infoCont img{
 	width:auto;
 	height:150px;
-	border-style:solid;
-	background-color:white;
+
 	
 }
 #eduInfo, #projInfo, #jobInfo, #intInfo{
 	display:none;
 	position:relative;
 	float:left;
-	border-style:solid;
-	
+	border-style:double;
 }
 /*education info container*/
 #eduInfo img{
 	float:right;	
 }
-
+#eduInfo{
+	background-color:blue;
+	color:white;
+	border:double gold 20px;
+}
 
 	
 
@@ -136,7 +135,8 @@ a.backButton{
 
 .sectHider{
 	border-style:double;
-	background-color:purple;
+	background-color:gold;
+	color:black;
 }
 footer{
 	color:white;
