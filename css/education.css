@@ -3,3 +3,29 @@
 	padding:10px;
 	text-align:center;
 }
+
+body{
+	background-image:url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-172536.jpg");
+}
+#logo{
+	background-color:white;
+	width:600px;
+	height:50px;
+	margin:0 auto;
+	border:orange solid 20px;
+	padding:5px;
+}
+img{
+	height:100px;
+	width:100px;
+}
+#infoCont{
+	width:700px;
+	height:900px;
+    border: 10px solid #ffd700;
+    padding: 15px;
+	padding:50px;
+	margin:0 auto;
+	background-color:silver;
+	overflow:auto;
+}
