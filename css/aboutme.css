@@ -141,3 +141,10 @@ a.backButton{
 footer{
 	color:white;
 }
+footer dt:before {
+  content: "";
+  display: block;
+}
+footer dt, dd {
+  display: inline;
+}
