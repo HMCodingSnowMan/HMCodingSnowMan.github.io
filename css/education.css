@@ -23,9 +23,15 @@ img{
 	width:700px;
 	height:900px;
     border: 10px solid #ffd700;
-    padding: 15px;
-	padding:50px;
+    padding: 50px;
+	
 	margin:0 auto;
+	margin-top:20px;
+	
 	background-color:silver;
 	overflow:auto;
+}
+#infoCont li{
+	display:inline;
+	
 }
