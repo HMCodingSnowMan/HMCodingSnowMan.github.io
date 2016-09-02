@@ -1,0 +1,35 @@
+/*
+basic css for my Formal Pages
+-Hans Marasigan
+*/
+
+
+/*Starting Logo Section*/
+.logo{
+	height:100px;
+	width:500px;
+	padding:10px px 10px 10px;
+	text-align:center;
+	margin:0 auto;
+	border-style:double;
+}
+/*Ending logo Section*/
+
+/*Starting PageNav Section*/
+.pageNav{
+	float:left;
+	
+}
+
+.pageNav img{
+	height:200px;
+	width:300px;
+}
+
+/*Ending PageNav Section*/	
+
+/*Starting Social Section*/
+.socialNav{
+	float:right;
+}
+/*Ending Social Section*/
