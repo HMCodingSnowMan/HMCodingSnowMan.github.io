@@ -61,3 +61,16 @@ body{
 .infoCont p, dd{
 	text-align:justify;
 }
+
+footer{
+	height:150px;
+	width:300px;
+	margin:0 auto;
+	background-color:white;
+	margin-top:50px;
+	text-align:center;
+}
+
+footer dd{
+	text-align:center;
+}
