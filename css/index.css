@@ -54,7 +54,7 @@ ul{
 	float:left;
 	padding-top:20px;
 	margin-top:50px;
-	margin-left:10%;
+	margin-left:1%;
 
 }
 .currentNav{
@@ -65,7 +65,7 @@ ul{
 	background:white;
 	float:right;
 	padding-top:20px;
-	margin-right:10%;
+	margin-right:1%;
 	margin-top:50px;
 }
 
@@ -92,8 +92,10 @@ ul{
 	clear:both;
 	margin:0 auto;
 	margin-top:10px;
-	height:200px;
+	height:100px;
 	width:500px;
+	padding-top:10px;
+	padding-bottom:90px;
 	
 
 }
@@ -104,8 +106,8 @@ ul{
 
 .mainContainer{
 	text-align:center;
-	
-	width:40%;
+	padding-top:10px;
+	width:65%;
 	height:600px;
 	margin:0 auto;
 
@@ -122,6 +124,7 @@ footer{
 	margin-top:50px;
 	text-align:center;
 	border:solid #3B3D55 10px;
+	padding-top:10px;
 }
 
 footer dl{
