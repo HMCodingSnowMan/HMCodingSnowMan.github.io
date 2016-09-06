@@ -3,22 +3,57 @@ basic css for my Formal Pages
 -Hans Marasigan
 */
 
-
+body{
+	background-color:#004e8a;
+	background-image:url("../src/bg.png");
+}
 /*Starting Logo Section*/
+.bar{
+	margin:0 auto;
+	margin-top:50px;
+	height:50px;
+	width:700px;
+	border:solid #3B3D55 10px;
+	background-color:white;
+}
 .logo{
-	height:100px;
+	height:150px;
 	width:500px;
 	padding:10px px 10px 10px;
 	text-align:center;
 	margin:0 auto;
-	border-style:double;
+	margin-top:50px;
+	border:solid #3B3D55 10px;
+	background:white;
+	
 }
 /*Ending logo Section*/
+.sectHead{
+	text-align:center;
+}
 
+ul{
+	list-style:none;
+	text-align:center;
+}
 /*Starting PageNav Section*/
 .pageNav{
+	border:solid #3B3D55 10px;
+	background:white;
+	margin-top:50px;
 	float:left;
-	
+	padding-right:20px;
+
+	margin-left:200px;
+}
+.currentNav{
+	border:solid #3B3D55 10px;
+	background:white;
+	margin-top:50px;
+	float:left;
+	padding-right:20px;
+
+	margin-left:100px;
 }
 
 .pageNav img{
@@ -26,10 +61,28 @@ basic css for my Formal Pages
 	width:300px;
 }
 
+.currentNav img{
+	height:200px;
+	width:300px;
+}
+
+
 /*Ending PageNav Section*/	
 
 /*Starting Social Section*/
 .socialNav{
-	float:right;
+	border:solid #3B3D55 10px;
+	background:white;
+	clear:left;
+	margin:0 auto;
+	margin-top:700px;
+	height:200px;
+	width:500px;
+	
+
+}
+
+.socialNav li{
+	display:inline;
 }
 /*Ending Social Section*/

@@ -39,8 +39,9 @@ Basic css style for my home page
 /* working on body */
 body {
 	text-align: center;
-	background-color: #b8a97b;
-	background-image: url("https://wallpapers.wallhaven.cc/wallpapers/full/wallhaven-64086.jpg");
+	background-image: url('../src/oldWall.png');
+	background-color: blue;
+	
 
 }
 
