@@ -2,13 +2,19 @@
 basic css for my Formal Pages
 -Hans Marasigan
 */
+*{
+	margin:0;
+	padding:0;
+	text-align:center;
 
+}
 body{
 	background-color:#004e8a;
 	background-image:url("../src/bg.png");
 }
 /*Starting Logo Section*/
 .bar{
+	padding-top:20px;
 	margin:0 auto;
 	margin-top:50px;
 	height:50px;
@@ -17,9 +23,9 @@ body{
 	background-color:white;
 }
 .logo{
-	height:150px;
+	height:100px;
 	width:500px;
-	padding:10px px 10px 10px;
+	padding:10px 10px 10px 10px;
 	text-align:center;
 	margin:0 auto;
 	margin-top:50px;
@@ -35,28 +41,38 @@ body{
 ul{
 	list-style:none;
 	text-align:center;
+
+	margin:0 auto;
 }
 /*Starting PageNav Section*/
 .pageNav{
+	display:inline-block;
+	height:500px;
+	width:350px;
 	border:solid #3B3D55 10px;
 	background:white;
-	margin-top:50px;
 	float:left;
-	padding-right:20px;
+	padding-top:20px;
+	margin-top:50px;
+	margin-left:10%;
 
-	margin-left:200px;
 }
 .currentNav{
+	display:inline-block;
+	height:500px;
+	width:350px;
 	border:solid #3B3D55 10px;
 	background:white;
+	float:right;
+	padding-top:20px;
+	margin-right:10%;
 	margin-top:50px;
-	float:left;
-	padding-right:20px;
-
-	margin-left:100px;
 }
 
+
 .pageNav img{
+	display:block;
+	margin:auto;
 	height:200px;
 	width:300px;
 }
@@ -73,9 +89,9 @@ ul{
 .socialNav{
 	border:solid #3B3D55 10px;
 	background:white;
-	clear:left;
+	clear:both;
 	margin:0 auto;
-	margin-top:700px;
+	margin-top:10px;
 	height:200px;
 	width:500px;
 	
@@ -85,4 +101,33 @@ ul{
 .socialNav li{
 	display:inline;
 }
+
+.mainContainer{
+	text-align:center;
+	
+	width:40%;
+	height:600px;
+	margin:0 auto;
+
+}
+
+
+
 /*Ending Social Section*/
+footer{
+	height:150px;
+	width:300px;
+	margin:0 auto;
+	background-color:white;
+	margin-top:50px;
+	text-align:center;
+	border:solid #3B3D55 10px;
+}
+
+footer dl{
+	margin:0;	
+	margin-right:100px;
+}
+footer dd{
+	text-align:center;
+}
