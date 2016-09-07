@@ -17,14 +17,14 @@ body{
 	padding-top:20px;
 	margin:0 auto;
 	margin-top:50px;
-	height:50px;
-	width:700px;
+	height:1%;
+	width:60%;
 	border:solid #3B3D55 10px;
 	background-color:white;
 }
 .logo{
-	height:100px;
-	width:500px;
+	height:10%;
+	width:30%;
 	padding:10px 10px 10px 10px;
 	text-align:center;
 	margin:0 auto;
@@ -45,42 +45,35 @@ ul{
 	margin:0 auto;
 }
 /*Starting PageNav Section*/
-.pageNav{
+.pageNav, .currentNav{
 	display:inline-block;
-	height:500px;
-	width:350px;
+	height:82%;
+	width:45%;
 	border:solid #3B3D55 10px;
 	background:white;
-	float:left;
+	
 	padding-top:20px;
-	margin-top:50px;
-	margin-left:1%;
+	margin-top:5%;
+	
 
+}
+.pageNav{
+	margin-left:1%;
+	float:left;
 }
 .currentNav{
-	display:inline-block;
-	height:500px;
-	width:350px;
-	border:solid #3B3D55 10px;
-	background:white;
 	float:right;
-	padding-top:20px;
 	margin-right:1%;
-	margin-top:50px;
 }
 
 
-.pageNav img{
-	display:block;
+.pageNav img, .currentNav img{
+	padding:1%;
 	margin:auto;
-	height:200px;
-	width:300px;
+	height:auto;
+	max-width:300px;
 }
 
-.currentNav img{
-	height:200px;
-	width:300px;
-}
 
 
 /*Ending PageNav Section*/	
@@ -91,11 +84,11 @@ ul{
 	background:white;
 	clear:both;
 	margin:0 auto;
-	margin-top:10px;
-	height:100px;
-	width:500px;
-	padding-top:10px;
-	padding-bottom:90px;
+	margin-top:50%;
+	height:5%;
+	width:40%;
+	padding:1%;
+
 	
 
 }
@@ -106,9 +99,9 @@ ul{
 
 .mainContainer{
 	text-align:center;
-	padding-top:10px;
+	padding-top:1%;
 	width:65%;
-	height:600px;
+	height:70%;
 	margin:0 auto;
 
 }
@@ -117,11 +110,11 @@ ul{
 
 /*Ending Social Section*/
 footer{
-	height:150px;
-	width:300px;
+	height:15%;
+	width:20%;
 	margin:0 auto;
 	background-color:white;
-	margin-top:50px;
+	margin-top:5%;
 	text-align:center;
 	border:solid #3B3D55 10px;
 	padding-top:10px;
@@ -129,7 +122,7 @@ footer{
 
 footer dl{
 	margin:0;	
-	margin-right:100px;
+
 }
 footer dd{
 	text-align:center;
