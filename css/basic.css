@@ -18,20 +18,20 @@ ul{
 }
 .logo{
 	margin:0 auto;
-	margin-top:20px;
+	margin-top:5%;
 	background-color:white;
-	padding-top:20px;
-	height:100px;
-	width:500px;
+	padding:5%;
+	height:20%;
+	width:70%;
 }
 .navBar{
 	
-	height:50px;
-	width:800px;
+	height:5%;
+	width:80%;
 	margin:0 auto;
-	padding-top:20px;
+	padding:1%;
 	background-color:gray;
-	margin-top:30px;
+	margin-top:2%;
 
 		
 	
@@ -42,15 +42,13 @@ ul{
 	list-style:none;
 	text-align:center;
 	background-color:#000;
-
-	
-
 	display:inline-block;
+	padding:1%;
+	width:17%
 }
 .navBar li a{
     text-decoration: none;
-	width:150px;
-	line-height:30px;
+	line-height:100%;
     color: #FFFFFF;
 	display:block;
 	
@@ -65,13 +63,12 @@ ul{
 
 .infoCont{
 	clear:left;
-	padding-left:20px;
 	background-color:white;
 	margin:0 auto;
-	margin-top:20px;
-	height:800px;
-	width:700px;
-	padding:20px;
+	margin-top:5%;
+	height:90%;
+	width:80%;
+	padding:2%;
 	overflow:auto;
 }
 
@@ -80,15 +77,21 @@ ul{
 }
 
 footer{
-	height:150px;
-	width:300px;
+	height:15%;
+	width:30%;
 	margin:0 auto;
 	background-color:white;
-	margin-top:50px;
+	margin-top:5%;
 	text-align:center;
+	border:solid #3B3D55 10px;
+	padding:1%
 }
 
+footer dl{
+	margin:0;	
+
+}
 footer dd{
 	text-align:center;
-	font-size:150%;
+	font-size:100%;
 }
