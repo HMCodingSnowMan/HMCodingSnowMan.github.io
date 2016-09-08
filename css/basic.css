@@ -76,6 +76,9 @@ ul{
 	text-align:justify;
 }
 
+.infoCont dt{
+	font-size:110%
+}
 footer{
 	height:15%;
 	width:30%;
