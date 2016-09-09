@@ -23,7 +23,7 @@ body{
 	background-color:white;
 }
 .logo{
-	height:10%;
+	height:100%;
 	width:50%;
 	padding:10px 10px 10px 10px;
 	text-align:center;
@@ -31,8 +31,28 @@ body{
 	margin-top:50px;
 	border:solid #3B3D55 10px;
 	background:white;
-	
+	overflow:hidden;
 }
+
+.lContact{
+
+	float:left;
+	text-align:left;
+}
+
+.lContact h3, .lContact p{
+	text-align:left;
+}
+.rContact{
+
+	float:right;
+	text-align:right;
+}
+
+.rContact h3, .rContact p{
+	text-align:right;
+}
+
 /*Ending logo Section*/
 .sectHead{
 	text-align:center;
