@@ -89,6 +89,19 @@ footer{
 	border:solid #3B3D55 10px;
 	padding:1%
 }
+.lpic{
+	float:left;
+}
+.rpic{
+	float:right;
+}
+
+.lpic, .rpic{
+	height:auto;
+	min-width:10%;
+	max-width:30%;
+	padding:1%;
+}
 
 footer dl{
 	margin:0;	
