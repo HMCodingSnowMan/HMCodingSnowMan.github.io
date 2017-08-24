@@ -1,149 +1,16 @@
-/*
-basic css for my Formal Pages
--Hans Marasigan
-*/
-*{
-	margin:0;
-	padding:0;
-	text-align:center;
-
+body {
+	background-color:#1C2331;
+	color:white;
 }
-body{
-	background-color:#004e8a;
-	background-image:url("../src/bg.png");
-}
-/*Starting Logo Section*/
-.bar{
-	padding:3%;
-	margin:0 auto;
-	margin-top:50px;
-	height:1%;
-	width:60%;
-	border:solid #3B3D55 10px;
-	background-color:white;
-}
-.logo{
-	height:100%;
-	width:50%;
-	padding:10px 10px 10px 10px;
-	text-align:center;
-	margin:0 auto;
-	margin-top:50px;
-	border:solid #3B3D55 10px;
-	background:white;
-	overflow:hidden;
+.jumbotron{
+	background-color:#3F729B;
 }
 
-.lContact{
-
-	float:left;
-	text-align:left;
+.panel-heading{
+	background-color:#3F729B;
+	color:black;
 }
 
-.lContact h3, .lContact p{
-	text-align:left;
-}
-.rContact{
-
-	float:right;
-	text-align:right;
-}
-
-.rContact h3, .rContact p{
-	text-align:right;
-}
-
-/*Ending logo Section*/
-.sectHead{
-	text-align:center;
-}
-
-ul{
-	list-style:none;
-	text-align:center;
-
-	margin:0 auto;
-}
-/*Starting PageNav Section*/
-.pageNav, .currentNav{
-	display:inline-block;
-	height:82%;
-	width:40%;
-	min-width:40%;
-	border:solid #3B3D55 10px;
-	background:white;
-	margin-top:5%;
-	
-
-}
-.pageNav{
-	margin-left:7%;
-	float:left;
-}
-.currentNav{
-	float:right;
-	margin-right:7%;
-}
-
-
-.pageNav img, .currentNav img{
-	padding:1%;
-	margin:auto;
-	height:auto;
-	width:96%;
-}
-
-
-
-/*Ending PageNav Section*/	
-
-/*Starting Social Section*/
-.socialNav{
-	border:solid #3B3D55 10px;
-	background:white;
-	clear:both;
-	margin:0 auto;
-	margin-top:70%;
-	height:180%;
-	width:60%;
-	padding:1%;
-
-	
-
-}
-
-.socialNav li{
-	display:inline;
-}
-
-.mainContainer{
-	text-align:center;
-	padding-top:1%;
-	width:100%;
-	height:100%;
-	margin:0 auto;
-
-}
-
-
-
-/*Ending Social Section*/
-footer{
-	height:15%;
-	width:30%;
-	margin:0 auto;
-	background-color:white;
-	margin-top:5%;
-	text-align:center;
-	border:solid #3B3D55 10px;
-	padding:1%;
-}
-
-footer dl{
-	margin:0;	
-
-}
-footer dd{
-	text-align:center;
-	font-size:100%;
+.panel{
+	padding-bottom:10%
 }
