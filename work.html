@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-	<!-- <link rel="stylesheet" href="css/basic.css"> -->
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
@@ -9,25 +8,29 @@
 
 	<!-- Latest compiled JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<link rel="stylesheet" href="css/simple.css">
 	<head>
 		<title>HMEmployment</title>
 	</head>	
 <body>	
-	<div class="logo">
+	<div class="navbar navbar-inverse container-fluid">
+	
+			<div = class="navbar-header"><a class="navbar-brand" href="index.html">Hans Marasigan</a></div>
+			<ul class ="nav navbar-nav">
+				<li><a href="college.html">College</a></li>
+				<li><a href="cprojects.html">College Projects</a></li>
+				<li><a href="work.html">Work</a></li>
+				<li><a href="pprojects.html">Personal Projects</a></li>
+			</ul>
+
+
+	</div>
+	<div class="container-fluid bg1" id="summary">
 		<h1>My Working World</h1>
 		<h2>Taking Care of Business</h2>
 	</div>
-	<div class="navBar">
-		<ul>
-		<li><a href="index.html">Index</a></li>
-		<li><a href="college.html">College</a></li>
-		<li><a href="cprojects.html">College Projects</a></li>
-		<li><a href="work.html">Work</a></li>
-		<li><a href="pprojects.html">Personal Projects</a></li>
-		</ul>
-	</div>
-	
-	<div class="infoCont">
+
+	<div class="container-fluid">
 				<h2>Apple GIS Editor</h2>
 				<h3> Currently working a contract with Apple January 2016-January 2017</h3>
 				<i>Working under a NDA </i>
@@ -35,12 +38,17 @@
 					<li>Collaborating on a team to improve Apple maps</li>
 					<li>Learned to use various Apple products</li>
 				</ul>
+	</div>
+	
+	<div class="container-fluid">			
 				<h2>ZWorld GIS Intern</h2>
 				<h3>July 2015-August 2015</h3>
 				<p>
 					This was my post graduation internship where I worked with ArcMap to update maps and validating the Autocard information. I worked on a water district where I checked on the pipes traveling around the area, fire hydrants, and other paths. There were over 5000 attributes in the tables that needed to be checked on. One thing i got fromt his was that with so much information there is room for missing data or bad data. At that point the only thing that could be done is create a log of errors to present to the client to clarify. 
 				</p>
+	</div>
 
+	<div class="container-fluid">			
 				<h2>Supervisor of The Arbor at UCSB</h2>
 				<h3>August 2012-June 2015</h3>
 				<p>
@@ -48,17 +56,21 @@
 				</p>
 		
 	</div>
-	<footer>
-			
+	
+	<div class="container-fluid">
 		<h2>Contact Me</h2>
 			<dl>
-				<dt>Phone Number:</dt>
+			<dt>Phone Number:</dt>
 					<dd> 310-972-0723</dd>
 				<dt>Email:</dt>
 					<dd> hansmarasigan@gmail.com</dd>
-					
+				
 			</dl>
-		<h3>I'm hosted by Github Pages!</h3>
-		</footer>
+	</div>
+	
+	<footer>
+		<h3 class="text-center">I'm hosted by Github Pages!</h3>
+	</footer>	
+
 </body>
 </html>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-	<!-- <link rel="stylesheet" href="css/basic.css"> -->
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 
@@ -9,31 +8,43 @@
 
 	<!-- Latest compiled JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<link rel="stylesheet" href="css/simple.css">
+	
 	<head>
 		<title>HMCollege</title>
 	</head>	
 <body>	
-	<div class="logo">
+	<div class="navbar navbar-inverse container-fluid">
+		<!-- <div class="container-fluid"> -->
+			<div = class="navbar-header"><a class="navbar-brand" href="index.html">Hans Marasigan</a></div>
+			<ul class ="nav navbar-nav">
+				<li><a href="college.html">College</a></li>
+				<li><a href="cprojects.html">College Projects</a></li>
+				<li><a href="work.html">Work</a></li>
+				<li><a href="pprojects.html">Personal Projects</a></li>
+			</ul>
+
+		<!-- </div> -->
+		
+	</div>
+	<!-- end navbar -->
+	<div class="container-fluid bg1" id="summary">
 		<h1>My College Experiences</h1>
 		<h2>Class on the Beach</h2>
 	</div>
-	<div class="navBar">
-		<ul>
-		<li><a href="index.html">Index</a></li>
-		<li><a href="college.html">College</a></li>
-		<li><a href="cprojects.html">College Projects</a></li>
-		<li><a href="work.html">Work</a></li>
-		<li><a href="pprojects.html">Personal Projects</a></li>
-		</ul>
-	</div>
+
 	
-	<div class="infoCont">
+	<div class="container-fluid bg2" id="degree">
 		<h1>University of California Santa Barbara</h1>
 		<h2>Bachaelors of Art in Geography with emphasis in GIS</h2>
 					
 		<p>
 			The University of California Santa Barbara was the beautiful paradise where I learned how to live and grow. There were many golden opportunities there to figure out where you would want to be in the future. The atmosphere inspired me to understand everything around me rather than accept them. This inspiration led me through various places in the university where I met various people, joined organizations, and got out of my comfort zone. The entire community provided many influences to teach me how to deal with life. The academic life was fast and difficult however it taught important analytical skills. The student worker life was as constant as the academic life however it presented me with the ability to be responsible for the work I do and how it affects the bigger picture. The social life taught how to express myself better since it is difficult to follow your passions if you cannot express it correctly. 
 		</p>
+	</div>
+	
+	<div class="container-fluid bg3" id="comp">
 		<h2>Computer Science Classes</h2>
 		<dl id="csList">
 			<dt><strong>Problem Solving with Python</strong></dt>
@@ -52,7 +63,10 @@
 			<p>
 					
 			</p>
-			<h2>Geography Classes</h2>
+		</div>
+	
+	<div class="container-fluid bg4" id="geog">
+		<h2>Geography Classes</h2>
 			<dl>
 				<dt><strong>GIS & Project</strong></dt>
 				<dd>This series of classes taught me the how to use ArcMap to process data. The beginning of the classes taught the basics and in the end we were able to do a project of our choice. <br>
@@ -67,17 +81,21 @@
 			</dl>
 					
 	</div>
-	<footer>
-		
+	
+	<div class="container-fluid bg5">
 		<h2>Contact Me</h2>
 			<dl>
 			<dt>Phone Number:</dt>
 					<dd> 310-972-0723</dd>
 				<dt>Email:</dt>
 					<dd> hansmarasigan@gmail.com</dd>
-					
+				
 			</dl>
-		<h3>I'm hosted by Github Pages!</h3>
-		</footer>	
+	</div>
+	
+	<footer>
+		<h3 class="text-center">I'm hosted by Github Pages!</h3>
+	</footer>	
+
 </body>
 </html>
