@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html ng-app="app"> 
+	<head>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	
+	<!-- Latest Angular -->
+	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.min.js"></script>
+	<script src="https://code.angularjs.org/1.6.5/angular-route.js"></script>
+	<script src="app.js"></script>
+	<script src="mainController.js"></script>
+	</head>
+	
+	<body>
+		<div class="navbar navbar-inverse container-fluid">
+		
+			<div = class="navbar-header"><a class="navbar-brand" href="index.html">Hans Marasigan</a></div>
+			<ul class ="nav navbar-nav">
+				<li> <a href="#!college">College</a></li>
+				<li> <a href="#!cprojects">College Projects</a></li>
+				<li> <a href="#!work">Work</a></li>
+				<li> <a href="#!pprojects">Personal Projects</a></li>
+			</ul>
+		</div>
+		<div ng-view>
+		</div>
+		
+		<div ng-include="'contactMe.html'">
+		</div>
+		
+	</body>
+</html>
