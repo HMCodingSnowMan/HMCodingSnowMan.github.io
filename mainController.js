@@ -4,9 +4,6 @@
 
 	var mainController=($scope, $location, $routeParams){
 		
-		$scope.changeView = function(name){
-			$location.path("/#!"+ name);
-		};
 
 	};
 	
