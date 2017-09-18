@@ -2,7 +2,7 @@
 	
 	var app = angular.module("app", []);
 
-	var mainController=($scope, $location, $routeParams){
+	var mainController=($scope){
 		
 
 	};
