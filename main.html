@@ -1,37 +1,112 @@
-<!DOCTYPE html>
-<html ng-app="app"> 
-	<head>
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-
-	<!-- jQuery library -->
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
-	<!-- Latest compiled JavaScript -->
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	
-	<!-- Latest Angular -->
-	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.5/angular.min.js"></script>
-	<script src="https://code.angularjs.org/1.6.5/angular-route.js"></script>
-	<script src="app.js"></script>
-	<script src="mainController.js"></script>
-	</head>
-	
-	<body>
-		<div class="navbar navbar-inverse container-fluid">
+	<div class="jumbotron jumbotron-fluid" >
+		<h1 class="text-center"> Hans Marasigan </h1>
+		<h2 class="text-center"> Dream: Make Video Games</h2>
+	</div>
+		<!--- end jumbotron --->
+		<div class="container-fluid" >
+			<div class="row">
+				<div class= "col-sm-6" "text-center" >
+					<h3 class="text-center">Phone Number</h3>
+					<p class="text-center">(310)-972-0723</p>
+				</div>
+				<!----end first column---->
+				<div class= "col-sm-6" "text-center">
+					<h3 class="text-center">Email</h3>
+					<p class="text-center">hansmarasigan@gmail.com</p>
+				</div>
+				<!---end second column---->
+			</div>
 		
-			<div = class="navbar-header"><a class="navbar-brand" href="index.html">Hans Marasigan</a></div>
-			<ul class ="nav navbar-nav">
-				<li> <a href="#!college">College</a></li>
-				<li> <a href="#!cprojects">College Projects</a></li>
-				<li> <a href="#!work">Work</a></li>
-				<li> <a href="#!pprojects">Personal Projects</a></li>
-			</ul>
+	</div>
+	<!----end container---->
+	<div class="container-fluid">
+		<h2 class="text-center">Learn About My</h2>
+	</div>
+	<!--end bar-->
+	
+	
+	<div class="row">
+		<div class="col-sm-2"></div>
+		
+		<div class="col-sm-4">
+			<div class="panel">
+			<div class="panel-heading text-center"><h3>College</h3></div>
+			
+				<div class="panel-body">
+					<a href="#!college"><img src="src/book.jpg" class="center-block img-rounded img-responsive" ></a>
+				</div>
+			
+			</div>
+			<!-- end college panel -->
+			<div class="panel">
+			<div class="panel-heading text-center"><h3>College Projects</h3></div>
+			
+				<div class="panel-body">
+					<a href="#!cprojects"><img src="src/cprojects.png" class="center-block img-rounded img-responsive" ></a> 
+				</div>
+			
+			</div>
+			<!-- end college projects panel -->
 		</div>
 		
-		<div ng-view></div>
+		<!-- end education double panel -->
 		
-		<div ng-include="'contactMe.html'"></div>
+		<div class="col-sm-4">
+			<div class="panel">
+			<div class="panel-heading text-center"><h3>Work</h3></div>
+				
+				<div class="panel-body">
+					<a href="#!work"><img src="src/work.jpg" class="center-block img-rounded img-responsive"></a>
+				</div>
+			
+			</div>
+		<!-- end work panel -->
+			<div class="panel">
+				<div class="panel-heading text-center"><h3>Personal Projects</h3></div>
+				
+				<div class="panel-body">
+					<a href="#!pprojects"><img src="src/pprojects.jpg" class="center-block img-rounded img-responsive"></a>		 
+				</div>
+			
+			</div>	
+		<!---end personal projects panel---->
+		</div>
+		<!---end current prusuit double panel--->
+		<div class="col-sm-2"></div>
+		</div>
+		<!-- end panel items -->
 		
-	</body>
-</html>
+		
+	<div class= "row">
+	
+	<div class="col-sm-4"></div>
+	<div class="col-sm-4">
+		<div class="text-center">
+			<div class="panel">
+			<div class= "panel-heading">
+			<h2 class="text-center">Social Media</h2>
+			</div>
+			<div class="panel-body">
+				<ul class= "list-inline">
+					<li><a href="https://www.facebook.com/hans.marasigan"> 
+							<img src="src/facebook.png" class="img-responsive">
+						<a/></li>
+					<li>
+						<a href="https://www.linkedin.com/in/hmarasigan"> 
+							<img src="src/linkedin.png" class="img-responsive">
+						<a/></li>
+					<li>
+						<a href="https://github.com/HMCodingSnowMan"> 
+							<img src="src/github.png" class="img-responsive">
+						</a></li>
+				</ul>
+			</div>
+			<!-- end panel body -->
+			</div>
+			<!-- end social media panel -->
+		</div> 
+		<!--end social media container---->
+	</div>
+	<div class="col-sm-4"></div>
+	</div>
+	<!-- end row for social media container -->
