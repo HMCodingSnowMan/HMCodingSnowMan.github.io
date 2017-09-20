@@ -2,15 +2,10 @@
 	
 	var app = angular.module("app", []);
 
-	var mainController=($scope){
+	var MainController=($scope){
 		
-
 	};
 	
-
-	app.controller("mainController", mainController);
-
-
-
+	app.controller("MainController", MainController);
 
 }());
