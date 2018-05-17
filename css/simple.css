@@ -14,3 +14,7 @@ body {
 .panel{
 	padding-bottom:1%
 }
+
+p, dd,dt,i,li,h3,h2{
+	color:black;
+}
