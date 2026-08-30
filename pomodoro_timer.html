@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FocusFlow</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red: #e11d48; --red-light: #fff1f2; --red-dark: #9f1239;
+  --green: #10b981; --green-light: #ecfdf5;
+  --blue: #3b82f6; --blue-light: #eff6ff;
+  --bg: #fafafa; --card: #ffffff; --border: #e5e7eb;
+  --text: #111827; --muted: #6b7280;
+  --focus-color: #e11d48; --break-color: #10b981; --long-color: #3b82f6;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--red-dark); color: white; padding: 0.875rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 700; }
+.nav-tabs { display: flex; gap: 0.25rem; background: rgba(255,255,255,0.15); border-radius: 8px; padding: 3px; }
+.nav-tab { padding: 0.3rem 0.75rem; border-radius: 6px; font-size: 0.78rem; font-weight: 500; cursor: pointer; border: none; background: transparent; color: rgba(255,255,255,0.75); transition: all 0.15s; }
+.nav-tab.active { background: white; color: var(--red-dark); }
+
+.view { display: none; padding: 1rem; max-width: 600px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* TIMER */
+.timer-wrap { text-align: center; padding: 1.5rem 1rem; }
+.session-type { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+.session-type.focus { color: var(--red); }
+.session-type.break { color: var(--green); }
+.session-type.long { color: var(--blue); }
+
+.timer-ring-wrap { position: relative; width: 220px; height: 220px; margin: 0 auto 1.25rem; }
+.timer-ring-wrap svg { transform: rotate(-90deg); }
+.ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+.ring-fg { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.5s, stroke 0.3s; }
+.timer-display { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.timer-time { font-size: 3rem; font-weight: 700; line-height: 1; letter-spacing: -0.03em; }
+.timer-sub { font-size: 0.78rem; color: var(--muted); margin-top: 0.3rem; }
+
+.controls { display: flex; gap: 0.75rem; justify-content: center; margin-bottom: 1.25rem; }
+.ctrl-btn { border: none; border-radius: 50%; width: 52px; height: 52px; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.ctrl-btn.primary { background: var(--red); color: white; width: 64px; height: 64px; font-size: 1.3rem; }
+.ctrl-btn.primary.break-mode { background: var(--green); }
+.ctrl-btn.primary.long-mode { background: var(--blue); }
+.ctrl-btn.secondary { background: var(--card); border: 1px solid var(--border); color: var(--muted); }
+.ctrl-btn:hover { transform: scale(1.05); }
+.ctrl-btn:active { transform: scale(0.97); }
+
+.session-dots { display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1rem; }
+.session-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+.session-dot.done { background: var(--red); }
+.session-dot.current { background: var(--red); box-shadow: 0 0 0 3px rgba(225,29,72,0.2); }
+
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+.stat-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; text-align: center; }
+.stat-card .sv { font-size: 1.4rem; font-weight: 700; color: var(--red); }
+.stat-card .sl { font-size: 0.7rem; color: var(--muted); margin-top: 0.15rem; }
+
+.streak-msg { background: var(--red-light); border: 1px solid #fecdd3; border-radius: 10px; padding: 0.75rem 1rem; margin-top: 0.75rem; font-size: 0.875rem; font-weight: 500; color: var(--red-dark); text-align: center; display: none; }
+
+/* CALENDAR */
+.cal-wrap { padding: 1rem; max-width: 600px; margin: 0 auto; }
+.cal-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 0.75rem; }
+.cal-nav button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.25rem 0.6rem; cursor: pointer; font-size: 0.85rem; color: var(--muted); }
+.cal-nav h2 { font-size: 0.95rem; font-weight: 600; min-width: 130px; text-align: center; }
+.cal-legend { display: flex; align-items: center; gap: 1rem; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; }
+.cal-legend span { display: flex; align-items: center; gap: 0.3rem; }
+.leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-header { text-align: center; font-size: 0.7rem; font-weight: 600; color: var(--muted); padding: 0.25rem 0; }
+.cal-day { aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; border: 1px solid var(--border); background: var(--card); }
+.cal-day.empty { background: transparent; border-color: transparent; }
+.cal-day.streak-day { background: var(--red-light); border-color: var(--red); color: var(--red-dark); font-weight: 600; }
+.cal-day.today { border: 2px solid var(--red); font-weight: 700; }
+.cal-day.today span.day-num { background: var(--red); color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; }
+.cal-day.streak-day.today span.day-num { background: var(--red); color: white; }
+.cal-sessions { font-size: 0.6rem; color: var(--muted); }
+.cal-day.streak-day .cal-sessions { color: var(--red); }
+
+/* SETTINGS */
+.settings-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 0.75rem; }
+.settings-card h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.75rem; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.6rem; font-size: 0.875rem; }
+.setting-row:last-child { margin-bottom: 0; }
+.setting-row input[type=number] { width: 70px; border: 1px solid var(--border); border-radius: 6px; padding: 0.35rem 0.5rem; font-size: 0.875rem; text-align: center; }
+.btn-save { background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; margin-top: 0.75rem; }
+.btn-reset { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer; color: var(--muted); }
+
+@media (max-width: 480px) {
+  .stats-row { grid-template-columns: 1fr 1fr; }
+  .timer-time { font-size: 2.4rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🍅 FocusFlow</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('timer')">Timer</button>
+    <button class="nav-tab" onclick="showView('calendar')">Calendar</button>
+    <button class="nav-tab" onclick="showView('settings')">Settings</button>
+  </div>
+</header>
+
+<!-- TIMER VIEW -->
+<div class="view active" id="view-timer">
+  <div class="timer-wrap">
+    <div class="session-type focus" id="session-type-label">Focus</div>
+    <div class="timer-ring-wrap">
+      <svg width="220" height="220" viewBox="0 0 220 220">
+        <circle class="ring-bg" cx="110" cy="110" r="98"/>
+        <circle class="ring-fg" id="ring-fg" cx="110" cy="110" r="98"/>
+      </svg>
+      <div class="timer-display">
+        <div class="timer-time" id="timer-display">25:00</div>
+        <div class="timer-sub" id="timer-sub">Ready to focus</div>
+      </div>
+    </div>
+
+    <div class="session-dots" id="session-dots"></div>
+
+    <div class="controls">
+      <button class="ctrl-btn secondary" onclick="resetTimer()" title="Reset">↺</button>
+      <button class="ctrl-btn primary" id="play-btn" onclick="toggleTimer()">▶</button>
+      <button class="ctrl-btn secondary" onclick="skipSession()" title="Skip">⏭</button>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="sv" id="stat-today">0</div><div class="sl">Today's sessions</div></div>
+      <div class="stat-card"><div class="sv" id="stat-daily-streak">0</div><div class="sl">Day streak 🔥</div></div>
+      <div class="stat-card"><div class="sv" id="stat-weekly-streak">0</div><div class="sl">Week streak ⭐</div></div>
+    </div>
+    <div class="streak-msg" id="streak-msg"></div>
+  </div>
+</div>
+
+<!-- CALENDAR VIEW -->
+<div class="view" id="view-calendar">
+  <div class="cal-wrap">
+    <div class="cal-nav">
+      <button onclick="calChangeMonth(-1)">← Prev</button>
+      <h2 id="cal-month-label"></h2>
+      <button onclick="calChangeMonth(1)">Next →</button>
+    </div>
+    <div class="cal-legend">
+      <span><div class="leg-dot" style="background:var(--red)"></div> Streak day (2+ sessions)</span>
+      <span><div class="leg-dot" style="background:var(--border)"></div> No sessions</span>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div class="view" id="view-settings">
+  <div class="settings-card">
+    <h3>Timer durations</h3>
+    <div class="setting-row"><span>Focus session (min)</span><input type="number" id="set-focus" min="1" max="120"></div>
+    <div class="setting-row"><span>Short break (min)</span><input type="number" id="set-short" min="1" max="60"></div>
+    <div class="setting-row"><span>Long break (min)</span><input type="number" id="set-long" min="1" max="120"></div>
+    <div class="setting-row"><span>Sessions before long break</span><input type="number" id="set-sessions" min="1" max="10"></div>
+    <button class="btn-save" onclick="saveSettings()">Save settings</button>
+  </div>
+  <div class="settings-card">
+    <h3>Sound</h3>
+    <button class="btn-save" onclick="playBeep()" style="background:var(--red-dark)">🔔 Test sound</button>
+  </div>
+  <div class="settings-card">
+    <button class="btn-reset" onclick="resetAllData()">Reset all data</button>
+  </div>
+</div>
+
+<script>
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const CIRCUMFERENCE = 2 * Math.PI * 98;
+
+const STREAK_MSGS = [
+  '',
+  "Congratulations! You did it! 🎉",
+  "Good job on day 2! Keep going! 💪",
+  "3 days strong! You're building a habit! 🔥",
+  "4 days! You're on a roll! 🚀",
+  "5 days! Halfway to a full week! ⭐",
+  "6 days! One more for the full week! 💥",
+  "A full week! You're unstoppable! 👑",
+];
+
+function streakMsg(days) {
+  if(days <= 0) return '';
+  if(days < STREAK_MSGS.length) return STREAK_MSGS[days];
+  return `${days} days in a row! Incredible focus! 🏆`;
+}
+
+let settings = { focus: 25, shortBreak: 5, longBreak: 20, sessionsBeforeLong: 4 };
+let state = {
+  sessionLog: {},
+  dailyStreak: 0,
+  weeklyStreak: 0,
+  lastStreakDate: '',
+};
+let timer = {
+  mode: 'focus', // focus | short | long
+  running: false,
+  secondsLeft: 0,
+  totalSeconds: 0,
+  sessionsDone: 0,
+  interval: null,
+  endTime: null,
+};
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function weekStr() {
+  const d = new Date(); const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  return d.toISOString().split('T')[0];
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('focusflow_state');
+    if(s) state = {...state, ...JSON.parse(s)};
+    const st = localStorage.getItem('focusflow_settings');
+    if(st) settings = {...settings, ...JSON.parse(st)};
+  } catch(e){}
+}
+function saveState() { localStorage.setItem('focusflow_state', JSON.stringify(state)); }
+function saveSettings() {
+  settings.focus = parseInt(document.getElementById('set-focus').value) || 25;
+  settings.shortBreak = parseInt(document.getElementById('set-short').value) || 5;
+  settings.longBreak = parseInt(document.getElementById('set-long').value) || 20;
+  settings.sessionsBeforeLong = parseInt(document.getElementById('set-sessions').value) || 4;
+  localStorage.setItem('focusflow_settings', JSON.stringify(settings));
+  resetTimer();
+  alert('Settings saved!');
+}
+
+function modeSeconds(mode) {
+  if(mode==='focus') return settings.focus * 60;
+  if(mode==='short') return settings.shortBreak * 60;
+  return settings.longBreak * 60;
+}
+
+function initTimer(mode) {
+  timer.mode = mode;
+  timer.secondsLeft = modeSeconds(mode);
+  timer.totalSeconds = timer.secondsLeft;
+  timer.running = false;
+  timer.endTime = null;
+  clearInterval(timer.interval);
+  renderTimer();
+}
+
+function toggleTimer() {
+  if(timer.running) {
+    pauseTimer();
+  } else {
+    startTimer();
+  }
+}
+
+function startTimer() {
+  timer.running = true;
+  timer.endTime = Date.now() + timer.secondsLeft * 1000;
+  clearInterval(timer.interval);
+  timer.interval = setInterval(tick, 250);
+  renderTimer();
+}
+
+function pauseTimer() {
+  timer.running = false;
+  clearInterval(timer.interval);
+  renderTimer();
+}
+
+function tick() {
+  if(!timer.running) return;
+  const remaining = Math.max(0, Math.round((timer.endTime - Date.now()) / 1000));
+  timer.secondsLeft = remaining;
+  renderTimer();
+  if(remaining <= 0) {
+    clearInterval(timer.interval);
+    timer.running = false;
+    onSessionEnd();
+  }
+}
+
+function onSessionEnd() {
+  playBeep();
+  if(timer.mode === 'focus') {
+    timer.sessionsDone++;
+    logSession();
+    const isLong = timer.sessionsDone % settings.sessionsBeforeLong === 0;
+    initTimer(isLong ? 'long' : 'short');
+  } else {
+    initTimer('focus');
+  }
+  renderTimer();
+  renderStats();
+}
+
+function skipSession() {
+  clearInterval(timer.interval);
+  timer.running = false;
+  if(timer.mode === 'focus') {
+    const isLong = (timer.sessionsDone + 1) % settings.sessionsBeforeLong === 0;
+    initTimer(isLong ? 'long' : 'short');
+  } else {
+    initTimer('focus');
+  }
+}
+
+function resetTimer() {
+  clearInterval(timer.interval);
+  timer.running = false;
+  timer.sessionsDone = 0;
+  initTimer('focus');
+}
+
+function logSession() {
+  const today = todayStr();
+  if(!state.sessionLog[today]) state.sessionLog[today] = 0;
+  state.sessionLog[today]++;
+  updateStreaks();
+  saveState();
+}
+
+function updateStreaks() {
+  const today = todayStr();
+  if(state.lastStreakDate === today) return;
+
+  // daily streak
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate()-1);
+  const yStr = yesterday.toISOString().split('T')[0];
+  const todaySessions = state.sessionLog[today] || 0;
+  const qualifiesDay = todaySessions >= 2;
+
+  if(qualifiesDay) {
+    if(state.lastStreakDate === yStr || state.lastStreakDate === today) {
+      if(state.lastStreakDate !== today) state.dailyStreak++;
+    } else {
+      state.dailyStreak = 1;
+    }
+    state.lastStreakDate = today;
+  }
+
+  // weekly streak
+  const thisWeek = weekStr();
+  const weekSessions = Object.entries(state.sessionLog)
+    .filter(([d]) => d >= thisWeek)
+    .reduce((a,[,v])=>a+v,0);
+  if(weekSessions >= 2) {
+    state.weeklyStreak = state.weeklyStreak || 1;
+  }
+
+  saveState();
+}
+
+let beepPlaying = false;
+function playBeep() {
+  if(beepPlaying) return;
+  beepPlaying = true;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const lastEnd = 0.4 + 0.3;
+    [0, 0.2, 0.4].forEach(delay => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.value = timer.mode==='focus' ? 880 : 440;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime+delay);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+delay+0.3);
+      osc.start(ctx.currentTime+delay);
+      osc.stop(ctx.currentTime+delay+0.3);
+    });
+    setTimeout(() => { beepPlaying = false; }, (lastEnd) * 1000 + 100);
+  } catch(e){ beepPlaying = false; }
+}
+
+function renderTimer() {
+  const s = timer.secondsLeft;
+  const mins = Math.floor(s/60).toString().padStart(2,'0');
+  const secs = (s%60).toString().padStart(2,'0');
+  document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+
+  const modeColors = {focus: '#e11d48', short: '#10b981', long: '#3b82f6'};
+  const modeLabels = {focus: 'Focus', short: 'Short break', long: 'Long break'};
+  const modeClasses = {focus: 'focus', short: 'break', long: 'long'};
+  const color = modeColors[timer.mode];
+
+  const ring = document.getElementById('ring-fg');
+  const pct = timer.totalSeconds > 0 ? timer.secondsLeft / timer.totalSeconds : 1;
+  ring.style.strokeDasharray = CIRCUMFERENCE;
+  ring.style.strokeDashoffset = CIRCUMFERENCE * (1 - pct);
+  ring.style.stroke = color;
+
+  const typeLabel = document.getElementById('session-type-label');
+  typeLabel.textContent = modeLabels[timer.mode];
+  typeLabel.className = 'session-type ' + modeClasses[timer.mode];
+
+  const playBtn = document.getElementById('play-btn');
+  playBtn.textContent = timer.running ? '⏸' : '▶';
+  playBtn.className = 'ctrl-btn primary ' + (timer.mode==='focus' ? '' : timer.mode==='short' ? 'break-mode' : 'long-mode');
+
+  document.getElementById('timer-sub').textContent = timer.running
+    ? (timer.mode==='focus' ? 'Stay focused!' : 'Take a breather')
+    : 'Ready';
+
+  // session dots
+  const total = settings.sessionsBeforeLong;
+  const done = timer.sessionsDone % total;
+  document.getElementById('session-dots').innerHTML = Array.from({length:total},(_,i) =>
+    `<div class="session-dot ${i<done?'done':i===done&&timer.mode==='focus'?'current':''}"></div>`
+  ).join('');
+}
+
+function renderStats() {
+  const today = todayStr();
+  const todaySessions = state.sessionLog[today] || 0;
+  document.getElementById('stat-today').textContent = todaySessions;
+  document.getElementById('stat-daily-streak').textContent = state.dailyStreak || 0;
+  document.getElementById('stat-weekly-streak').textContent = state.weeklyStreak || 0;
+
+  const msgEl = document.getElementById('streak-msg');
+  const msg = streakMsg(state.dailyStreak);
+  if(msg && todaySessions >= 2) {
+    msgEl.textContent = msg;
+    msgEl.style.display = 'block';
+  } else {
+    msgEl.style.display = 'none';
+  }
+}
+
+function renderCalendar() {
+  document.getElementById('cal-month-label').textContent = MONTHS[calMonth] + ' ' + calYear;
+  const today = todayStr();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+
+  let html = DAYS.map(d=>`<div class="cal-header">${d}</div>`).join('');
+  for(let i=0;i<firstDay;i++) html += `<div class="cal-day empty"></div>`;
+  for(let d=1;d<=daysInMonth;d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const sessions = state.sessionLog[dateStr] || 0;
+    const isStreak = sessions >= 2;
+    const isToday = dateStr === today;
+    let cls = 'cal-day' + (isStreak?' streak-day':'') + (isToday?' today':'');
+    const numInner = isToday ? `<span class="day-num">${d}</span>` : `<span>${d}</span>`;
+    const sessLabel = sessions > 0 ? `<div class="cal-sessions">${sessions} 🍅</div>` : '';
+    html += `<div class="${cls}">${numInner}${sessLabel}</div>`;
+  }
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function calChangeMonth(delta) {
+  calMonth += delta;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCalendar();
+}
+
+function renderSettingsForm() {
+  document.getElementById('set-focus').value = settings.focus;
+  document.getElementById('set-short').value = settings.shortBreak;
+  document.getElementById('set-long').value = settings.longBreak;
+  document.getElementById('set-sessions').value = settings.sessionsBeforeLong;
+}
+
+function resetAllData() {
+  if(!confirm('Reset all data? This cannot be undone.')) return;
+  localStorage.removeItem('focusflow_state');
+  localStorage.removeItem('focusflow_settings');
+  state = {sessionLog:{},dailyStreak:0,weeklyStreak:0,lastStreakDate:''};
+  settings = {focus:25,shortBreak:5,longBreak:20,sessionsBeforeLong:4};
+  resetTimer();
+  renderStats(); renderCalendar(); renderSettingsForm();
+}
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  event.target.classList.add('active');
+  if(v==='calendar') renderCalendar();
+  if(v==='settings') renderSettingsForm();
+  if(v==='timer') { renderTimer(); renderStats(); }
+}
+
+loadState();
+initTimer('focus');
+renderStats();
+</script>
+</body>
+</html>

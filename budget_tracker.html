@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BudgetFlow</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f8f9fa; --card: #ffffff; --border: #e5e7eb;
+  --text: #111827; --muted: #6b7280;
+  --blue: #3b82f6; --blue-light: #eff6ff; --blue-dark: #1d4ed8;
+  --green: #10b981; --green-light: #ecfdf5;
+  --red: #ef4444; --red-light: #fef2f2;
+  --gold: #f59e0b; --gold-light: #fffbeb;
+  --radius: 10px;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--blue-dark); color: white; padding: 0.875rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 700; }
+.nav-tabs { display: flex; gap: 0.25rem; background: rgba(255,255,255,0.15); border-radius: 8px; padding: 3px; }
+.nav-tab { padding: 0.3rem 0.75rem; border-radius: 6px; font-size: 0.78rem; font-weight: 500; cursor: pointer; border: none; background: transparent; color: rgba(255,255,255,0.75); transition: all 0.15s; }
+.nav-tab.active { background: white; color: var(--blue-dark); }
+
+.view { display: none; padding: 1rem; max-width: 700px; margin: 0 auto; }
+.view.active { display: block; }
+
+/* PERIOD SELECTOR */
+.period-bar { display: flex; gap: 0.35rem; margin-bottom: 1rem; align-items: center; }
+.period-btn { padding: 0.3rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: 1px solid var(--border); background: var(--card); color: var(--muted); transition: all 0.15s; }
+.period-btn.active { background: var(--blue-dark); color: white; border-color: var(--blue-dark); }
+.period-nav { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.period-nav button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.25rem 0.5rem; cursor: pointer; font-size: 0.8rem; color: var(--muted); }
+.period-nav span { font-size: 0.82rem; font-weight: 600; min-width: 110px; text-align: center; }
+
+/* SUMMARY CARDS */
+.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-bottom: 1rem; }
+.sum-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1rem; }
+.sum-card .sc-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+.sum-card .sc-val { font-size: 1.2rem; font-weight: 700; }
+.sum-card .sc-val.red { color: var(--red); }
+.sum-card .sc-val.green { color: var(--green); }
+
+/* CATEGORY LIST */
+.cat-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+.cat-row { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1rem; }
+.cat-row-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; }
+.cat-name { font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }
+.cat-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.cat-amount { font-size: 0.875rem; font-weight: 700; }
+.cat-goal-text { font-size: 0.72rem; color: var(--muted); }
+.progress-bar { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; margin-top: 0.3rem; }
+.progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+.progress-fill.over { background: var(--red); }
+
+/* EXPENSE LIST */
+.expense-list { display: flex; flex-direction: column; gap: 0.35rem; }
+.expense-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.6rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+.exp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.exp-info { flex: 1; }
+.exp-name { font-size: 0.85rem; font-weight: 500; }
+.exp-meta { font-size: 0.72rem; color: var(--muted); }
+.exp-amount { font-size: 0.9rem; font-weight: 700; color: var(--text); }
+.exp-delete { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0.1rem 0.3rem; border-radius: 4px; }
+.exp-delete:hover { color: var(--red); background: var(--red-light); }
+
+/* ADD EXPENSE */
+.add-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-bottom: 1rem; }
+.add-card h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+.form-field label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.2rem; }
+.form-field input, .form-field select, .form-field textarea { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.5rem; font-size: 0.85rem; outline: none; font-family: inherit; }
+.form-field input:focus, .form-field select:focus { border-color: var(--blue); }
+.form-field.full { grid-column: 1 / -1; }
+.btn-primary { background: var(--blue-dark); color: white; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.btn-primary:hover { background: var(--blue); }
+.btn-secondary { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.875rem; cursor: pointer; color: var(--muted); }
+
+/* CHARTS */
+.charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+.chart-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+.chart-card h4 { font-size: 0.78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+
+/* GOALS */
+.goals-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.goal-row { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.75rem 1rem; display: flex; align-items: center; gap: 0.75rem; }
+.goal-row .cat-name { flex: 1; }
+.goal-input { width: 90px; border: 1px solid var(--border); border-radius: 6px; padding: 0.3rem 0.5rem; font-size: 0.85rem; text-align: right; }
+.goal-input:focus { outline: none; border-color: var(--blue); }
+.btn-save-goal { background: var(--green-light); color: var(--green); border: 1px solid var(--green); border-radius: 6px; padding: 0.3rem 0.6rem; font-size: 0.78rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+
+/* CUSTOM CATS */
+.section-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; margin-top: 1rem; }
+.section-label:first-child { margin-top: 0; }
+.add-cat-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; }
+.add-cat-row input { flex: 1; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem 0.6rem; font-size: 0.85rem; outline: none; }
+.add-cat-row input:focus { border-color: var(--blue); }
+
+.empty-state { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.875rem; }
+
+@media (max-width: 480px) {
+  .summary-row { grid-template-columns: 1fr 1fr; }
+  .charts-row { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>💰 BudgetFlow</h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showView('overview')">Overview</button>
+    <button class="nav-tab" onclick="showView('expenses')">Expenses</button>
+    <button class="nav-tab" onclick="showView('charts')">Charts</button>
+    <button class="nav-tab" onclick="showView('goals')">Goals</button>
+    <button class="nav-tab" onclick="showView('settings')">Settings</button>
+  </div>
+</header>
+
+<!-- OVERVIEW -->
+<div class="view active" id="view-overview">
+  <div class="period-bar">
+    <button class="period-btn active" onclick="setPeriod('monthly',this)">Month</button>
+    <button class="period-btn" onclick="setPeriod('weekly',this)">Week</button>
+    <button class="period-btn" onclick="setPeriod('daily',this)">Day</button>
+    <div class="period-nav">
+      <button onclick="shiftPeriod(-1)">←</button>
+      <span id="period-label"></span>
+      <button onclick="shiftPeriod(1)">→</button>
+    </div>
+  </div>
+  <div class="summary-row" id="overview-summary"></div>
+  <div class="cat-list" id="overview-cats"></div>
+</div>
+
+<!-- EXPENSES -->
+<div class="view" id="view-expenses">
+  <div class="add-card">
+    <h3>Add expense</h3>
+    <div class="form-grid">
+      <div class="form-field">
+        <label>Amount ($) *</label>
+        <input type="number" id="exp-amount" placeholder="0.00" step="0.01" min="0">
+      </div>
+      <div class="form-field">
+        <label>Date *</label>
+        <input type="date" id="exp-date">
+      </div>
+      <div class="form-field">
+        <label>Category</label>
+        <select id="exp-cat"></select>
+      </div>
+      <div class="form-field">
+        <label>Payment method</label>
+        <select id="exp-payment">
+          <option value="">— optional —</option>
+          <option>Cash</option>
+          <option>Debit card</option>
+          <option>Credit card</option>
+          <option>Bank transfer</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-field full">
+        <label>Note</label>
+        <input type="text" id="exp-note" placeholder="Optional note...">
+      </div>
+    </div>
+    <button class="btn-primary" onclick="addExpense()">Add expense</button>
+  </div>
+
+  <div class="period-bar">
+    <button class="period-btn active" onclick="setPeriod('monthly',this)">Month</button>
+    <button class="period-btn" onclick="setPeriod('weekly',this)">Week</button>
+    <button class="period-btn" onclick="setPeriod('daily',this)">Day</button>
+    <div class="period-nav">
+      <button onclick="shiftPeriod(-1)">←</button>
+      <span id="period-label-2"></span>
+      <button onclick="shiftPeriod(1)">→</button>
+    </div>
+  </div>
+  <div class="expense-list" id="expense-list"></div>
+</div>
+
+<!-- CHARTS -->
+<div class="view" id="view-charts">
+  <div class="period-bar">
+    <button class="period-btn active" onclick="setPeriod('monthly',this)">Month</button>
+    <button class="period-btn" onclick="setPeriod('weekly',this)">Week</button>
+    <button class="period-btn" onclick="setPeriod('daily',this)">Day</button>
+    <div class="period-nav">
+      <button onclick="shiftPeriod(-1)">←</button>
+      <span id="period-label-3"></span>
+      <button onclick="shiftPeriod(1)">→</button>
+    </div>
+  </div>
+  <div class="charts-row">
+    <div class="chart-card"><h4>Spending by category</h4><canvas id="pie-chart"></canvas></div>
+    <div class="chart-card"><h4>Amount per category</h4><canvas id="bar-chart"></canvas></div>
+  </div>
+</div>
+
+<!-- GOALS -->
+<div class="view" id="view-goals">
+  <div class="section-label">Monthly budget goals</div>
+  <div class="goals-list" id="goals-list"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="view" id="view-settings">
+  <div class="section-label">Custom categories</div>
+  <div class="add-cat-row">
+    <input type="text" id="new-cat-input" placeholder="New category name...">
+    <button class="btn-primary" onclick="addCustomCategory()">Add</button>
+  </div>
+  <div class="goals-list" id="custom-cat-list"></div>
+  <div class="section-label" style="margin-top:1.5rem">Danger zone</div>
+  <button onclick="clearAllData()" style="background:var(--red-light);color:var(--red);border:1px solid var(--red);border-radius:8px;padding:0.5rem 1rem;font-size:0.85rem;cursor:pointer;font-weight:600">Clear all data</button>
+</div>
+
+<script>
+const DEFAULT_CATS = [
+  {name:'Rent / Mortgage', color:'#3b82f6'},
+  {name:'Groceries', color:'#10b981'},
+  {name:'Dining out', color:'#f59e0b'},
+  {name:'Transportation', color:'#8b5cf6'},
+  {name:'Utilities', color:'#06b6d4'},
+  {name:'Entertainment', color:'#ec4899'},
+  {name:'Healthcare', color:'#ef4444'},
+  {name:'Shopping', color:'#f97316'},
+  {name:'Subscriptions', color:'#6366f1'},
+  {name:'Other', color:'#6b7280'},
+];
+const PAYMENT_METHODS = ['Cash','Debit card','Credit card','Bank transfer','Other'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+let state = {
+  expenses: [],
+  customCats: [],
+  goals: {},
+  period: 'monthly',
+  periodOffset: 0,
+};
+let pieChart = null, barChart = null;
+
+function loadState() {
+  try { const s = localStorage.getItem('budgetflow'); if(s) state={...state,...JSON.parse(s)}; } catch(e){}
+}
+function saveState() { localStorage.setItem('budgetflow', JSON.stringify(state)); }
+
+function allCategories() {
+  return [...DEFAULT_CATS, ...state.customCats];
+}
+
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+function getPeriodRange() {
+  const now = new Date();
+  const off = state.periodOffset;
+  if(state.period === 'monthly') {
+    const y = now.getFullYear(), m = now.getMonth() + off;
+    const d = new Date(y, m, 1);
+    const start = new Date(d.getFullYear(), d.getMonth(), 1);
+    const end = new Date(d.getFullYear(), d.getMonth()+1, 0);
+    return {start, end, label: MONTHS[start.getMonth()] + ' ' + start.getFullYear()};
+  } else if(state.period === 'weekly') {
+    const base = new Date(now);
+    base.setDate(now.getDate() + off*7);
+    const day = base.getDay();
+    const start = new Date(base); start.setDate(base.getDate()-day);
+    const end = new Date(start); end.setDate(start.getDate()+6);
+    return {start, end, label: fmtDate(start) + ' – ' + fmtDate(end)};
+  } else {
+    const base = new Date(now); base.setDate(now.getDate()+off);
+    return {start: base, end: base, label: fmtDate(base)};
+  }
+}
+
+function fmtDate(d) { return MONTHS[d.getMonth()] + ' ' + d.getDate(); }
+function fmtMoney(n) { return '$' + n.toFixed(2); }
+
+function inRange(exp, range) {
+  const d = new Date(exp.date + 'T12:00:00');
+  return d >= range.start && d <= range.end;
+}
+
+function getFilteredExpenses() {
+  const range = getPeriodRange();
+  return state.expenses.filter(e => inRange(e, range));
+}
+
+function setPeriod(p, btn) {
+  state.period = p;
+  state.periodOffset = 0;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.period-btn').forEach(b => { if(b.textContent.toLowerCase().startsWith(p[0])) b.classList.add('active'); });
+  renderAll();
+}
+
+function shiftPeriod(delta) {
+  state.periodOffset += delta;
+  renderAll();
+}
+
+function updatePeriodLabels() {
+  const label = getPeriodRange().label;
+  ['period-label','period-label-2','period-label-3'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = label;
+  });
+}
+
+function catColor(catName) {
+  const cat = allCategories().find(c => c.name === catName);
+  return cat ? cat.color : '#6b7280';
+}
+
+function renderOverview() {
+  const exps = getFilteredExpenses();
+  const total = exps.reduce((a,e)=>a+e.amount,0);
+  const count = exps.length;
+  const catTotals = {};
+  exps.forEach(e => {
+    const c = e.category || 'Uncategorized';
+    catTotals[c] = (catTotals[c]||0) + e.amount;
+  });
+  const goalTotal = Object.values(state.goals).reduce((a,v)=>a+(v||0),0);
+  const remaining = goalTotal - total;
+
+  document.getElementById('overview-summary').innerHTML = `
+    <div class="sum-card"><div class="sc-label">Total spent</div><div class="sc-val red">${fmtMoney(total)}</div></div>
+    <div class="sum-card"><div class="sc-label">Transactions</div><div class="sc-val">${count}</div></div>
+    <div class="sum-card"><div class="sc-label">${remaining>=0?'Budget left':'Over budget'}</div><div class="sc-val ${remaining>=0?'green':'red'}">${fmtMoney(Math.abs(remaining))}</div></div>
+  `;
+
+  const cats = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  if(cats.length===0) {
+    document.getElementById('overview-cats').innerHTML = '<div class="empty-state">No expenses this period.</div>';
+    return;
+  }
+  document.getElementById('overview-cats').innerHTML = cats.map(([name, amt]) => {
+    const goal = state.goals[name];
+    const color = catColor(name);
+    const pct = goal ? Math.min((amt/goal)*100,100) : 0;
+    const over = goal && amt > goal;
+    return `<div class="cat-row">
+      <div class="cat-row-top">
+        <div class="cat-name"><div class="cat-dot" style="background:${color}"></div>${name}</div>
+        <div>
+          <div class="cat-amount">${fmtMoney(amt)}</div>
+          ${goal ? `<div class="cat-goal-text">${fmtMoney(amt)} / ${fmtMoney(goal)}</div>` : ''}
+        </div>
+      </div>
+      ${goal ? `<div class="progress-bar"><div class="progress-fill ${over?'over':''}" style="width:${pct}%;background:${over?'':color}"></div></div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderExpenses() {
+  const catOptions = `<option value="">— no category —</option>` + allCategories().map(c=>`<option>${c.name}</option>`).join('');
+  document.getElementById('exp-cat').innerHTML = catOptions;
+  const exps = getFilteredExpenses().slice().sort((a,b)=>b.date.localeCompare(a.date));
+  if(exps.length===0) {
+    document.getElementById('expense-list').innerHTML = '<div class="empty-state">No expenses this period.</div>';
+    return;
+  }
+  document.getElementById('expense-list').innerHTML = exps.map(e => {
+    const color = catColor(e.category);
+    const meta = [e.category, e.payment, e.note].filter(Boolean).join(' · ');
+    return `<div class="expense-item">
+      <div class="exp-dot" style="background:${color}"></div>
+      <div class="exp-info">
+        <div class="exp-name">${e.note || e.category || 'Expense'}</div>
+        <div class="exp-meta">${e.date}${meta ? ' · ' + meta : ''}</div>
+      </div>
+      <div class="exp-amount">${fmtMoney(e.amount)}</div>
+      <button class="exp-delete" onclick="deleteExpense('${e.id}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+function addExpense() {
+  const amount = parseFloat(document.getElementById('exp-amount').value);
+  const date = document.getElementById('exp-date').value;
+  if(!amount || amount<=0) { alert('Please enter a valid amount.'); return; }
+  if(!date) { alert('Please enter a date.'); return; }
+  const expense = {
+    id: Date.now().toString(),
+    amount,
+    date,
+    category: document.getElementById('exp-cat').value || '',
+    payment: document.getElementById('exp-payment').value || '',
+    note: document.getElementById('exp-note').value.trim() || '',
+  };
+  state.expenses.push(expense);
+  saveState();
+  document.getElementById('exp-amount').value = '';
+  document.getElementById('exp-note').value = '';
+  renderAll();
+}
+
+function deleteExpense(id) {
+  state.expenses = state.expenses.filter(e=>e.id!==id);
+  saveState(); renderAll();
+}
+
+function renderCharts() {
+  const exps = getFilteredExpenses();
+  const catTotals = {};
+  exps.forEach(e => {
+    const c = e.category || 'Uncategorized';
+    catTotals[c] = (catTotals[c]||0) + e.amount;
+  });
+  const labels = Object.keys(catTotals);
+  const data = labels.map(l=>catTotals[l]);
+  const colors = labels.map(l=>catColor(l));
+
+  if(pieChart) pieChart.destroy();
+  if(barChart) barChart.destroy();
+
+  if(labels.length===0) return;
+
+  pieChart = new Chart(document.getElementById('pie-chart'), {
+    type: 'pie',
+    data: { labels, datasets: [{ data, backgroundColor: colors }] },
+    options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 12 } } } }
+  });
+
+  barChart = new Chart(document.getElementById('bar-chart'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderRadius: 4 }] },
+    options: {
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => '$'+v } }, x: { ticks: { font: { size: 10 } } } }
+    }
+  });
+}
+
+function renderGoals() {
+  const cats = allCategories();
+  document.getElementById('goals-list').innerHTML = cats.map(c => {
+    const goal = state.goals[c.name] || '';
+    return `<div class="goal-row">
+      <div class="cat-name"><div class="cat-dot" style="background:${c.color}"></div>${c.name}</div>
+      <input type="number" class="goal-input" placeholder="No goal" value="${goal}" id="goal-${c.name.replace(/\W/g,'_')}" min="0" step="1">
+      <button class="btn-save-goal" onclick="saveGoal('${c.name}')">Save</button>
+    </div>`;
+  }).join('');
+}
+
+function saveGoal(catName) {
+  const id = 'goal-' + catName.replace(/\W/g,'_');
+  const val = parseFloat(document.getElementById(id).value);
+  if(val > 0) state.goals[catName] = val;
+  else delete state.goals[catName];
+  saveState(); renderOverview();
+}
+
+function renderSettings() {
+  const custom = state.customCats;
+  document.getElementById('custom-cat-list').innerHTML = custom.length
+    ? custom.map((c,i) => `<div class="goal-row">
+        <div class="cat-name"><div class="cat-dot" style="background:${c.color}"></div>${c.name}</div>
+        <button class="exp-delete" onclick="removeCustomCat(${i})" style="margin-left:auto">×</button>
+      </div>`).join('')
+    : '<div style="font-size:0.85rem;color:var(--muted)">No custom categories yet.</div>';
+}
+
+function addCustomCategory() {
+  const name = document.getElementById('new-cat-input').value.trim();
+  if(!name) return;
+  if(allCategories().find(c=>c.name.toLowerCase()===name.toLowerCase())) { alert('Category already exists.'); return; }
+  const colors = ['#14b8a6','#a855f7','#fb923c','#e11d48','#84cc16','#0ea5e9'];
+  const color = colors[state.customCats.length % colors.length];
+  state.customCats.push({name, color});
+  document.getElementById('new-cat-input').value = '';
+  saveState(); renderSettings(); renderGoals();
+}
+
+function removeCustomCat(i) {
+  state.customCats.splice(i,1);
+  saveState(); renderSettings(); renderGoals();
+}
+
+function clearAllData() {
+  if(!confirm('Clear all expenses and settings? This cannot be undone.')) return;
+  localStorage.removeItem('budgetflow');
+  state = {expenses:[],customCats:[],goals:{},period:'monthly',periodOffset:0};
+  saveState(); renderAll();
+}
+
+function renderAll() {
+  updatePeriodLabels();
+  renderOverview();
+  renderExpenses();
+  renderCharts();
+  renderGoals();
+  renderSettings();
+}
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  event.target.classList.add('active');
+  renderAll();
+}
+
+// set default date to today
+document.getElementById('exp-date').value = todayStr();
+loadState();
+renderAll();
+</script>
+</body>
+</html>

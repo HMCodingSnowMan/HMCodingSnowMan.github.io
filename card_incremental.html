@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Incremental</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #1a1a2e; --surface: #16213e; --card-bg: #0f3460;
+  --add-bg: #1a472a; --add-border: #2ecc71; --add-text: #a8f0c6;
+  --mul-bg: #4a1a6b; --mul-border: #a855f7; --mul-text: #d8b4fe;
+  --gold: #f59e0b; --gold-light: #fef3c7; --gold-dark: #92400e;
+  --text: #e2e8f0; --muted: #94a3b8; --border: #334155;
+  --red: #ef4444; --red-light: #fee2e2;
+  --btn: #334155; --btn-hover: #475569;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 700; color: var(--gold); }
+.score-display { text-align: right; }
+.score-display .score-val { font-size: 1.4rem; font-weight: 700; color: var(--gold); line-height: 1; }
+.score-display .score-label { font-size: 0.7rem; color: var(--muted); }
+
+.main { display: grid; grid-template-columns: 1fr 220px; gap: 0; flex: 1; max-height: calc(100vh - 56px); overflow: hidden; }
+
+/* GAME AREA */
+.game-area { padding: 1rem; display: flex; flex-direction: column; gap: 0.75rem; overflow-y: auto; }
+
+.piles-row { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+.pile { display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+.pile-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+.pile-stack { width: 60px; height: 84px; border-radius: 8px; border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.75rem; color: var(--muted); position: relative; cursor: pointer; transition: border-color 0.15s; }
+.pile-stack.has-cards { border-style: solid; border-color: var(--btn); background: var(--surface); }
+.pile-stack.deck-pile { cursor: pointer; }
+.pile-stack.deck-pile:hover { border-color: var(--gold); }
+.pile-stack.deck-pile.clickable { border-color: var(--gold); box-shadow: 0 0 12px rgba(245,158,11,0.3); }
+.pile-count { position: absolute; top: -8px; right: -8px; background: var(--gold); color: var(--gold-dark); font-size: 0.65rem; font-weight: 700; border-radius: 10px; padding: 0.1rem 0.35rem; min-width: 18px; text-align: center; }
+.draw-hint { font-size: 0.65rem; color: var(--gold); text-align: center; }
+
+/* TABLE */
+.table-area { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); padding: 0.75rem; }
+.table-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+.field-size-info { font-size: 0.7rem; color: var(--muted); }
+.table-cards { display: flex; gap: 0.5rem; min-height: 100px; align-items: center; flex-wrap: wrap; }
+.table-empty { color: var(--muted); font-size: 0.8rem; font-style: italic; }
+
+/* CARD */
+.card { width: 68px; height: 96px; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 700; border: 2px solid; position: relative; flex-shrink: 0; transition: transform 0.15s; }
+.card.add-card { background: var(--add-bg); border-color: var(--add-border); color: var(--add-text); }
+.card.mul-card { background: var(--mul-bg); border-color: var(--mul-border); color: var(--mul-text); }
+.card .card-op { font-size: 0.65rem; opacity: 0.7; margin-bottom: 0.15rem; }
+.card .card-val { font-size: 1.4rem; line-height: 1; }
+.card.newest { transform: translateY(-4px); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+.card.removable { cursor: pointer; }
+.card.removable:hover { transform: translateY(-6px) scale(1.05); box-shadow: 0 6px 20px rgba(239,68,68,0.4); border-color: var(--red); }
+.card.selected-remove { border-color: var(--red); box-shadow: 0 0 0 2px var(--red); transform: translateY(-4px); }
+
+/* RESULT FLASH */
+.result-flash { text-align: center; padding: 0.5rem; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); }
+.result-flash .rf-eq { font-size: 0.8rem; color: var(--muted); }
+.result-flash .rf-val { font-size: 1.6rem; font-weight: 700; color: var(--gold); line-height: 1.2; }
+.result-flash .rf-val.big { font-size: 2rem; color: #a855f7; }
+
+/* REMOVE MODAL */
+.remove-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+.remove-overlay.open { display: flex; }
+.remove-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; width: 100%; max-width: 480px; }
+.remove-modal h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
+.remove-modal p { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+.remove-cards-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+.remove-confirm { background: var(--red); color: white; border: none; border-radius: 8px; padding: 0.55rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.remove-confirm:disabled { opacity: 0.4; cursor: default; }
+.error-msg { font-size: 0.8rem; color: var(--red); margin-top: 0.5rem; }
+
+/* SIDEBAR / STORE */
+.sidebar { background: var(--surface); border-left: 1px solid var(--border); padding: 0.75rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
+.sidebar h2 { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.store-item { background: var(--btn); border-radius: 10px; padding: 0.6rem 0.75rem; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+.store-item:hover { border-color: var(--gold); background: var(--btn-hover); }
+.store-item.disabled { opacity: 0.4; cursor: default; pointer-events: none; }
+.store-item .si-name { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.15rem; }
+.store-item .si-desc { font-size: 0.7rem; color: var(--muted); }
+.store-item .si-price { font-size: 0.75rem; font-weight: 700; color: var(--gold); margin-top: 0.3rem; }
+.sidebar-divider { height: 1px; background: var(--border); margin: 0.25rem 0; }
+.deck-info { font-size: 0.7rem; color: var(--muted); text-align: center; padding: 0.25rem 0; }
+
+@media (max-width: 540px) {
+  .main { grid-template-columns: 1fr; grid-template-rows: 1fr auto; max-height: none; overflow: visible; }
+  .sidebar { border-left: none; border-top: 1px solid var(--border); max-height: 280px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🃏 Card Incremental</h1>
+  <div class="score-display">
+    <div class="score-val" id="score-display">0</div>
+    <div class="score-label">total points</div>
+  </div>
+</header>
+
+<div class="main">
+  <!-- GAME AREA -->
+  <div class="game-area">
+
+    <div class="piles-row">
+      <div class="pile">
+        <div class="pile-label">Deck</div>
+        <div class="pile-stack deck-pile has-cards clickable" id="deck-pile" onclick="drawCard()">
+          <div class="pile-count" id="deck-count">10</div>
+          🂠
+        </div>
+        <div class="draw-hint" id="draw-hint">Click to draw</div>
+      </div>
+
+      <div style="flex:1; text-align:center; font-size:0.75rem; color:var(--muted)">
+        <div id="turn-info" style="margin-bottom:0.25rem"></div>
+        <div style="font-size:0.65rem" id="field-info"></div>
+      </div>
+
+      <div class="pile">
+        <div class="pile-label">Discard</div>
+        <div class="pile-stack" id="discard-pile">
+          <div class="pile-count" id="discard-count" style="display:none">0</div>
+          <span id="discard-top"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-area">
+      <div class="table-label">
+        <span>Table</span>
+        <span class="field-size-info" id="field-size-label">Field: 2 cards</span>
+      </div>
+      <div class="table-cards" id="table-cards">
+        <span class="table-empty">Draw a card to begin</span>
+      </div>
+    </div>
+
+    <div class="result-flash" id="result-flash">
+      <div class="rf-eq" id="rf-eq">—</div>
+      <div class="rf-val" id="rf-val">0</div>
+    </div>
+
+  </div>
+
+  <!-- SIDEBAR STORE -->
+  <div class="sidebar">
+    <h2>Store</h2>
+    <div class="deck-info" id="deck-size-info">Deck: 10 cards</div>
+
+    <div class="store-item" id="si-small" onclick="buyCard('small')">
+      <div class="si-name">➕ Small add</div>
+      <div class="si-desc">+1 to +5 (random)</div>
+      <div class="si-price" id="sp-small">100 pts</div>
+    </div>
+
+    <div class="store-item" id="si-medium" onclick="buyCard('medium')">
+      <div class="si-name">➕ Medium add</div>
+      <div class="si-desc">+6 to +10 (random)</div>
+      <div class="si-price" id="sp-medium">300 pts</div>
+    </div>
+
+    <div class="store-item" id="si-large" onclick="buyCard('large')">
+      <div class="si-name">➕ Large add</div>
+      <div class="si-desc">+11 to +20 (random)</div>
+      <div class="si-price" id="sp-large">700 pts</div>
+    </div>
+
+    <div class="store-item" id="si-mul" onclick="buyCard('mul')">
+      <div class="si-name">✖️ Multiplier</div>
+      <div class="si-desc">×2 to ×5 (random)</div>
+      <div class="si-price" id="sp-mul">1500 pts</div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="store-item" id="si-field" onclick="buyFieldUpgrade()">
+      <div class="si-name">🔲 Field upgrade</div>
+      <div class="si-desc" id="field-upgrade-desc">Expand table to 3 cards</div>
+      <div class="si-price" id="sp-field">500 pts</div>
+    </div>
+
+    <div class="store-item" id="si-remove" onclick="buyRemoval()">
+      <div class="si-name">🗑️ Card removal</div>
+      <div class="si-desc">Remove any card from deck</div>
+      <div class="si-price" id="sp-remove">200 pts</div>
+    </div>
+  </div>
+</div>
+
+<!-- REMOVE MODAL -->
+<div class="remove-overlay" id="remove-overlay">
+  <div class="remove-modal">
+    <h3 id="remove-title">Remove 2 cards</h3>
+    <p id="remove-desc">Your deck has reached a multiple of 5. Choose 2 cards to remove.</p>
+    <div class="remove-cards-grid" id="remove-cards-grid"></div>
+    <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap">
+      <button class="remove-confirm" id="remove-confirm-btn" onclick="confirmRemoval()" disabled>Remove selected</button>
+      <span id="remove-selected-count" style="font-size:0.8rem;color:var(--muted)">0 selected</span>
+    </div>
+    <div class="error-msg" id="remove-error"></div>
+  </div>
+</div>
+
+<script>
+const STORE_PRICES = {small:100, medium:300, large:700, mul:1500};
+const FIELD_PRICE = 500;
+const FIELD_MAX = 5;
+
+function randInt(a,b) { return Math.floor(Math.random()*(b-a+1))+a; }
+
+function makeCard(type, value) {
+  return {type, value};
+}
+
+function startingDeck() {
+  const d = [];
+  for(let i=1;i<=5;i++) d.push(makeCard('add',i));
+  d.push(makeCard('mul',2)); d.push(makeCard('mul',3));
+  d.push(makeCard('add',8)); d.push(makeCard('add',9)); d.push(makeCard('add',10));
+  return shuffle(d);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--) { const j=randInt(0,i); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+let state = {
+  score: 0,
+  deck: [],
+  discard: [],
+  table: [],
+  fieldSize: 2,
+  removalCost: 200,
+  lastEquation: '',
+  lastResult: 0,
+  totalDeckSize: 10,
+  nextTrimAt: 15,
+  storePrices: {small:100, medium:300, large:500, mul:500},
+};
+
+function loadState() {
+  try { const s = localStorage.getItem('cardincremental'); if(s) state={...state,...JSON.parse(s)}; } catch(e){}
+  if(!state.deck || state.deck.length===0) { state.deck=startingDeck(); state.discard=[]; state.table=[]; }
+}
+function saveState() { localStorage.setItem('cardincremental',JSON.stringify(state)); }
+
+function cardLabel(c) {
+  return c.type==='add' ? `+${c.value}` : `×${c.value}`;
+}
+
+function cardHTML(c, idx, removable, selected) {
+  const cls = c.type==='add' ? 'add-card' : 'mul-card';
+  const op = c.type==='add' ? 'ADD' : 'MULTIPLY';
+  const extraCls = removable ? 'removable' : '';
+  const selCls = selected ? 'selected-remove' : '';
+  const onclick = removable ? `onclick="toggleRemoveSelect(${idx})"` : '';
+  return `<div class="card ${cls} ${extraCls} ${selCls}" ${onclick}>
+    <div class="card-op">${op}</div>
+    <div class="card-val">${cardLabel(c)}</div>
+  </div>`;
+}
+
+function drawCard() {
+  if(removeMode) return;
+  if(state.deck.length===0) {
+    state.deck = shuffle([...state.discard]);
+    state.discard = [];
+  }
+  if(state.deck.length===0) return;
+
+  const drawn = state.deck.shift();
+
+  // bump oldest off table to discard if table is full
+  if(state.table.length >= state.fieldSize) {
+    state.discard.push(state.table.shift());
+  }
+  state.table.push(drawn);
+
+  // compute result if we have 2+ cards
+  let earned = 0;
+  let eq = '';
+  if(state.table.length >= 2) {
+    const others = state.table.slice(0,-1);
+    const sumOthers = others.reduce((a,c)=>a+c.value,0);
+    if(drawn.type==='add') {
+      earned = sumOthers + drawn.value;
+      eq = `${others.map(c=>c.value).join(' + ')} + ${drawn.value} = ${earned}`;
+    } else {
+      earned = sumOthers * drawn.value;
+      eq = `${others.map(c=>c.value).join(' + ')} × ${drawn.value} = ${earned}`;
+    }
+    state.score += earned;
+    state.lastEquation = eq;
+    state.lastResult = earned;
+  } else {
+    state.lastEquation = `Drew ${cardLabel(drawn)}`;
+    state.lastResult = 0;
+  }
+
+  checkForcedRemoval();
+  saveState();
+  render();
+}
+
+let removeMode = false;
+let removeSelectedIndices = [];
+let removeRequired = 0;
+let removeSource = '';
+
+function checkForcedRemoval() {
+  if(!state.nextTrimAt) state.nextTrimAt = 15;
+  const total = state.deck.length + state.discard.length + state.table.length;
+  if(total >= state.nextTrimAt) {
+    state.nextTrimAt++;
+    removeRequired = 2;
+    removeSource = 'forced';
+    openRemoveModal();
+  }
+}
+
+function openRemoveModal(source) {
+  removeMode = true;
+  removeSelectedIndices = [];
+  removeSource = source || removeSource;
+  const needed = removeSource==='forced' ? 2 : 1;
+  removeRequired = needed;
+  document.getElementById('remove-title').textContent = removeSource==='forced'
+    ? 'Deck too large — remove 2 cards' : 'Choose a card to remove';
+  document.getElementById('remove-desc').textContent = removeSource==='forced'
+    ? `Your deck reached a milestone. Select ${needed} cards to remove (deck floor: 12 cards).`
+    : `Select 1 card to permanently remove from your deck (deck floor: 12 cards).`;
+  renderRemoveModal();
+  document.getElementById('remove-overlay').classList.add('open');
+}
+
+function renderRemoveModal() {
+  const needed = removeSource==='forced' ? 2 : 1;
+  const deckCards = state.deck;
+  const discardCards = state.discard;
+  const tableCards = state.table;
+
+  function sortedSection(cards, offset) {
+    return cards
+      .map((c, i) => ({c, globalIdx: offset + i}))
+      .sort((a, b) => {
+        if(a.c.type !== b.c.type) return a.c.type === 'mul' ? 1 : -1;
+        return a.c.value - b.c.value;
+      })
+      .map(({c, globalIdx}) => cardHTML(c, globalIdx, true, removeSelectedIndices.includes(globalIdx)))
+      .join('');
+  }
+
+  let html = '';
+  if(deckCards.length > 0) {
+    html += `<div style="width:100%;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.25rem">In deck (${deckCards.length})</div>`;
+    html += sortedSection(deckCards, 0);
+  }
+  if(discardCards.length > 0) {
+    html += `<div style="width:100%;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:0.5rem 0 0.25rem">In discard (${discardCards.length})</div>`;
+    html += sortedSection(discardCards, deckCards.length);
+  }
+  if(tableCards.length > 0) {
+    html += `<div style="width:100%;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:0.5rem 0 0.25rem">On table (${tableCards.length})</div>`;
+    html += sortedSection(tableCards, deckCards.length + discardCards.length);
+  }
+  document.getElementById('remove-cards-grid').innerHTML = html;
+  document.getElementById('remove-selected-count').textContent = `${removeSelectedIndices.length} / ${needed} selected`;
+  document.getElementById('remove-confirm-btn').disabled = removeSelectedIndices.length !== needed;
+  document.getElementById('remove-error').textContent = '';
+}
+
+function toggleRemoveSelect(idx) {
+  const needed = removeSource==='forced' ? 2 : 1;
+  if(removeSelectedIndices.includes(idx)) {
+    removeSelectedIndices = removeSelectedIndices.filter(i=>i!==idx);
+  } else {
+    if(removeSelectedIndices.length >= needed) removeSelectedIndices.shift();
+    removeSelectedIndices.push(idx);
+  }
+  renderRemoveModal();
+}
+
+function confirmRemoval() {
+  const needed = removeSource==='forced' ? 2 : 1;
+  const deckLen = state.deck.length;
+  const discardLen = state.discard.length;
+  const total = deckLen + discardLen + state.table.length;
+  if(total - needed < 12) {
+    document.getElementById('remove-error').textContent = `Can't remove — deck would fall below 12 cards.`;
+    return;
+  }
+  const allCards = [...state.deck, ...state.discard, ...state.table];
+  const toRemove = removeSelectedIndices.slice().sort((a,b)=>b-a);
+  toRemove.forEach(i => allCards.splice(i, 1));
+  const newDeckLen = Math.max(0, deckLen - removeSelectedIndices.filter(i => i < deckLen).length);
+  const newDiscardLen = Math.max(0, discardLen - removeSelectedIndices.filter(i => i >= deckLen && i < deckLen + discardLen).length);
+  state.deck = allCards.slice(0, newDeckLen);
+  state.discard = allCards.slice(newDeckLen, newDeckLen + newDiscardLen);
+  state.table = allCards.slice(newDeckLen + newDiscardLen);
+  if(removeSource === 'bought') {
+    state.score -= state.removalCost;
+    state.removalCost = Math.round(state.removalCost * 1.5);
+  }
+  removeMode = false;
+  removeSelectedIndices = [];
+  document.getElementById('remove-overlay').classList.remove('open');
+  saveState(); render();
+}
+
+function roundTo50(n) { return Math.round(n / 50) * 50; }
+
+function buyCard(tier) {
+  if(!state.storePrices) state.storePrices = {small:100, medium:300, large:500, mul:500};
+  const price = state.storePrices[tier];
+  if(state.score < price) return;
+  let card;
+  if(tier==='small') card = makeCard('add', randInt(1,5));
+  else if(tier==='medium') card = makeCard('add', randInt(6,10));
+  else if(tier==='large') card = makeCard('add', randInt(11,20));
+  else card = makeCard('mul', randInt(2,5));
+  state.score -= price;
+  if(tier==='mul') {
+    state.storePrices.mul += 500;
+  } else {
+    state.storePrices[tier] += roundTo50(state.storePrices[tier] * 0.25);
+  }
+  const insertAt = randInt(0, state.deck.length);
+  state.deck.splice(insertAt, 0, card);
+  checkForcedRemoval();
+  saveState(); render();
+}
+
+function buyFieldUpgrade() {
+  if(state.fieldSize >= FIELD_MAX) return;
+  const price = FIELD_PRICE * (state.fieldSize - 1);
+  if(state.score < price) return;
+  state.score -= price;
+  state.fieldSize++;
+  saveState(); render();
+}
+
+function buyRemoval() {
+  if(state.score < state.removalCost) return;
+  const total = state.deck.length + state.discard.length + state.table.length;
+  if(total - 1 < 12) { alert("Can't remove — deck is at the 12-card floor."); return; }
+  removeSource = 'bought';
+  removeRequired = 1;
+  openRemoveModal('bought');
+}
+
+function render() {
+  // score
+  document.getElementById('score-display').textContent = state.score.toLocaleString();
+
+  // deck / discard counts
+  const deckCount = state.deck.length;
+  const discardCount = state.discard.length;
+  const totalCards = deckCount + discardCount + state.table.length;
+  document.getElementById('deck-count').textContent = deckCount;
+  document.getElementById('discard-count').textContent = discardCount;
+  document.getElementById('discard-count').style.display = discardCount>0 ? '' : 'none';
+  document.getElementById('deck-size-info').textContent = `Deck total: ${totalCards} cards`;
+
+  const deckPile = document.getElementById('deck-pile');
+  deckPile.classList.toggle('clickable', deckCount > 0 || discardCount > 0);
+  document.getElementById('draw-hint').textContent = deckCount===0 && discardCount>0 ? 'Click to reshuffle' : 'Click to draw';
+
+  const discardPile = document.getElementById('discard-pile');
+  if(discardCount > 0) {
+    discardPile.classList.add('has-cards');
+    const top = state.discard[state.discard.length-1];
+    document.getElementById('discard-top').textContent = cardLabel(top);
+  } else {
+    discardPile.classList.remove('has-cards');
+    document.getElementById('discard-top').textContent = '';
+  }
+
+  // table
+  const tableEl = document.getElementById('table-cards');
+  if(state.table.length===0) {
+    tableEl.innerHTML = '<span class="table-empty">Draw a card to begin</span>';
+  } else {
+    tableEl.innerHTML = state.table.map((c,i) =>
+      `<div class="card ${c.type==='add'?'add-card':'mul-card'} ${i===state.table.length-1?'newest':''}">
+        <div class="card-op">${c.type==='add'?'ADD':'MULTIPLY'}</div>
+        <div class="card-val">${cardLabel(c)}</div>
+      </div>`).join('');
+  }
+  document.getElementById('field-size-label').textContent = `Field: ${state.fieldSize} cards`;
+
+  // result
+  document.getElementById('rf-eq').textContent = state.lastEquation || '—';
+  const rfVal = document.getElementById('rf-val');
+  rfVal.textContent = state.lastResult > 0 ? '+' + state.lastResult.toLocaleString() : '—';
+  rfVal.className = 'rf-val' + (state.lastResult > 500 ? ' big' : '');
+
+  // store buttons
+  const sp = state.storePrices || {small:100, medium:300, large:500, mul:500};
+  const canAfford = (p) => state.score >= p;
+  document.getElementById('si-small').classList.toggle('disabled', !canAfford(sp.small));
+  document.getElementById('si-medium').classList.toggle('disabled', !canAfford(sp.medium));
+  document.getElementById('si-large').classList.toggle('disabled', !canAfford(sp.large));
+  document.getElementById('si-mul').classList.toggle('disabled', !canAfford(sp.mul));
+  document.getElementById('sp-small').textContent = `${sp.small.toLocaleString()} pts`;
+  document.getElementById('sp-medium').textContent = `${sp.medium.toLocaleString()} pts`;
+  document.getElementById('sp-large').textContent = `${sp.large.toLocaleString()} pts`;
+  document.getElementById('sp-mul').textContent = `${sp.mul.toLocaleString()} pts`;
+
+  const fieldPrice = FIELD_PRICE * (state.fieldSize - 1);
+  const fieldMaxed = state.fieldSize >= FIELD_MAX;
+  document.getElementById('si-field').classList.toggle('disabled', fieldMaxed || !canAfford(fieldPrice));
+  document.getElementById('field-upgrade-desc').textContent = fieldMaxed
+    ? 'Field maxed out (5 cards)'
+    : `Expand table to ${state.fieldSize+1} cards`;
+  document.getElementById('sp-field').textContent = fieldMaxed ? 'Maxed' : `${fieldPrice.toLocaleString()} pts`;
+
+  document.getElementById('si-remove').classList.toggle('disabled', !canAfford(state.removalCost));
+  document.getElementById('sp-remove').textContent = `${state.removalCost.toLocaleString()} pts`;
+
+  // turn info
+  const nextTrim = state.nextTrimAt || 15;
+  document.getElementById('turn-info').textContent = `${totalCards} cards total`;
+  document.getElementById('field-info').textContent = `Next trim at ${nextTrim} cards`;
+}
+
+loadState(); render();
+</script>
+</body>
+</html>

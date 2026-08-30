@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuestLog</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --purple: #7F77DD; --purple-light: #EEEDFE; --purple-dark: #3C3489;
+  --gold: #BA7517; --gold-light: #FAEEDA;
+  --red: #E24B4A; --red-light: #FCEBEB;
+  --green: #1D9E75; --green-light: #E1F5EE;
+  --bg: #f4f3fc; --card: #ffffff; --border: #e2e0f5;
+  --text: #1a1a2e; --muted: #6b6880;
+}
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--purple-dark); color: white; padding: 1rem 1.25rem; }
+.header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+.header-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+.stat-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 8px; padding: 0.5rem 0.75rem; }
+.stat-bar-label { font-size: 0.7rem; opacity: 0.8; margin-bottom: 0.3rem; display: flex; justify-content: space-between; }
+.stat-bar-track { background: rgba(255,255,255,0.2); border-radius: 4px; height: 8px; overflow: hidden; }
+.stat-bar-fill { height: 100%; border-radius: 4px; transition: width 0.4s; }
+.xp-fill { background: #FAC775; }
+.hp-fill { background: #5DCAA5; }
+.hp-fill.low { background: #E24B4A; }
+
+.nav-tabs { display: flex; gap: 0.25rem; background: rgba(255,255,255,0.1); border-radius: 8px; padding: 3px; }
+.nav-tab { padding: 0.35rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 500; cursor: pointer; border: none; background: transparent; color: rgba(255,255,255,0.7); transition: all 0.15s; }
+.nav-tab.active { background: white; color: var(--purple-dark); }
+
+.view { display: none; padding: 1rem; max-width: 680px; margin: 0 auto; }
+.view.active { display: block; }
+
+.section-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; margin-top: 1rem; }
+.section-label:first-child { margin-top: 0; }
+
+.task-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.75rem; transition: opacity 0.2s; }
+.task-card.done { opacity: 0.45; }
+.task-check { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; background: white; }
+.task-check:hover { border-color: var(--purple); }
+.task-check.checked { background: var(--purple); border-color: var(--purple); }
+.task-check.checked::after { content: '✓'; color: white; font-size: 0.75rem; font-weight: 700; }
+.task-info { flex: 1; }
+.task-name { font-size: 0.9rem; font-weight: 500; }
+.task-meta { font-size: 0.75rem; color: var(--muted); margin-top: 0.1rem; }
+.task-xp { font-size: 0.75rem; font-weight: 600; color: var(--gold); background: var(--gold-light); padding: 0.2rem 0.5rem; border-radius: 20px; white-space: nowrap; }
+.diff-badge { font-size: 0.7rem; font-weight: 600; padding: 0.15rem 0.45rem; border-radius: 20px; white-space: nowrap; }
+.diff-easy { background: var(--green-light); color: #085041; }
+.diff-medium { background: var(--gold-light); color: #633806; }
+.diff-hard { background: var(--red-light); color: #791F1F; }
+.task-remove { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 0.2rem 0.4rem; border-radius: 4px; }
+.task-remove:hover { color: var(--red); background: var(--red-light); }
+
+.add-card { background: var(--card); border: 1.5px dashed var(--border); border-radius: 12px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; }
+.add-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.add-row input, .add-row select { border: 1px solid var(--border); border-radius: 8px; padding: 0.45rem 0.6rem; font-size: 0.85rem; flex: 1; min-width: 120px; outline: none; }
+.add-row input:focus, .add-row select:focus { border-color: var(--purple); }
+.btn-add { background: var(--purple); color: white; border: none; border-radius: 8px; padding: 0.45rem 1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn-add:hover { background: var(--purple-dark); }
+
+/* Level up modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(20,15,50,0.6); z-index: 100; display: none; align-items: center; justify-content: center; padding: 1rem; }
+.modal-overlay.open { display: flex; }
+.levelup-modal { background: white; border-radius: 20px; padding: 2rem 1.5rem; width: 100%; max-width: 340px; text-align: center; }
+.levelup-modal .lvl-icon { font-size: 3.5rem; margin-bottom: 0.5rem; }
+.levelup-modal h2 { font-size: 1.3rem; font-weight: 700; color: var(--purple-dark); margin-bottom: 0.25rem; }
+.levelup-modal .lvl-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.25rem; }
+.gear-unlock { background: var(--gold-light); border-radius: 12px; padding: 1rem; margin-bottom: 1.25rem; }
+.gear-unlock .gear-icon { font-size: 2rem; margin-bottom: 0.25rem; }
+.gear-unlock .gear-name { font-size: 0.95rem; font-weight: 600; color: var(--gold); }
+.gear-unlock .gear-desc { font-size: 0.8rem; color: var(--muted); }
+.btn-primary { background: var(--purple); color: white; border: none; border-radius: 10px; padding: 0.65rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; width: 100%; }
+.btn-primary:hover { background: var(--purple-dark); }
+
+/* Gear view */
+.gear-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem; }
+.gear-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 0.75rem; text-align: center; }
+.gear-item.locked { opacity: 0.35; filter: grayscale(1); }
+.gear-item .gi-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+.gear-item .gi-name { font-size: 0.8rem; font-weight: 600; }
+.gear-item .gi-lvl { font-size: 0.7rem; color: var(--muted); }
+
+/* Settings */
+.settings-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+.settings-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.setting-row:last-child { margin-bottom: 0; }
+.setting-label { font-size: 0.875rem; }
+.setting-desc { font-size: 0.75rem; color: var(--muted); }
+.toggle { position: relative; width: 44px; height: 24px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 24px; cursor: pointer; transition: 0.2s; }
+.toggle-slider:before { content:''; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+input:checked + .toggle-slider { background: var(--purple); }
+input:checked + .toggle-slider:before { transform: translateX(20px); }
+.penalty-options { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+.penalty-btn { flex: 1; padding: 0.4rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; cursor: pointer; background: none; color: var(--muted); transition: all 0.15s; }
+.penalty-btn.active { background: var(--red-light); border-color: var(--red); color: var(--red); font-weight: 600; }
+
+.month-nav { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 0.75rem; }
+.month-nav button { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.3rem 0.6rem; cursor: pointer; font-size: 0.85rem; color: var(--muted); }
+.month-nav h2 { font-size: 0.95rem; font-weight: 600; min-width: 130px; text-align: center; }
+.calendar-legend { display: flex; align-items: center; font-size: 0.75rem; color: var(--muted); margin-bottom: 0.75rem; }
+.legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 0.3rem; }
+.dot-complete { background: var(--purple); }
+.dot-partial { background: var(--gold); }
+.dot-none { background: var(--border); }
+.calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-header { text-align: center; font-size: 0.7rem; font-weight: 600; color: var(--muted); padding: 0.25rem 0; }
+.cal-day { aspect-ratio: 1; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 500; border: 1px solid var(--border); background: var(--card); position: relative; }
+.cal-day.empty { background: transparent; border-color: transparent; }
+.cal-day.today { border: 2px solid var(--purple); font-weight: 700; background: var(--purple-light); }
+.cal-day.today span { background: var(--purple); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+.cal-day.complete { background: var(--purple-light); border-color: var(--purple); color: var(--purple-dark); }
+.cal-day.partial { background: var(--gold-light); border-color: var(--gold); color: #633806; }
+.cal-day .cal-dot { width: 5px; height: 5px; border-radius: 50%; margin-top: 2px; }
+.cal-day.complete .cal-dot { background: var(--purple); }
+.cal-day.partial .cal-dot { background: var(--gold); }
+
+@media (max-width: 480px) {
+  .header-stats { grid-template-columns: 1fr; }
+  .add-row { flex-direction: column; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <h1>⚔️ QuestLog</h1>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showView('tasks')">Tasks</button>
+      <button class="nav-tab" onclick="showView('monthly')">Month</button>
+      <button class="nav-tab" onclick="showView('gear')">Gear</button>
+      <button class="nav-tab" onclick="showView('settings')">Settings</button>
+    </div>
+  </div>
+  <div class="header-stats">
+    <div class="stat-bar-wrap">
+      <div class="stat-bar-label"><span id="xp-label">XP: 0 / 150</span><span id="level-label">Lvl 1</span></div>
+      <div class="stat-bar-track"><div class="stat-bar-fill xp-fill" id="xp-bar" style="width:0%"></div></div>
+    </div>
+    <div class="stat-bar-wrap">
+      <div class="stat-bar-label"><span id="hp-label">HP: 50 / 50</span></div>
+      <div class="stat-bar-track"><div class="stat-bar-fill hp-fill" id="hp-bar" style="width:100%"></div></div>
+    </div>
+  </div>
+</header>
+
+<!-- TASKS VIEW -->
+<div class="view active" id="view-tasks">
+  <div class="section-label">To-do</div>
+  <div id="todo-list"></div>
+  <div class="add-card">
+    <div class="add-row">
+      <input type="text" id="todo-input" placeholder="New to-do..." onkeydown="if(event.key==='Enter')addTask('todo')">
+      <select id="todo-diff">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <button class="btn-add" onclick="addTask('todo')">+ Add</button>
+    </div>
+  </div>
+
+  <div class="section-label" style="margin-top:1.25rem">Recurring</div>
+  <div id="recurring-list"></div>
+  <div class="add-card">
+    <div class="add-row">
+      <input type="text" id="recurring-input" placeholder="New recurring task..." onkeydown="if(event.key==='Enter')addTask('recurring')">
+      <select id="recurring-freq">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+      </select>
+      <select id="recurring-diff">
+        <option value="easy">Easy</option>
+        <option value="medium" selected>Medium</option>
+        <option value="hard">Hard</option>
+      </select>
+      <button class="btn-add" onclick="addTask('recurring')">+ Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- MONTHLY VIEW -->
+<div class="view" id="view-monthly">
+  <div class="month-nav">
+    <button onclick="changeMonth(-1)">← Prev</button>
+    <h2 id="month-label"></h2>
+    <button onclick="changeMonth(1)">Next →</button>
+  </div>
+  <div class="calendar-legend">
+    <span class="legend-dot dot-complete"></span> All done
+    <span class="legend-dot dot-partial" style="margin-left:0.75rem"></span> Some done
+    <span class="legend-dot dot-none" style="margin-left:0.75rem"></span> Nothing logged
+  </div>
+  <div class="calendar-grid" id="calendar-grid"></div>
+</div>
+
+<!-- GEAR VIEW -->
+<div class="view" id="view-gear">
+  <div class="gear-grid" id="gear-grid"></div>
+</div>
+
+<!-- SETTINGS VIEW -->
+<div class="view" id="view-settings">
+  <div class="settings-card">
+    <h3>Difficulty</h3>
+    <div class="setting-row">
+      <div>
+        <div class="setting-label">Safe mode</div>
+        <div class="setting-desc">No penalties for missed recurring tasks</div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="safe-mode-toggle" checked onchange="toggleSafeMode()"><span class="toggle-slider"></span></label>
+    </div>
+    <div id="penalty-section" style="display:none">
+      <div class="setting-desc" style="margin-bottom:0.5rem">Penalty for missing a recurring task:</div>
+      <div class="penalty-options">
+        <button class="penalty-btn active" id="pen-light" onclick="setPenalty('light')">🟡 Light<br><small>−5 HP</small></button>
+        <button class="penalty-btn" id="pen-medium" onclick="setPenalty('medium')">🟠 Medium<br><small>−15 HP</small></button>
+        <button class="penalty-btn" id="pen-large" onclick="setPenalty('large')">🔴 Large<br><small>−30 HP</small></button>
+      </div>
+    </div>
+  </div>
+  <div class="settings-card">
+    <h3>Stats</h3>
+    <div style="font-size:0.875rem;display:flex;flex-direction:column;gap:0.4rem">
+      <div>Level: <strong id="stat-level">1</strong></div>
+      <div>Total XP earned: <strong id="stat-xp-total">0</strong></div>
+      <div>Tasks completed: <strong id="stat-tasks">0</strong></div>
+      <div>Gear unlocked: <strong id="stat-gear">0</strong> / <strong id="stat-gear-total">0</strong></div>
+    </div>
+  </div>
+  <div class="settings-card">
+    <h3>Reset</h3>
+    <button onclick="resetGame()" style="background:var(--red-light);color:var(--red);border:1px solid var(--red);border-radius:8px;padding:0.5rem 1rem;font-size:0.85rem;cursor:pointer;font-weight:600">Reset all progress</button>
+  </div>
+</div>
+
+<!-- LEVEL UP MODAL -->
+<div class="modal-overlay" id="levelup-modal">
+  <div class="levelup-modal">
+    <div class="lvl-icon">🎉</div>
+    <h2 id="modal-level-text">Level 2!</h2>
+    <div class="lvl-sub" id="modal-level-sub">You leveled up!</div>
+    <div class="gear-unlock">
+      <div class="gear-icon" id="modal-gear-icon">🗡️</div>
+      <div class="gear-name" id="modal-gear-name">Iron Sword</div>
+      <div class="gear-desc" id="modal-gear-desc">New gear unlocked</div>
+    </div>
+    <button class="btn-primary" onclick="closeLevelUp()">Awesome!</button>
+  </div>
+</div>
+
+<script>
+const GEAR = [
+  {lvl:1, icon:'🎽', name:'Starter Tunic', desc:'Every hero begins somewhere.'},
+  {lvl:2, icon:'🗡️', name:'Iron Sword', desc:'A basic blade, sharp enough.'},
+  {lvl:3, icon:'🛡️', name:'Wooden Shield', desc:'Better than nothing.'},
+  {lvl:4, icon:'👢', name:'Leather Boots', desc:'Quickens your step.'},
+  {lvl:5, icon:'🪖', name:'Iron Helm', desc:'Protects what matters most.'},
+  {lvl:6, icon:'🧤', name:'Chain Gloves', desc:'Grip of a fighter.'},
+  {lvl:7, icon:'⚔️', name:'Steel Sword', desc:'Now we\'re talking.'},
+  {lvl:8, icon:'🛡️', name:'Iron Shield', desc:'Solid defense.'},
+  {lvl:9, icon:'🦺', name:'Chain Mail', desc:'Serious protection.'},
+  {lvl:10, icon:'💎', name:'Sapphire Ring', desc:'Magic stirs within.'},
+  {lvl:12, icon:'🪄', name:'Apprentice Staff', desc:'The arcane awakens.'},
+  {lvl:14, icon:'🏹', name:'Elven Bow', desc:'Precision and grace.'},
+  {lvl:16, icon:'🔮', name:'Crystal Orb', desc:'Scry your enemies.'},
+  {lvl:18, icon:'🌟', name:'Star Cloak', desc:'Woven from night sky.'},
+  {lvl:20, icon:'👑', name:'Champion\'s Crown', desc:'You\'ve come far, hero.'},
+];
+
+const XP_MAP = {
+  todo:      {easy: 10, medium: 20, hard: 35},
+  recurring: {easy: 15, medium: 30, hard: 50}
+};
+const DIFF_LABEL = {easy:'⚡ Easy', medium:'⚔️ Medium', hard:'💀 Hard'};
+const MAX_HP = 50;
+const PENALTIES = {light:5, medium:15, large:30};
+
+function xpForLevel(lvl) {
+  return Math.round(0.25*lvl*lvl + 10*lvl + 139.75);
+}
+
+let state = {
+  level: 1,
+  xp: 0,
+  xpTotal: 0,
+  hp: MAX_HP,
+  tasksCompleted: 0,
+  safeMode: true,
+  penalty: 'light',
+  todos: [],
+  recurring: [],
+  unlockedGear: [0],
+  lastDailyReset: '',
+  lastWeeklyReset: ''
+};
+
+function loadState() {
+  try { const s = localStorage.getItem('questlog'); if(s) state = {...state,...JSON.parse(s)}; } catch(e){}
+}
+function saveState() { localStorage.setItem('questlog', JSON.stringify(state)); }
+
+function xpToNext() { return xpForLevel(state.level); }
+function xpPct() { return Math.min((state.xp / xpToNext()) * 100, 100); }
+function hpPct() { return Math.max((state.hp / MAX_HP) * 100, 0); }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function weekStr() { const d=new Date(); const day=d.getDay(); d.setDate(d.getDate()-day); return d.toISOString().split('T')[0]; }
+
+function renderHeader() {
+  document.getElementById('xp-label').textContent = `XP: ${state.xp} / ${xpToNext()}`;
+  document.getElementById('level-label').textContent = `Lvl ${state.level}`;
+  document.getElementById('xp-bar').style.width = xpPct() + '%';
+  document.getElementById('hp-label').textContent = `HP: ${Math.max(0,state.hp)} / ${MAX_HP}`;
+  const hpBar = document.getElementById('hp-bar');
+  hpBar.style.width = hpPct() + '%';
+  hpBar.className = 'stat-bar-fill hp-fill' + (state.hp < 15 ? ' low' : '');
+}
+
+function renderTasks() {
+  checkResets();
+  const todos = state.todos;
+  document.getElementById('todo-list').innerHTML = todos.length
+    ? todos.map((t,i) => taskHTML(t,i,'todo')).join('')
+    : '<div style="font-size:0.85rem;color:var(--muted);padding:0.5rem 0">No to-dos yet. Add one below.</div>';
+
+  const recs = state.recurring;
+  document.getElementById('recurring-list').innerHTML = recs.length
+    ? recs.map((t,i) => taskHTML(t,i,'recurring')).join('')
+    : '<div style="font-size:0.85rem;color:var(--muted);padding:0.5rem 0">No recurring tasks yet.</div>';
+}
+
+function taskHTML(t, i, type) {
+  const diff = t.diff || 'medium';
+  const xp = XP_MAP[type][diff];
+  const freq = type==='recurring' ? ` · ${t.freq}` : '';
+  return `<div class="task-card ${t.done?'done':''}">
+    <div class="task-check ${t.done?'checked':''}" onclick="toggleTask(${i},'${type}')"></div>
+    <div class="task-info">
+      <div class="task-name" style="${t.done?'text-decoration:line-through':''}">${t.name}</div>
+      <div class="task-meta">${type==='todo'?'One-time':'Recurring'}${freq}</div>
+    </div>
+    <span class="diff-badge diff-${diff}">${DIFF_LABEL[diff]}</span>
+    <span class="task-xp">+${xp} XP</span>
+    <button class="task-remove" onclick="removeTask(${i},'${type}')">×</button>
+  </div>`;
+}
+
+function addTask(type) {
+  const inputId = type==='todo' ? 'todo-input' : 'recurring-input';
+  const name = document.getElementById(inputId).value.trim();
+  if (!name) return;
+  const diffId = type==='todo' ? 'todo-diff' : 'recurring-diff';
+  const task = {name, done: false, completedDate: null, diff: document.getElementById(diffId).value};
+  if (type==='recurring') task.freq = document.getElementById('recurring-freq').value;
+  state[type==='todo'?'todos':'recurring'].push(task);
+  document.getElementById(inputId).value = '';
+  saveState(); renderTasks();
+}
+
+function toggleTask(i, type) {
+  const arr = type==='todo' ? state.todos : state.recurring;
+  const task = arr[i];
+  if (task.done) return;
+  task.done = true;
+  task.completedDate = todayStr();
+  const xp = XP_MAP[type][task.diff || 'medium'];
+  gainXP(xp);
+  state.tasksCompleted++;
+  if (type==='todo') {
+    setTimeout(() => {
+      state.todos.splice(i, 1);
+      recordDayStatus();
+      saveState(); renderTasks();
+    }, 600);
+  }
+  recordDayStatus();
+  saveState(); renderTasks();
+}
+
+function removeTask(i, type) {
+  const arr = type==='todo' ? state.todos : state.recurring;
+  arr.splice(i,1);
+  saveState(); renderTasks();
+}
+
+function gainXP(amount) {
+  state.xp += amount;
+  state.xpTotal += amount;
+  while (state.xp >= xpToNext()) {
+    state.xp -= xpToNext();
+    state.level++;
+    showLevelUp();
+  }
+  renderHeader();
+}
+
+function showLevelUp() {
+  const lvl = state.level;
+  const gear = GEAR.find(g => g.lvl === lvl);
+  document.getElementById('modal-level-text').textContent = `Level ${lvl}!`;
+  document.getElementById('modal-level-sub').textContent = 'You leveled up!';
+  if (gear) {
+    const gearIdx = GEAR.indexOf(gear);
+    if (!state.unlockedGear.includes(gearIdx)) state.unlockedGear.push(gearIdx);
+    document.getElementById('modal-gear-icon').textContent = gear.icon;
+    document.getElementById('modal-gear-name').textContent = gear.name;
+    document.getElementById('modal-gear-desc').textContent = gear.desc;
+    document.getElementById('levelup-modal').querySelector('.gear-unlock').style.display = 'block';
+  } else {
+    document.getElementById('levelup-modal').querySelector('.gear-unlock').style.display = 'none';
+  }
+  document.getElementById('levelup-modal').classList.add('open');
+}
+
+function closeLevelUp() {
+  document.getElementById('levelup-modal').classList.remove('open');
+  saveState(); renderGear();
+}
+
+function renderGear() {
+  document.getElementById('gear-grid').innerHTML = GEAR.map((g,i) => {
+    const unlocked = state.unlockedGear.includes(i);
+    return `<div class="gear-item ${unlocked?'':'locked'}">
+      <div class="gi-icon">${g.icon}</div>
+      <div class="gi-name">${g.name}</div>
+      <div class="gi-lvl">${unlocked ? 'Unlocked' : 'Lvl '+g.lvl}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderSettings() {
+  document.getElementById('safe-mode-toggle').checked = state.safeMode;
+  document.getElementById('penalty-section').style.display = state.safeMode ? 'none' : 'block';
+  ['light','medium','large'].forEach(p => {
+    document.getElementById('pen-'+p).classList.toggle('active', state.penalty===p);
+  });
+  document.getElementById('stat-level').textContent = state.level;
+  document.getElementById('stat-xp-total').textContent = state.xpTotal;
+  document.getElementById('stat-tasks').textContent = state.tasksCompleted;
+  document.getElementById('stat-gear').textContent = state.unlockedGear.length;
+  document.getElementById('stat-gear-total').textContent = GEAR.length;
+}
+
+function toggleSafeMode() {
+  state.safeMode = document.getElementById('safe-mode-toggle').checked;
+  document.getElementById('penalty-section').style.display = state.safeMode ? 'none' : 'block';
+  saveState();
+}
+
+function setPenalty(p) {
+  state.penalty = p;
+  ['light','medium','large'].forEach(id => document.getElementById('pen-'+id).classList.remove('active'));
+  document.getElementById('pen-'+p).classList.add('active');
+  saveState();
+}
+
+function checkResets() {
+  const today = todayStr();
+  const week = weekStr();
+  if (state.lastDailyReset !== today) {
+    state.recurring.filter(t=>t.freq==='daily').forEach(t => {
+      if (!t.done && !state.safeMode) {
+        state.hp = Math.max(0, state.hp - PENALTIES[state.penalty]);
+      }
+      t.done = false; t.completedDate = null;
+    });
+    state.lastDailyReset = today;
+    renderHeader();
+  }
+  if (state.lastWeeklyReset !== week) {
+    state.recurring.filter(t=>t.freq==='weekly').forEach(t => {
+      if (!t.done && !state.safeMode) {
+        state.hp = Math.max(0, state.hp - PENALTIES[state.penalty]);
+      }
+      t.done = false; t.completedDate = null;
+    });
+    state.lastWeeklyReset = week;
+    renderHeader();
+  }
+  saveState();
+}
+
+function resetGame() {
+  if (!confirm('Reset all progress? This cannot be undone.')) return;
+  localStorage.removeItem('questlog');
+  state = {level:1,xp:0,xpTotal:0,hp:MAX_HP,tasksCompleted:0,safeMode:true,penalty:'light',todos:[],recurring:[],unlockedGear:[0],lastDailyReset:'',lastWeeklyReset:'',completionLog:{}};
+  saveState(); renderAll();
+}
+
+function recordDayStatus() {
+  if (!state.completionLog) state.completionLog = {};
+  const today = todayStr();
+  const todos = state.todos;
+  if (todos.length === 0) { return; }
+  const allDone = todos.every(t => t.done);
+  const anyDone = todos.some(t => t.done);
+  state.completionLog[today] = allDone ? 'complete' : anyDone ? 'partial' : 'none';
+}
+
+const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DAY_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderMonthly();
+}
+
+function renderMonthly() {
+  document.getElementById('month-label').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+  const today = todayStr();
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+
+  let html = DAY_NAMES.map(d => `<div class="cal-header">${d}</div>`).join('');
+
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day empty"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const status = getDayStatus(dateStr);
+    const isToday = dateStr === today;
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (status === 'complete') cls += ' complete';
+    else if (status === 'partial') cls += ' partial';
+    const dot = status !== 'none' ? `<div class="cal-dot"></div>` : '';
+    html += `<div class="${cls}"><span>${d}</span>${dot}</div>`;
+  }
+  document.getElementById('calendar-grid').innerHTML = html;
+}
+
+function getDayStatus(dateStr) {
+  const log = state.completionLog || {};
+  return log[dateStr] || 'none';
+}
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  event.target.classList.add('active');
+  if(v==='tasks') renderTasks();
+  if(v==='monthly') renderMonthly();
+  if(v==='gear') renderGear();
+  if(v==='settings') renderSettings();
+}
+
+function renderAll() { renderHeader(); renderTasks(); renderGear(); renderSettings(); }
+
+loadState(); renderAll();
+</script>
+</body>
+</html>

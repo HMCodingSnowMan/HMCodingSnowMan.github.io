@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hans Marasigan — Web App Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f9f9f8;
+  --card: #ffffff;
+  --border: #e8e8e6;
+  --text: #1a1a18;
+  --muted: #6b6b68;
+  --accent: #1a1a18;
+  --tag-bg: #f0f0ee;
+  --tag-text: #4a4a47;
+}
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* NAV */
+nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(249,249,248,0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.nav-name { font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+
+/* HERO */
+.hero {
+  max-width: 780px; margin: 0 auto;
+  padding: 5rem 2rem 3.5rem;
+}
+.hero-eyebrow {
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+  max-width: 620px;
+}
+.hero h1 em { font-style: italic; color: var(--muted); }
+.hero p {
+  font-size: 1rem; color: var(--muted); max-width: 480px; line-height: 1.7;
+  margin-bottom: 2rem;
+}
+.hero-meta { display: flex; gap: 1.5rem; font-size: 0.82rem; color: var(--muted); }
+.hero-meta span { display: flex; align-items: center; gap: 0.35rem; }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); max-width: 780px; margin: 0 auto; }
+
+/* APPS GRID */
+.apps-section { max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+.section-label {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 1.5rem;
+}
+.apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
+
+.app-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  position: relative; overflow: hidden;
+}
+.app-card:hover {
+  border-color: #c8c8c5;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  transform: translateY(-2px);
+}
+.app-card-accent {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  border-radius: 14px 14px 0 0;
+}
+.app-icon { font-size: 1.75rem; margin-bottom: 0.75rem; }
+.app-name { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 0.35rem; }
+.app-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.6; flex: 1; margin-bottom: 1rem; }
+.app-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem; }
+.tag {
+  font-size: 0.7rem; font-weight: 500;
+  background: var(--tag-bg); color: var(--tag-text);
+  padding: 0.2rem 0.55rem; border-radius: 20px;
+}
+.app-launch {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.8rem; font-weight: 600; color: var(--text);
+  text-decoration: none;
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  transition: gap 0.15s;
+}
+.app-card:hover .app-launch { gap: 0.6rem; }
+.app-launch .arrow { font-size: 0.85rem; }
+
+/* FOOTER */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 560px) {
+  nav { padding: 0 1rem; }
+  .hero { padding: 3rem 1rem 2rem; }
+  .apps-section { padding: 2rem 1rem 3rem; }
+  .apps-grid { grid-template-columns: 1fr; }
+  .hero-meta { flex-direction: column; gap: 0.5rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">Hans Marasigan</div>
+  <div class="nav-links">
+    <a href="#apps">Projects</a>
+    <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn</a>
+    <a href="mailto:hansmarasigan@gmail.com">Contact</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Portfolio — Web Applications</div>
+  <h1>Tools built to <em>actually</em> get used.</h1>
+  <p>A collection of browser-based web apps covering productivity, health, finance, and fun — each designed and built from scratch.</p>
+  <div class="hero-meta">
+    <span>📍 Los Angeles, CA</span>
+    <span>🛠 HTML · CSS · JavaScript</span>
+    <span>💾 Runs entirely in the browser</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section class="apps-section" id="apps">
+  <div class="section-label">Projects</div>
+  <div class="apps-grid">
+
+    <a class="app-card" href="nutrition_tracker.html">
+      <div class="app-card-accent" style="background:#1D9E75"></div>
+      <div class="app-icon">🥦</div>
+      <div class="app-name">NutriLog</div>
+      <div class="app-desc">A full-featured nutrition tracker with meal logging across breakfast, lunch, dinner, and snacks. Track calories and macros against daily goals with a built-in TDEE calculator.</div>
+      <div class="app-tags">
+        <span class="tag">Health</span>
+        <span class="tag">Daily tracker</span>
+        <span class="tag">Goal setting</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="habit_tracker.html">
+      <div class="app-card-accent" style="background:#7F77DD"></div>
+      <div class="app-icon">⚔️</div>
+      <div class="app-name">QuestLog</div>
+      <div class="app-desc">An RPG-style habit and task tracker. Complete tasks to earn XP, level up, and unlock gear. Three difficulty tiers, safe mode toggle, and a monthly calendar to track consistency.</div>
+      <div class="app-tags">
+        <span class="tag">Productivity</span>
+        <span class="tag">Gamification</span>
+        <span class="tag">Habit tracking</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="card_incremental.html">
+      <div class="app-card-accent" style="background:#a855f7"></div>
+      <div class="app-icon">🃏</div>
+      <div class="app-name">Card Incremental</div>
+      <div class="app-desc">A browser-based incremental deck-building game. Draw cards, combine math operators, earn points, and buy new cards to grow your score. Features a dynamic store and deck management system.</div>
+      <div class="app-tags">
+        <span class="tag">Game</span>
+        <span class="tag">Incremental</span>
+        <span class="tag">Deck building</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="budget_tracker.html">
+      <div class="app-card-accent" style="background:#1d4ed8"></div>
+      <div class="app-icon">💰</div>
+      <div class="app-name">BudgetFlow</div>
+      <div class="app-desc">A clean expense tracker with category budgets, pie and bar charts, and monthly/weekly/daily views. Log expenses in seconds — just amount and date — with optional category and notes.</div>
+      <div class="app-tags">
+        <span class="tag">Finance</span>
+        <span class="tag">Budgeting</span>
+        <span class="tag">Charts</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="pomodoro_timer.html">
+      <div class="app-card-accent" style="background:#e11d48"></div>
+      <div class="app-icon">🍅</div>
+      <div class="app-name">FocusFlow</div>
+      <div class="app-desc">A Pomodoro timer with drift-proof timing, streak tracking, and a monthly calendar view. Tracks daily and weekly focus streaks with escalating encouragement messages.</div>
+      <div class="app-tags">
+        <span class="tag">Productivity</span>
+        <span class="tag">Focus</span>
+        <span class="tag">Streak tracking</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+  </div>
+</section>
+
+<footer>
+  Built by <a href="https://linkedin.com/in/hmarasigan" target="_blank">Hans Marasigan</a> · Los Angeles, CA · <a href="mailto:hansmarasigan@gmail.com">hansmarasigan@gmail.com</a>
+</footer>
+
+</body>
+</html>
