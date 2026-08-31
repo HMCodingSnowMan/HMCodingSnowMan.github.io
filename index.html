@@ -129,6 +129,25 @@ footer {
 }
 footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
 
+/* BIO */
+.bio-card {
+  display: flex; gap: 1.25rem; align-items: flex-start;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 1.5rem;
+  margin-top: 2rem;
+}
+.bio-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: var(--text); color: white;
+  font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; letter-spacing: 0.02em;
+}
+.bio-name { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.4rem; }
+.bio-text p { font-size: 0.855rem; color: var(--muted); line-height: 1.7; margin-bottom: 0.75rem; }
+.bio-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+.bio-links a { font-size: 0.8rem; font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+
 @media (max-width: 560px) {
   nav { padding: 0 1rem; }
   .hero { padding: 3rem 1rem 2rem; }
@@ -157,6 +176,17 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
     <span>📍 Los Angeles, CA</span>
     <span>🛠 HTML · CSS · JavaScript</span>
     <span>💾 Runs entirely in the browser</span>
+  </div>
+  <div class="bio-card">
+    <div class="bio-avatar">HM</div>
+    <div class="bio-text">
+      <div class="bio-name">Hans Marasigan</div>
+      <p>I'm a data analyst and AI workflow consultant based in Los Angeles. My background spans GIS, DevOps, and data analysis — I've spent years turning messy information into clear decisions and manual processes into automated ones. These apps are a reflection of how I work: I'd rather show you a working solution than talk through a concept. When I'm not in the data, you'll find me on the West Coast Swing dance floor.</p>
+      <div class="bio-links">
+        <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn ↗</a>
+        <a href="mailto:hansmarasigan@gmail.com">hansmarasigan@gmail.com</a>
+      </div>
+    </div>
   </div>
 </section>
 
