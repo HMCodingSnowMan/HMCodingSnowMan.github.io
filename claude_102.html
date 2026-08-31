@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 102 — Coming from ChatGPT?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f9ff;
+  --card: #ffffff;
+  --border: #bae6fd;
+  --blue: #0ea5e9;
+  --blue-dark: #0369a1;
+  --blue-light: #e0f2fe;
+  --purple: #7c6af7;
+  --purple-light: #ede9fe;
+  --green: #10b981;
+  --green-light: #d1fae5;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --gold: #f59e0b;
+  --gold-light: #fef3c7;
+  --text: #0c1a2e;
+  --muted: #5b7a96;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--blue-dark); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: #7dd3fc; border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; opacity: 0.8; white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--blue-light); color: var(--blue-dark); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--gold-light); color: #92400e; }
+.lesson-tag.tip-tag { background: var(--green-light); color: #065f46; }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue-dark); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: #065f46; }
+.callout.gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: #92400e; }
+.callout.purple { background: var(--purple-light); border-left: 4px solid var(--purple); color: #3b2f8a; }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: #7f1d1d; }
+
+/* COMPARISON TABLE */
+.compare-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.compare-table th { padding: 0.6rem 0.875rem; text-align: left; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+.compare-table th.chatgpt-col { background: #10a37f; color: white; border-radius: 8px 0 0 0; }
+.compare-table th.claude-col { background: var(--blue-dark); color: white; border-radius: 0 8px 0 0; }
+.compare-table th.feature-col { background: var(--bg); color: var(--muted); }
+.compare-table td { padding: 0.6rem 0.875rem; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td.feature { font-weight: 600; color: var(--text); background: var(--bg); }
+.compare-table td.chatgpt { color: #065f46; }
+.compare-table td.claude-td { color: var(--blue-dark); }
+.check { color: var(--green); font-weight: 700; }
+.cross { color: var(--red); }
+
+.chat-example { background: var(--bg); border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+.chat-msg { display: flex; gap: 0.6rem; margin-bottom: 0.6rem; align-items: flex-start; }
+.chat-msg:last-child { margin-bottom: 0; }
+.chat-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.chat-avatar.user { background: var(--blue); color: white; }
+.chat-avatar.claude { background: var(--text); color: white; }
+.chat-avatar.gpt { background: #10a37f; color: white; }
+.chat-bubble { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.75rem; font-size: 0.82rem; line-height: 1.5; flex: 1; }
+.chat-bubble.user-bubble { background: var(--blue-light); border-color: var(--blue-light); }
+.chat-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.35rem; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; }
+.quiz-option:hover { border-color: var(--blue); background: var(--blue-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: #065f46; pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: #7f1d1d; pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.5; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: white; }
+.quiz-option.wrong .option-letter { background: var(--red); color: white; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: #065f46; }
+.quiz-feedback.wrong { background: var(--red-light); color: #7f1d1d; }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--bg); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--blue); background: white; }
+.try-submit { margin-top: 0.5rem; background: var(--blue-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.try-submit:hover { background: var(--blue); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--blue-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--blue-dark); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--blue-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 0.5rem; }
+.btn-next:hover { background: var(--blue); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--blue-light); color: var(--blue-dark); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--blue-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .compare-table { font-size: 0.75rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🔄 Claude 102 — Coming from ChatGPT?</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 8</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Welcome back',
+    emoji: '👋',
+    title: "So you've used ChatGPT. Cool. Now let's talk about Claude.",
+    body: `
+      <p>You already know the drill — type something, AI responds. You're past the "wait this is magic" phase. Good. That means we can skip the basics and get into what actually matters.</p>
+      <p><strong>Claude is not just another ChatGPT.</strong> Same category, very different personality, different strengths, different approach. Think of it like switching from one streaming service to another — same concept, but the content, the interface, and the vibe are all different.</p>
+      <div class="callout blue">💡 This module covers what makes Claude different, where it shines compared to other AIs, and how to adjust your habits to get the most out of it.</div>
+      <p>If you've been using ChatGPT like a search engine that writes stuff — this is going to change how you think about AI entirely. Let's get into it.</p>
+    `
+  },
+
+  // 1 - SAME BUT DIFFERENT
+  {
+    type: 'lesson',
+    tag: 'Key differences',
+    emoji: '🆚',
+    title: "Claude vs ChatGPT — what's actually different?",
+    body: `
+      <p>Both are large language models. Both can write, answer questions, and help you think. But here's where they diverge:</p>
+      <table class="compare-table">
+        <tr>
+          <th class="feature-col">Feature</th>
+          <th class="chatgpt-col">ChatGPT</th>
+          <th class="claude-col">Claude</th>
+        </tr>
+        <tr>
+          <td class="feature">Tone</td>
+          <td class="chatgpt">Efficient, direct</td>
+          <td class="claude-td">Warm, conversational</td>
+        </tr>
+        <tr>
+          <td class="feature">Long documents</td>
+          <td class="chatgpt">Good</td>
+          <td class="claude-td">Excellent — handles very long inputs</td>
+        </tr>
+        <tr>
+          <td class="feature">Nuanced writing</td>
+          <td class="chatgpt">Good</td>
+          <td class="claude-td">Stronger — picks up on tone and style</td>
+        </tr>
+        <tr>
+          <td class="feature">Safety approach</td>
+          <td class="chatgpt">Rules-based</td>
+          <td class="claude-td">Values-based — thinks through context</td>
+        </tr>
+        <tr>
+          <td class="feature">Made by</td>
+          <td class="chatgpt">OpenAI</td>
+          <td class="claude-td">Anthropic</td>
+        </tr>
+      </table>
+      <div class="callout gold">⚠️ Neither is universally "better." They're different tools. By the end of this you'll know when to reach for Claude specifically.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Quick check",
+    question: "What's one thing Claude is particularly strong at compared to other AI tools?",
+    options: [
+      "Generating images",
+      "Handling long documents and nuanced writing",
+      "Browsing the internet in real time",
+      "Running code on your computer"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly! 🎯 Claude handles long inputs really well and picks up on tone and nuance in writing better than most. That's its sweet spot.",
+      wrong: "Not quite — Claude's standout strengths are handling long documents and nuanced writing. Things like image generation and live browsing are different tools entirely."
+    }
+  },
+
+  // 3 - CLAUDE'S PERSONALITY
+  {
+    type: 'lesson',
+    tag: "Claude's personality",
+    emoji: '🧠',
+    title: "Claude actually has opinions. Here's what that means for you.",
+    body: `
+      <p>One thing that surprises ChatGPT users: <strong>Claude will push back.</strong></p>
+      <p>If you ask it to do something it's not comfortable with, it won't just silently refuse or give you a bland disclaimer. It'll tell you why, often suggest an alternative, and engage with you like an actual person.</p>
+      <div class="chat-example">
+        <div class="chat-label">ChatGPT-style response to a risky request:</div>
+        <div class="chat-msg">
+          <div class="chat-avatar gpt">G</div>
+          <div class="chat-bubble">I'm sorry, I can't help with that.</div>
+        </div>
+        <div class="chat-label" style="margin-top:0.75rem">Claude-style response:</div>
+        <div class="chat-msg">
+          <div class="chat-avatar claude">C</div>
+          <div class="chat-bubble">I'm not going to help with that specific thing, but here's what I think you might actually be trying to do — and here's how I can help with that instead.</div>
+        </div>
+      </div>
+      <p>This also means Claude will:</p>
+      <div class="callout blue">
+        ✅ Tell you when it thinks you might be wrong<br><br>
+        ✅ Share its perspective when you ask for it<br><br>
+        ✅ Engage with nuance instead of just giving you the "safe" answer<br><br>
+        ✅ Be honest if it's uncertain about something
+      </div>
+      <div class="callout gold">💡 Think of it less like a tool and more like a smart collaborator who has its own point of view.</div>
+    `
+  },
+
+  // 4 - CONTEXT WINDOW
+  {
+    type: 'lesson',
+    tag: 'Superpower',
+    emoji: '📄',
+    title: "Claude's superpower: it can read a LOT at once",
+    body: `
+      <p>Here's something most people coming from other AIs don't know: <strong>Claude can handle extremely long conversations and documents.</strong></p>
+      <p>You can paste in an entire contract, a research paper, a 50-page report — and Claude will actually read and understand all of it, not just the first few paragraphs.</p>
+      <div class="callout green">
+        🔥 <strong>What this unlocks for you:</strong><br><br>
+        📋 Paste your entire resume and ask for a full rewrite<br>
+        📑 Drop in a long contract and ask "what should I watch out for?"<br>
+        📧 Paste a whole email thread and ask "what's the tension here?"<br>
+        📚 Share a long article and ask for a summary with key takeaways
+      </div>
+      <p>With other AI tools you often have to break things up or worry about it "forgetting" earlier parts of the conversation. Claude's long context window means you can work on bigger, more complex things in one go.</p>
+      <div class="callout blue">💡 Pro move: start your conversation by pasting in all the context upfront, then ask your questions. You'll get dramatically better answers.</div>
+    `
+  },
+
+  // 5 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🧐',
+    title: "Context window quiz",
+    question: "You have a 20-page business proposal you want feedback on. What's the best approach with Claude?",
+    options: [
+      "Break it into chunks and send one page at a time",
+      "Just ask Claude to write a new proposal from scratch",
+      "Paste the whole thing in and ask for specific feedback",
+      "Summarize it yourself first before sending"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Yes! 💪 Claude can handle the whole document at once. Paste it all in and be specific about what feedback you want — structure, tone, clarity, whatever. No need to chunk it up.",
+      wrong: "Actually the best move is to paste the whole thing in at once. Claude's context window is one of its strongest features — use it! Ask for specific feedback on what matters most to you."
+    }
+  },
+
+  // 6 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it! 🎮',
+    emoji: '✍️',
+    title: "Put it into practice",
+    instruction: "You're used to giving short prompts. Now try writing a prompt that gives Claude context AND asks for something specific. Example scenario: you want Claude to review an important email you're about to send to your boss. Write the prompt you'd use — include what the email is about and what kind of feedback you want.",
+    placeholder: "Write your prompt here. Remember: context + specific ask = great output.",
+    response: "Great prompt structure! Here's how I'd approach reviewing your email: I'd look at the tone first — does it strike the right balance of professional and approachable for your relationship with your boss? Then I'd check clarity — is the main ask or point obvious within the first two sentences? Finally I'd look at the closing — does it give your boss a clear next step or just trail off? Paste the email whenever you're ready and I'll dig in."
+  },
+
+  // 7 - HABITS TO CHANGE
+  {
+    type: 'lesson',
+    tag: 'Level up',
+    emoji: '⬆️',
+    title: "3 ChatGPT habits to drop when using Claude",
+    body: `
+      <p>If you're bringing habits from other AI tools, some of them will hold you back. Here's what to unlearn:</p>
+
+      <div class="callout red">
+        ❌ <strong>Habit 1: Restarting conversations constantly</strong><br>
+        With Claude, staying in the same conversation is usually better. It remembers everything said earlier and uses it to give you more relevant answers over time. Don't start fresh every time — keep the thread going.
+      </div>
+
+      <div class="callout red">
+        ❌ <strong>Habit 2: Short, keyword-style prompts</strong><br>
+        "Email for client" doesn't cut it. Claude thrives on context. The more you tell it — who's involved, what the goal is, what tone you want — the better the output. Write prompts like you're briefing a smart colleague.
+      </div>
+
+      <div class="callout red">
+        ❌ <strong>Habit 3: Accepting the first answer</strong><br>
+        Claude is built for back and forth. If the first answer is 80% there, just say what's missing. "Make it shorter." "More formal." "Add a joke." It iterates fast and doesn't lose context between turns.
+      </div>
+
+      <div class="callout green">
+        ✅ <strong>The new habit: treat it like a conversation, not a command line.</strong><br>
+        Brief it, react to it, redirect it. That's when Claude is at its best.
+      </div>
+    `
+  },
+
+  // 8 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Final quiz ✏️',
+    emoji: '🏆',
+    title: "Last one",
+    question: "You got a response from Claude that's close but not quite right. What's the best move?",
+    options: [
+      "Start a brand new conversation and try again",
+      "Switch back to ChatGPT",
+      "Tell Claude exactly what needs to change and let it revise",
+      "Copy it and edit it yourself"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "That's it! 🎉 Claude remembers the full conversation and can revise based on your feedback without losing any context. Just tell it what to fix — it's built for iteration.",
+      wrong: "The power move is option C — tell Claude what to fix right in the same conversation. It keeps all the context and revises fast. Starting over or switching tools wastes all the context you've already built up."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) {
+        if(i === l.correct) cls = 'correct';
+        else if(i === answered) cls = 'wrong';
+        else cls = 'disabled';
+      }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your prompt</div>
+        <textarea class="try-input" id="try-input" rows="3" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🏆'; title = "Perfect score!"; sub = "You've got Claude figured out. Now go use it on something real."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid!"; sub = "You've got the key ideas down. Time to put them to work."; }
+  else { emoji = '💪'; title = "Good start!"; sub = "Go back through the lessons and the concepts will click. Promise."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout blue">
+          <strong>Your Claude cheat sheet:</strong><br><br>
+          💬 Give it full context upfront — don't be brief<br>
+          📄 Paste long documents — it can handle it<br>
+          🔄 Stay in the conversation — iterate, don't restart<br>
+          🤝 Treat it like a collaborator, not a search engine<br>
+          ✏️ Tell it what to change — it revises fast
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

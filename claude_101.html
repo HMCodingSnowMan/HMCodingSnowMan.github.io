@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 101 — Learn AI the Easy Way</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f4ff;
+  --card: #ffffff;
+  --border: #e0deff;
+  --purple: #7c6af7;
+  --purple-dark: #5b4de0;
+  --purple-light: #ede9fe;
+  --green: #10b981;
+  --green-light: #d1fae5;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --gold: #f59e0b;
+  --gold-light: #fef3c7;
+  --text: #1e1b4b;
+  --muted: #6b6880;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: var(--purple-dark);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: #a5f3fc; border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; opacity: 0.8; white-space: nowrap; }
+
+/* MAIN */
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+/* LESSON CARD */
+.lesson-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--purple-light); color: var(--purple-dark);
+  padding: 0.25rem 0.65rem; border-radius: 20px;
+  margin-bottom: 0.875rem;
+}
+.lesson-tag.quiz-tag { background: var(--gold-light); color: #92400e; }
+.lesson-tag.tip-tag { background: var(--green-light); color: #065f46; }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+/* CALLOUT */
+.callout {
+  border-radius: 12px; padding: 0.875rem 1rem;
+  margin: 1rem 0; font-size: 0.875rem; line-height: 1.6;
+}
+.callout.purple { background: var(--purple-light); border-left: 4px solid var(--purple); color: var(--purple-dark); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: #065f46; }
+.callout.gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: #92400e; }
+
+/* EXAMPLE CHAT */
+.chat-example { background: var(--bg); border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+.chat-msg { display: flex; gap: 0.6rem; margin-bottom: 0.6rem; align-items: flex-start; }
+.chat-msg:last-child { margin-bottom: 0; }
+.chat-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.chat-avatar.user { background: var(--purple); color: white; }
+.chat-avatar.claude { background: var(--text); color: white; }
+.chat-bubble { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.75rem; font-size: 0.82rem; line-height: 1.5; flex: 1; }
+.chat-bubble.user-bubble { background: var(--purple-light); border-color: var(--purple-light); }
+
+/* QUIZ */
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option {
+  background: var(--bg); border: 2px solid var(--border);
+  border-radius: 12px; padding: 0.875rem 1rem;
+  font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; text-align: left;
+  transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem;
+}
+.quiz-option:hover { border-color: var(--purple); background: var(--purple-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: #065f46; pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: #7f1d1d; pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.5; }
+.option-letter {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--border); color: var(--muted);
+  font-size: 0.75rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.quiz-option.correct .option-letter { background: var(--green); color: white; }
+.quiz-option.wrong .option-letter { background: var(--red); color: white; }
+
+.quiz-feedback {
+  margin-top: 1rem; padding: 0.875rem 1rem;
+  border-radius: 12px; font-size: 0.875rem; line-height: 1.6;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: #065f46; }
+.quiz-feedback.wrong { background: var(--red-light); color: #7f1d1d; }
+
+/* TRY IT */
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--bg); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--purple); background: white; }
+.try-submit { margin-top: 0.5rem; background: var(--purple); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.try-submit:hover { background: var(--purple-dark); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--purple-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--purple-dark); }
+.try-response.show { display: block; }
+
+/* NAV BUTTONS */
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next {
+  background: var(--purple); color: white;
+  border: none; border-radius: 12px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.btn-next:hover { background: var(--purple-dark); }
+.btn-next:disabled { opacity: 0.35; cursor: default; }
+.btn-back {
+  background: none; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+/* SCORE CARD */
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--purple-light); color: var(--purple-dark); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--purple); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 Claude 101</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 8</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizTotal = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Welcome',
+    emoji: '👋',
+    title: "So... what even is Claude?",
+    body: `
+      <p>Okay, real talk. You've probably heard words like "AI" and "chatbot" thrown around a lot lately. Maybe your coworker won't stop talking about it. Maybe you've seen it on TikTok. Either way — you're here, and that's what matters.</p>
+      <p><strong>Claude is an AI assistant made by a company called Anthropic.</strong> Think of it like a really smart text buddy you can ask literally anything — and it actually gives you useful answers.</p>
+      <div class="callout purple">💡 Not a robot. Not Siri. Not Google. Claude is something different — it can have a real back-and-forth conversation with you and help you think through problems.</div>
+      <p>By the end of this, you'll know exactly what Claude can do, how to talk to it, and how to get the most out of it. Let's go. 🚀</p>
+    `
+  },
+
+  // 1 - WHAT CAN IT DO
+  {
+    type: 'lesson',
+    tag: 'What it does',
+    emoji: '🛠️',
+    title: "What can Claude actually do?",
+    body: `
+      <p>Short answer: a LOT. Here's a taste of what people use it for every day:</p>
+      <div class="callout green">
+        ✅ <strong>Write stuff</strong> — emails, cover letters, captions, essays, texts to your ex (kidding... or are we?)<br><br>
+        ✅ <strong>Answer questions</strong> — explain a concept, summarize an article, help you understand something confusing<br><br>
+        ✅ <strong>Brainstorm</strong> — stuck on an idea? Just ask. Claude will throw out 10 options in seconds<br><br>
+        ✅ <strong>Edit your work</strong> — paste something you wrote and ask it to make it better<br><br>
+        ✅ <strong>Help you plan</strong> — meal prep, trips, workouts, budgets — you name it
+      </div>
+      <p>Here's what a real conversation looks like:</p>
+      <div class="chat-example">
+        <div class="chat-msg">
+          <div class="chat-avatar user">You</div>
+          <div class="chat-bubble user-bubble">Can you help me write a text to cancel plans without sounding flaky?</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar claude">C</div>
+          <div class="chat-bubble">Sure! Here's one: "Hey, I'm so sorry but I have to bail tonight — something came up. Can we reschedule? I really do want to hang soon." Want me to make it more casual or more formal?</div>
+        </div>
+      </div>
+      <p>See? It's like texting a friend who's also weirdly good at everything.</p>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Pop quiz — no pressure!",
+    question: "Which of these is something Claude can help you with?",
+    options: [
+      "Writing a cover letter for a job application",
+      "Brainstorming gift ideas for your friend's birthday",
+      "Summarizing a long article you don't want to read",
+      "All of the above"
+    ],
+    correct: 3,
+    feedback: {
+      correct: "Nailed it! 🎉 All three! Claude is a multi-tasker. Whether you're job hunting, gift shopping, or just trying to skip reading a 10-page article — it's got you.",
+      wrong: "Close! Actually it can do all three. Claude is way more versatile than most people realize. Think of it as your all-in-one helper."
+    }
+  },
+
+  // 3 - HOW TO TALK TO IT
+  {
+    type: 'lesson',
+    tag: 'Prompting basics',
+    emoji: '💬',
+    title: "How to talk to Claude (it's easier than texting your crush)",
+    body: `
+      <p>Here's the thing most people get wrong: they treat AI like a search engine. They type three words and expect magic. That's not how this works.</p>
+      <p><strong>Claude understands full sentences. The more context you give it, the better the answer.</strong></p>
+      <div class="callout gold">
+        🚫 <strong>Weak prompt:</strong> "email"<br>
+        ✅ <strong>Better prompt:</strong> "Write a short professional email asking my landlord to fix the leaking faucet in my kitchen. Keep it polite but firm."
+      </div>
+      <p>Three things that always make your prompts better:</p>
+      <div class="callout purple">
+        1️⃣ <strong>Tell it what you want</strong> — be specific about the task<br><br>
+        2️⃣ <strong>Give it context</strong> — who's it for? what's the situation?<br><br>
+        3️⃣ <strong>Tell it the format</strong> — short? long? bullet points? casual tone?
+      </div>
+      <p>You don't need to be perfect. Claude will ask follow-up questions if it needs more info. It's a conversation, not a command.</p>
+    `
+  },
+
+  // 4 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it! 🎮',
+    emoji: '✍️',
+    title: "Your turn — write a prompt",
+    instruction: "Practice writing a good prompt below. Ask Claude to help you write a short text message canceling dinner plans tonight. Remember: be specific!",
+    placeholder: "Type your prompt here...",
+    responses: {
+      good: ["Here's a text you can send: \"Hey! I'm so sorry, I have to cancel dinner tonight — something came up last minute. Can we reschedule for next week? I'm really looking forward to it!\" Want me to adjust the tone?",
+             "Of course! Try this: \"Ugh, I feel terrible but I have to bail on dinner tonight. Something came up. Can we do it again soon? You're the best for understanding 🙏\""],
+      default: "Got it! Here's a draft text message for you: \"Hey, I'm so sorry but I have to cancel dinner tonight — something came up unexpectedly. Can we reschedule? I really do want to catch up soon!\""
+    }
+  },
+
+  // 5 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🧠',
+    title: "Test your prompting skills",
+    question: "Which prompt will get you a better response from Claude?",
+    options: [
+      "email for work",
+      "Write a professional email to my manager letting her know I'll be 30 minutes late to tomorrow's 9am meeting because of a doctor's appointment.",
+      "help me write something",
+      "email plz"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Yes! 🙌 Option B wins. It tells Claude exactly what to write, who it's for, the specific situation, and the tone. The more details you give, the better the output.",
+      wrong: "Not quite — Option B is the winner. It gives Claude everything it needs: the type of email, the recipient, the reason, and the timeframe. Vague prompts = vague answers."
+    }
+  },
+
+  // 6 - TIPS
+  {
+    type: 'lesson',
+    tag: 'Pro tips',
+    emoji: '⚡',
+    title: "3 tips that'll make you a Claude power user",
+    body: `
+      <p>These three things alone will put you ahead of 90% of people using AI right now.</p>
+
+      <div class="callout purple">
+        <strong>Tip 1: Ask it to try again 🔄</strong><br>
+        If you don't love the first answer, just say "try again" or "make it more casual" or "shorter please." Claude doesn't get offended. It just adjusts.
+      </div>
+
+      <div class="callout green">
+        <strong>Tip 2: Tell it who you are 🙋</strong><br>
+        Context helps. "I'm a nurse explaining this to a patient" or "I'm a college student writing a paper" gives Claude way more to work with and makes the output way more relevant.
+      </div>
+
+      <div class="callout gold">
+        <strong>Tip 3: Ask follow-up questions 🔍</strong><br>
+        Claude remembers your conversation. So if it gives you something close but not perfect, just keep the convo going. "Can you make that sound less formal?" or "What if I want to add a joke?" — all fair game.
+      </div>
+
+      <div class="chat-example">
+        <div class="chat-msg">
+          <div class="chat-avatar user">You</div>
+          <div class="chat-bubble user-bubble">Hmm, can you make that a little funnier?</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar claude">C</div>
+          <div class="chat-bubble">Absolutely — here's a version with a little more personality to it... [rewrites with humor]</div>
+        </div>
+      </div>
+    `
+  },
+
+  // 7 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Final quiz ✏️',
+    emoji: '🏆',
+    title: "Last one — you've got this!",
+    question: "You asked Claude to write something and the answer is too long and too formal. What should you do?",
+    options: [
+      "Give up and do it yourself",
+      "Start a brand new conversation from scratch",
+      "Just say \"make it shorter and more casual\" and let Claude fix it",
+      "Google it instead"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Exactly! 💪 Claude remembers the conversation. Just tell it what to change and it'll adjust. You don't need to start over — that's the whole point of the back-and-forth.",
+      wrong: "Actually, the best move is option C — just tell Claude what to change! It remembers your conversation and will adjust without you having to start over."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+
+  if(currentLesson >= lessons.length) {
+    renderScore();
+    return;
+  }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">
+        ${currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+        <button class="btn-next" onclick="nextLesson()">Next <span>→</span></button>
+      </div>
+    `;
+  } else if(l.type === 'quiz') {
+    quizTotal++;
+    const answered = quizAnswered[currentLesson];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = 'quiz-option';
+      if(answered !== undefined) {
+        if(i === l.correct) cls += ' correct';
+        else if(i === answered && answered !== l.correct) cls += ' wrong';
+        else cls += ' disabled';
+      }
+      const letters = ['A','B','C','D'];
+      return `<button class="quiz-option ${answered!==undefined?(i===l.correct?'correct':(i===answered?'wrong':'disabled')):''}" onclick="answerQuiz(${i})">${'<div class="option-letter">'+letters[i]+'</div>'}${o}</button>`;
+    }).join('');
+
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">
+        ${currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+        <button class="btn-next" onclick="nextLesson()">Next <span>→</span></button>
+      </div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your prompt</div>
+        <textarea class="try-input" id="try-input" rows="3" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit prompt →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">
+        ${currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+        <button class="btn-next" onclick="nextLesson()">Next <span>→</span></button>
+      </div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const l = lessons[currentLesson];
+  const resp = l.responses.default;
+  const el = document.getElementById('try-response');
+  el.textContent = resp;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() {
+  currentLesson++;
+  renderLesson();
+}
+
+function goBack() {
+  if(currentLesson > 0) { currentLesson--; renderLesson(); }
+}
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🏆'; title = "Perfect score!"; sub = "Okay you're basically an AI expert now. Seriously, go tell someone."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid work!"; sub = "You've got the fundamentals down. Now go use Claude and see what it can do for you."; }
+  else { emoji = '💪'; title = "Good effort!"; sub = "Not bad for a first run. Go back through the lessons and you'll nail it next time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout purple">
+          <strong>What's next?</strong><br><br>
+          🔗 Try Claude yourself at <strong>claude.ai</strong><br>
+          💬 Start a conversation — just say hi!<br>
+          🛠️ Use what you learned: give it context, be specific, and ask follow-ups
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizTotal = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

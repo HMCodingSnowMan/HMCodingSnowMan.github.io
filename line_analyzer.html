@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BodyLine — Dance Line Analyzer</title>
+
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.17.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f0f0f; --surface: #1a1a1a; --card: #242424;
+  --border: #333; --text: #f0f0f0; --muted: #888;
+  --accent: #7c6af7; --accent-light: #a89cf7;
+  --green: #10b981; --red: #ef4444; --gold: #f59e0b;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1rem; font-weight: 700; color: var(--accent-light); letter-spacing: -0.01em; }
+.header-sub { font-size: 0.75rem; color: var(--muted); }
+
+.main { max-width: 900px; margin: 0 auto; padding: 1.5rem; display: grid; grid-template-columns: 1fr 260px; gap: 1rem; }
+
+/* CANVAS AREA */
+.canvas-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: relative; min-height: 400px; display: flex; align-items: center; justify-content: center; }
+.drop-zone { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; cursor: pointer; transition: background 0.15s; }
+.drop-zone:hover { background: rgba(124,106,247,0.05); }
+.drop-icon { font-size: 3rem; opacity: 0.4; }
+.drop-text { font-size: 0.875rem; color: var(--muted); text-align: center; }
+.drop-sub { font-size: 0.75rem; color: var(--muted); opacity: 0.6; }
+.browse-btn { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 0.5rem 1.25rem; font-size: 0.82rem; font-weight: 600; cursor: pointer; margin-top: 0.25rem; }
+#file-input { display: none; }
+#main-canvas { display: none; max-width: 100%; border-radius: 14px; }
+
+/* STATUS */
+.status-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--muted); display: none; align-items: center; gap: 0.5rem; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* SIDEBAR */
+.sidebar { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; }
+.panel h3 { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin-bottom: 0.75rem; }
+
+/* TOGGLES */
+.toggle-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; font-size: 0.82rem; }
+.toggle-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-right: 0.4rem; }
+.toggle-label { display: flex; align-items: center; flex: 1; }
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-slider { position: absolute; inset: 0; background: var(--border); border-radius: 20px; cursor: pointer; transition: 0.2s; }
+.toggle-slider:before { content:''; position:absolute; width:14px; height:14px; left:3px; top:3px; background:white; border-radius:50%; transition:0.2s; }
+input:checked + .toggle-slider { background: var(--accent); }
+input:checked + .toggle-slider:before { transform: translateX(16px); }
+
+/* CONFIDENCE */
+.confidence-row { margin-top: 0.5rem; }
+.confidence-row label { font-size: 0.75rem; color: var(--muted); display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+.confidence-row input[type=range] { width: 100%; accent-color: var(--accent); }
+
+/* KEYPOINTS LIST */
+.kp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+.kp-item { font-size: 0.72rem; color: var(--muted); display: flex; align-items: center; gap: 0.3rem; }
+.kp-score { margin-left: auto; font-weight: 600; }
+.kp-score.good { color: var(--green); }
+.kp-score.ok { color: var(--gold); }
+.kp-score.bad { color: var(--red); }
+
+/* ACTIONS */
+.action-btn { width: 100%; border: none; border-radius: 8px; padding: 0.55rem; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s; margin-bottom: 0.35rem; }
+.action-btn:last-child { margin-bottom: 0; }
+.action-btn.primary { background: var(--accent); color: white; }
+.action-btn.primary:hover { background: var(--accent-light); }
+.action-btn.secondary { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+.action-btn.secondary:hover { color: var(--text); border-color: var(--muted); }
+.action-btn:disabled { opacity: 0.35; cursor: default; }
+
+/* MODEL LOADING */
+.model-status { font-size: 0.72rem; text-align: center; padding: 0.4rem; border-radius: 6px; background: var(--card); color: var(--muted); }
+.model-status.ready { color: var(--green); }
+.model-status.loading { color: var(--gold); }
+.model-status.error { color: var(--red); }
+
+@media (max-width: 640px) {
+  .main { grid-template-columns: 1fr; }
+  .sidebar { order: -1; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>🕺 BodyLine</h1>
+  </div>
+  <div class="header-sub">West Coast Swing Dance Line Analyzer</div>
+</header>
+
+<div class="main">
+
+  <!-- CANVAS -->
+  <div class="canvas-wrap" id="canvas-wrap">
+    <div class="drop-zone" id="drop-zone">
+      <div class="drop-icon">📸</div>
+      <div class="drop-text">Drop a photo here<br>or click to browse</div>
+      <div class="drop-sub">JPG, PNG, WEBP supported</div>
+      <button class="browse-btn" onclick="document.getElementById('file-input').click()">Choose photo</button>
+    </div>
+    <canvas id="main-canvas"></canvas>
+    <div class="status-bar" id="status-bar">
+      <div class="status-dot"></div>
+      <span id="status-text">Analyzing pose...</span>
+    </div>
+    <input type="file" id="file-input" accept="image/*">
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <div class="panel">
+      <div class="model-status loading" id="model-status">⏳ Loading model...</div>
+    </div>
+
+    <div class="panel">
+      <h3>Line overlays</h3>
+      <div class="toggle-group">
+        <div class="toggle-row">
+          <div class="toggle-label"><div class="toggle-dot" style="background:#7c6af7"></div>Skeleton</div>
+          <label class="toggle"><input type="checkbox" id="tog-skeleton" checked onchange="redraw()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><div class="toggle-dot" style="background:#f59e0b"></div>Arm line</div>
+          <label class="toggle"><input type="checkbox" id="tog-arm" checked onchange="redraw()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><div class="toggle-dot" style="background:#10b981"></div>Spine line</div>
+          <label class="toggle"><input type="checkbox" id="tog-spine" checked onchange="redraw()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><div class="toggle-dot" style="background:#ef4444"></div>Hip line</div>
+          <label class="toggle"><input type="checkbox" id="tog-hip" checked onchange="redraw()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><div class="toggle-dot" style="background:#06b6d4"></div>Leg line</div>
+          <label class="toggle"><input type="checkbox" id="tog-leg" checked onchange="redraw()"><span class="toggle-slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label"><div class="toggle-dot" style="background:#ffffff"></div>Keypoints</div>
+          <label class="toggle"><input type="checkbox" id="tog-kp" checked onchange="redraw()"><span class="toggle-slider"></span></label>
+        </div>
+      </div>
+      <div class="confidence-row" style="margin-top:0.75rem">
+        <label>Min confidence <span id="conf-val">0.35</span></label>
+        <input type="range" id="conf-slider" min="0.1" max="0.9" step="0.05" value="0.35" oninput="updateConf(this.value)">
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>Keypoint scores</h3>
+      <div class="kp-grid" id="kp-grid"><div style="font-size:0.75rem;color:var(--muted)">No pose detected yet.</div></div>
+    </div>
+
+    <div class="panel">
+      <h3>Actions</h3>
+      <button class="action-btn primary" id="btn-analyze" onclick="analyzeImage()" disabled>Analyze pose</button>
+      <button class="action-btn secondary" id="btn-save" onclick="saveImage()" disabled>Save image</button>
+      <button class="action-btn secondary" onclick="resetApp()">New photo</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let detector = null;
+let currentImage = null;
+let currentPoses = null;
+let minConf = 0.35;
+
+const KEYPOINT_NAMES = [
+  'nose','left_eye','right_eye','left_ear','right_ear',
+  'left_shoulder','right_shoulder','left_elbow','right_elbow',
+  'left_wrist','right_wrist','left_hip','right_hip',
+  'left_knee','right_knee','left_ankle','right_ankle'
+];
+
+// Standard skeleton connections
+const SKELETON = [
+  [5,6],[5,7],[7,9],[6,8],[8,10], // shoulders + arms
+  [5,11],[6,12],[11,12],           // torso
+  [11,13],[13,15],[12,14],[14,16]  // legs
+];
+
+// WCS-specific lines
+const ARM_LINE = [9, 7, 5, 6, 8, 10];       // wrist→elbow→shoulder→shoulder→elbow→wrist
+const SPINE_LINE = [0, 5, 6, 11, 12];        // nose→shoulders→hips (approx spine)
+const HIP_LINE = [11, 12];                   // left hip → right hip
+const LEG_LINE_L = [11, 13, 15];             // left hip→knee→ankle
+const LEG_LINE_R = [12, 14, 16];             // right hip→knee→ankle
+
+async function loadModel() {
+  try {
+    document.getElementById('model-status').textContent = '⏳ Loading model...';
+    document.getElementById('model-status').className = 'model-status loading';
+    await tf.ready();
+    detector = await poseDetection.createDetector(
+      poseDetection.SupportedModels.MoveNet,
+      {
+        modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+        modelUrl: 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4'
+      }
+    );
+    document.getElementById('model-status').textContent = '✓ Model ready';
+    document.getElementById('model-status').className = 'model-status ready';
+  } catch(e) {
+    // fallback: try without modelUrl
+    try {
+      detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
+      document.getElementById('model-status').textContent = '✓ Model ready';
+      document.getElementById('model-status').className = 'model-status ready';
+    } catch(e2) {
+      document.getElementById('model-status').textContent = '✗ Model failed — check console';
+      document.getElementById('model-status').className = 'model-status error';
+      console.error('Model load error:', e2);
+    }
+  }
+}
+
+// Drag and drop
+const dropZone = document.getElementById('drop-zone');
+const canvasWrap = document.getElementById('canvas-wrap');
+
+canvasWrap.addEventListener('dragover', e => { e.preventDefault(); canvasWrap.style.borderColor = '#7c6af7'; });
+canvasWrap.addEventListener('dragleave', () => { canvasWrap.style.borderColor = ''; });
+canvasWrap.addEventListener('drop', e => {
+  e.preventDefault(); canvasWrap.style.borderColor = '';
+  const file = e.dataTransfer.files[0];
+  if(file && file.type.startsWith('image/')) loadImageFile(file);
+});
+
+document.getElementById('file-input').addEventListener('change', e => {
+  if(e.target.files[0]) loadImageFile(e.target.files[0]);
+});
+
+dropZone.addEventListener('click', () => document.getElementById('file-input').click());
+
+function loadImageFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      currentImage = img;
+      currentPoses = null;
+      drawImageOnly(img);
+      document.getElementById('btn-analyze').disabled = !detector;
+      document.getElementById('btn-save').disabled = true;
+      document.getElementById('kp-grid').innerHTML = '<div style="font-size:0.75rem;color:var(--muted)">Click Analyze pose.</div>';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function drawImageOnly(img) {
+  const canvas = document.getElementById('main-canvas');
+  const wrap = document.getElementById('canvas-wrap');
+  const maxW = wrap.clientWidth;
+  const maxH = Math.max(wrap.clientHeight, 400);
+  const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+  canvas.width = img.width * scale;
+  canvas.height = img.height * scale;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  document.getElementById('drop-zone').style.display = 'none';
+  canvas.style.display = 'block';
+}
+
+async function analyzeImage() {
+  if(!currentImage || !detector) return;
+  document.getElementById('status-bar').style.display = 'flex';
+  document.getElementById('status-text').textContent = 'Analyzing pose...';
+  document.getElementById('btn-analyze').disabled = true;
+  try {
+    const poses = await detector.estimatePoses(currentImage);
+    currentPoses = poses;
+    redraw();
+    document.getElementById('btn-save').disabled = false;
+    document.getElementById('status-bar').style.display = 'none';
+    renderKpGrid(poses[0]);
+  } catch(e) {
+    document.getElementById('status-text').textContent = 'Error analyzing image.';
+    console.error(e);
+  }
+  document.getElementById('btn-analyze').disabled = false;
+}
+
+function redraw() {
+  if(!currentImage) return;
+  const canvas = document.getElementById('main-canvas');
+  const ctx = canvas.getContext('2d');
+  const scaleX = canvas.width / currentImage.width;
+  const scaleY = canvas.height / currentImage.height;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(currentImage, 0, 0, canvas.width, canvas.height);
+  if(!currentPoses || currentPoses.length === 0) return;
+  const kps = currentPoses[0].keypoints;
+  const conf = kp => kp.score >= minConf;
+  const pt = kp => [kp.x * scaleX, kp.y * scaleY];
+
+  // skeleton
+  if(document.getElementById('tog-skeleton').checked) {
+    ctx.strokeStyle = 'rgba(124,106,247,0.7)';
+    ctx.lineWidth = 2.5;
+    SKELETON.forEach(([a,b]) => {
+      if(conf(kps[a]) && conf(kps[b])) {
+        ctx.beginPath();
+        ctx.moveTo(...pt(kps[a]));
+        ctx.lineTo(...pt(kps[b]));
+        ctx.stroke();
+      }
+    });
+  }
+
+  // arm line
+  if(document.getElementById('tog-arm').checked) {
+    drawLine(ctx, kps, ARM_LINE, 'rgba(245,158,11,0.9)', 3, conf, pt, true);
+  }
+
+  // spine line
+  if(document.getElementById('tog-spine').checked) {
+    drawLine(ctx, kps, SPINE_LINE, 'rgba(16,185,129,0.9)', 3, conf, pt, true);
+  }
+
+  // hip line
+  if(document.getElementById('tog-hip').checked) {
+    drawLine(ctx, kps, HIP_LINE, 'rgba(239,68,68,0.9)', 3.5, conf, pt, true);
+  }
+
+  // leg lines
+  if(document.getElementById('tog-leg').checked) {
+    drawLine(ctx, kps, LEG_LINE_L, 'rgba(6,182,212,0.9)', 3, conf, pt, true);
+    drawLine(ctx, kps, LEG_LINE_R, 'rgba(6,182,212,0.9)', 3, conf, pt, true);
+  }
+
+  // keypoints
+  if(document.getElementById('tog-kp').checked) {
+    kps.forEach((kp, i) => {
+      if(!conf(kp)) return;
+      const [x, y] = pt(kp);
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, 2*Math.PI);
+      ctx.fillStyle = 'white';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(124,106,247,0.9)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    });
+  }
+}
+
+function drawLine(ctx, kps, indices, color, width, conf, pt, dashed) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  if(dashed) {
+    ctx.setLineDash([6, 3]);
+  } else {
+    ctx.setLineDash([]);
+  }
+  ctx.beginPath();
+  let started = false;
+  indices.forEach(i => {
+    if(conf(kps[i])) {
+      const [x, y] = pt(kps[i]);
+      if(!started) { ctx.moveTo(x, y); started = true; }
+      else ctx.lineTo(x, y);
+    }
+  });
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // endpoint dots
+  [indices[0], indices[indices.length-1]].forEach(i => {
+    if(conf(kps[i])) {
+      const [x,y] = pt(kps[i]);
+      ctx.beginPath();
+      ctx.arc(x, y, 6, 0, 2*Math.PI);
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+  });
+}
+
+function renderKpGrid(pose) {
+  if(!pose) { document.getElementById('kp-grid').innerHTML = '<div style="font-size:0.75rem;color:var(--muted)">No pose detected.</div>'; return; }
+  const names = ['nose','l_eye','r_eye','l_ear','r_ear','l_shldr','r_shldr','l_elbow','r_elbow','l_wrist','r_wrist','l_hip','r_hip','l_knee','r_knee','l_ankle','r_ankle'];
+  document.getElementById('kp-grid').innerHTML = pose.keypoints.map((kp, i) => {
+    const pct = Math.round(kp.score * 100);
+    const cls = pct >= 70 ? 'good' : pct >= 40 ? 'ok' : 'bad';
+    return `<div class="kp-item">
+      <span style="color:var(--muted)">${names[i]}</span>
+      <span class="kp-score ${cls}">${pct}%</span>
+    </div>`;
+  }).join('');
+}
+
+function updateConf(val) {
+  minConf = parseFloat(val);
+  document.getElementById('conf-val').textContent = val;
+  if(currentPoses) redraw();
+}
+
+function saveImage() {
+  const canvas = document.getElementById('main-canvas');
+  const a = document.createElement('a');
+  a.download = 'linecheck_analysis.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+}
+
+function resetApp() {
+  currentImage = null; currentPoses = null;
+  const canvas = document.getElementById('main-canvas');
+  canvas.style.display = 'none';
+  document.getElementById('drop-zone').style.display = 'flex';
+  document.getElementById('status-bar').style.display = 'none';
+  document.getElementById('btn-analyze').disabled = true;
+  document.getElementById('btn-save').disabled = true;
+  document.getElementById('kp-grid').innerHTML = '<div style="font-size:0.75rem;color:var(--muted)">No pose detected yet.</div>';
+  document.getElementById('file-input').value = '';
+}
+
+loadModel();
+</script>
+</body>
+</html>

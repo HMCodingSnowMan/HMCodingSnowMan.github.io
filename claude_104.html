@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 104 — How LLMs Actually Work</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f0f1a;
+  --card: #1a1a2e;
+  --surface: #16213e;
+  --border: #2d2d50;
+  --purple: #a78bfa;
+  --purple-dark: #7c3aed;
+  --purple-light: #1e1a3a;
+  --teal: #2dd4bf;
+  --teal-light: #0f2a28;
+  --gold: #fbbf24;
+  --gold-light: #2a1f0a;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0d0d1f; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--purple); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--purple); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--purple-light); color: var(--purple); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--gold-light); color: var(--gold); }
+.lesson-tag.tip-tag { background: var(--teal-light); color: var(--teal); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.purple { background: var(--purple-light); border-left: 4px solid var(--purple); color: var(--purple); }
+.callout.teal { background: var(--teal-light); border-left: 4px solid var(--teal); color: var(--teal); }
+.callout.gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: var(--gold); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+
+/* ANALOGY BLOCK */
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--purple); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+/* TOKEN VISUALIZER */
+.token-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.75rem 0; }
+.token { display: inline-block; padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; border: 1px solid; }
+.token-1 { background: rgba(167,139,250,0.15); border-color: rgba(167,139,250,0.4); color: var(--purple); }
+.token-2 { background: rgba(45,212,191,0.15); border-color: rgba(45,212,191,0.4); color: var(--teal); }
+.token-3 { background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.4); color: var(--gold); }
+.token-4 { background: rgba(52,211,153,0.15); border-color: rgba(52,211,153,0.4); color: var(--green); }
+.token-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 0.35rem; }
+
+/* CONTEXT WINDOW DIAGRAM */
+.context-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.context-bar { height: 36px; border-radius: 8px; background: var(--border); overflow: hidden; display: flex; margin: 0.5rem 0; }
+.context-seg { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; transition: width 0.5s; overflow: hidden; white-space: nowrap; }
+.seg-system { background: rgba(167,139,250,0.5); color: var(--purple); }
+.seg-history { background: rgba(45,212,191,0.5); color: var(--teal); }
+.seg-new { background: rgba(251,191,36,0.5); color: var(--gold); }
+.seg-free { background: var(--border); color: var(--muted); }
+.context-legend { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 0.5rem; font-size: 0.75rem; }
+.legend-item { display: flex; align-items: center; gap: 0.35rem; color: var(--muted); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+
+/* TRAINING TIMELINE */
+.timeline { display: flex; flex-direction: column; gap: 0; margin: 1rem 0; }
+.timeline-item { display: flex; gap: 1rem; }
+.timeline-left { display: flex; flex-direction: column; align-items: center; width: 32px; flex-shrink: 0; }
+.timeline-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--purple); flex-shrink: 0; margin-top: 3px; }
+.timeline-line { width: 2px; flex: 1; background: var(--border); margin: 4px 0; min-height: 20px; }
+.timeline-item:last-child .timeline-line { display: none; }
+.timeline-content { padding-bottom: 1rem; }
+.timeline-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+.timeline-body { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* MYTH CARDS */
+.myth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; }
+.myth-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--red); margin-bottom: 0.3rem; }
+.myth-text { font-size: 0.875rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+.truth-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--green); margin-bottom: 0.3rem; margin-top: 0.5rem; }
+.truth-text { font-size: 0.83rem; color: var(--muted); line-height: 1.5; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--purple); background: var(--purple-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--purple); }
+.try-submit { margin-top: 0.5rem; background: var(--purple-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.try-submit:hover { background: var(--purple); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--purple-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--purple); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--purple-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--purple); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--purple-light); color: var(--purple); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--purple-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚡ Claude 104 — How LLMs Actually Work</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 10</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 4',
+    emoji: '🔬',
+    title: "You made it to the deep end. Let's break the whole thing open.",
+    body: `
+      <p>Most people use AI the way most people use their microwave — they know what buttons to press but have no idea what's actually happening inside. That's fine for reheating leftovers. It's less fine when you're trying to get the most out of one of the most powerful tools ever built.</p>
+      <p>This module is about what's actually happening under the hood. No PhD required. We're going to cover:</p>
+      <div class="callout purple">
+        🧩 <strong>What tokens are</strong> — and why they matter more than you think<br><br>
+        🪟 <strong>The context window</strong> — the thing that determines what Claude can and can't "see"<br><br>
+        🏋️ <strong>How training actually works</strong> — where Claude's knowledge comes from<br><br>
+        🎲 <strong>Why Claude is probabilistic</strong> — why it gives different answers to the same question<br><br>
+        🚫 <strong>Common myths</strong> — things people believe about AI that are just wrong<br><br>
+        ⚙️ <strong>What this means for how you use it</strong> — the practical takeaways
+      </div>
+      <p>This is the module that makes everything else click. Let's go.</p>
+    `
+  },
+
+  // 1 - TOKENS
+  {
+    type: 'lesson',
+    tag: 'Tokens',
+    emoji: '🧩',
+    title: "Tokens: Claude doesn't read words. It reads chunks.",
+    body: `
+      <p>Here's something most people don't know: Claude doesn't process text the way you read it. It doesn't see words — it sees <strong>tokens</strong>. A token is roughly a chunk of text, somewhere between a character and a word.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Think of tokens like puzzle pieces</div>
+        <div class="analogy-body">If text is a puzzle image, tokens are the individual pieces. Some pieces are whole words. Some are parts of words. Some are punctuation. The model processes pieces, not the whole image at once.</div>
+      </div>
+
+      <p>Here's how the sentence <em>"Claude is surprisingly good at this"</em> gets tokenized:</p>
+      <div class="token-label">Each colored block = one token</div>
+      <div class="token-row">
+        <span class="token token-1">Cl</span><span class="token token-2">aude</span><span class="token token-3"> is</span><span class="token token-4"> surprisingly</span><span class="token token-1"> good</span><span class="token token-2"> at</span><span class="token token-3"> this</span>
+      </div>
+      <p>Notice "Claude" splits into two tokens. Common words like "is" are one token. Rarer words get broken into smaller pieces. This is why Claude sometimes struggles with things like counting letters — it's working with token chunks, not individual characters.</p>
+
+      <div class="callout gold">💡 <strong>Why this matters:</strong> AI pricing, speed, and context limits are all measured in tokens — not words. 1,000 words is roughly 1,300–1,500 tokens. If you've ever hit a "too long" limit, that's a token limit.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Token check",
+    question: "Why does Claude sometimes get confused when asked to count letters in a word, like 'how many r's are in strawberry'?",
+    options: [
+      "It doesn't have access to a dictionary",
+      "It processes tokens (chunks of text) not individual characters, so it can't directly 'see' each letter",
+      "It's a deliberate safety limitation",
+      "It only works in English"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Claude processes tokens — chunks of text — not individual characters. So counting letters requires reasoning about something it doesn't directly perceive, which is why it makes mistakes on tasks that seem simple to humans.",
+      wrong: "The real answer is B — Claude works with tokens, not individual characters. That's why letter-counting tasks trip it up. It's reasoning about character structure rather than directly perceiving each letter."
+    }
+  },
+
+  // 3 - CONTEXT WINDOW
+  {
+    type: 'lesson',
+    tag: 'Context window',
+    emoji: '🪟',
+    title: "The context window: Claude's working memory",
+    body: `
+      <p>Every conversation Claude has happens inside something called a <strong>context window</strong> — think of it as Claude's working memory for that conversation. Everything it can "see" at once fits inside this window.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Like a whiteboard in a meeting room</div>
+        <div class="analogy-body">Everything written on the whiteboard is visible and usable. But the whiteboard has a fixed size. Once it's full, you have to erase something to write something new. Claude's context window works the same way.</div>
+      </div>
+
+      <p>Here's what takes up space in a typical conversation:</p>
+      <div class="context-diagram">
+        <div class="context-bar">
+          <div class="context-seg seg-system" style="width:15%">System</div>
+          <div class="context-seg seg-history" style="width:45%">Conversation history</div>
+          <div class="context-seg seg-new" style="width:15%">Your message</div>
+          <div class="context-seg seg-free" style="width:25%">Available</div>
+        </div>
+        <div class="context-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(167,139,250,0.5)"></div>System instructions</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(45,212,191,0.5)"></div>Prior messages</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(251,191,36,0.5)"></div>Your new message</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--border)"></div>Still available</div>
+        </div>
+      </div>
+
+      <p>As a conversation gets longer, the history section fills up more and more. This is why very long conversations can sometimes feel like Claude "forgets" things from way earlier — it's because the earliest messages literally no longer fit in the window.</p>
+
+      <div class="callout teal">
+        💡 <strong>Practical takeaways:</strong><br><br>
+        • For very long projects, periodically summarize what's been decided so far and paste it in<br>
+        • Paste important context upfront — don't assume Claude will remember something from three conversations ago (it won't — each conversation starts fresh)<br>
+        • Longer context = more tokens = slower and more expensive on paid APIs
+      </div>
+    `
+  },
+
+  // 4 - TRAINING
+  {
+    type: 'lesson',
+    tag: 'Training',
+    emoji: '🏋️',
+    title: "How Claude learned everything it knows",
+    body: `
+      <p>Claude didn't get smart by someone programming in facts. It learned by processing an enormous amount of text — books, articles, websites, code, conversations — and learning the statistical patterns of how language works.</p>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-left"><div class="timeline-dot"></div><div class="timeline-line"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-title">1. Pre-training — reading the internet (basically)</div>
+            <div class="timeline-body">Claude processed hundreds of billions of words of text. It learned grammar, facts, reasoning patterns, writing styles, code syntax — all by predicting what word comes next, billions of times, across billions of examples.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-left"><div class="timeline-dot" style="background:var(--teal)"></div><div class="timeline-line"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-title">2. Fine-tuning — learning to be helpful</div>
+            <div class="timeline-body">After pre-training, Claude was refined using human feedback. People rated responses as good or bad, and the model learned to produce responses that humans actually preferred — helpful, accurate, clear.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-left"><div class="timeline-dot" style="background:var(--gold)"></div><div class="timeline-line"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-title">3. Constitutional AI — learning values</div>
+            <div class="timeline-body">Anthropic used a technique called Constitutional AI where Claude was trained against a set of principles — to be honest, harmless, and helpful. This is what shapes Claude's personality and ethical guardrails.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-left"><div class="timeline-dot" style="background:var(--green)"></div></div>
+          <div class="timeline-content">
+            <div class="timeline-title">4. Knowledge cutoff — learning stops at a date</div>
+            <div class="timeline-body">Training data has an end date. Everything after that cutoff is unknown to Claude unless you tell it. This is why it can't tell you yesterday's news — it literally wasn't trained on it.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout purple">💡 The weights — billions of numerical parameters — are what get saved after training. When you talk to Claude, you're not triggering a search or a lookup. You're running a mathematical function that was shaped by all that training.</div>
+    `
+  },
+
+  // 5 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🧐',
+    title: "Training quiz",
+    question: "Why can't Claude tell you about something that happened last week?",
+    options: [
+      "It's blocked for privacy reasons",
+      "It would need internet access to look it up",
+      "Its training data has a cutoff date — everything after that is unknown to it",
+      "It can, but only if you ask the right way"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Correct! 🎯 Claude's knowledge comes from its training data, which has a fixed end date. It's not connected to the internet by default and can't look things up — it can only work with what it learned during training plus what you tell it in the conversation.",
+      wrong: "The real reason is C — training data has a cutoff date. Claude isn't searching the web when it answers you. It's recalling patterns from text it processed during training, which stopped at a specific date."
+    }
+  },
+
+  // 6 - PROBABILISTIC
+  {
+    type: 'lesson',
+    tag: 'Probability',
+    emoji: '🎲',
+    title: "Claude isn't deterministic. Here's what that means.",
+    body: `
+      <p>Ask Claude the same question twice and you might get two different answers. That's not a bug. It's how it works at a fundamental level.</p>
+      <p>When Claude generates a response, it's essentially making a series of probabilistic choices — at each step, it picks the next token based on probability weights. It doesn't calculate <em>the</em> right answer and retrieve it. It generates a likely-to-be-good answer based on patterns from training.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Autocomplete on steroids</div>
+        <div class="analogy-body">Your phone's autocomplete predicts the next word based on what words usually follow. Claude does the same thing, except with billions of parameters, across hundreds of tokens, with an understanding of context deep enough to write a novel. Same fundamental mechanism — wildly different scale.</div>
+      </div>
+
+      <div class="callout gold">
+        💡 <strong>A setting called "temperature" controls randomness:</strong><br><br>
+        🌡️ <strong>Low temperature</strong> — more predictable, consistent, focused answers<br>
+        🌡️🌡️ <strong>High temperature</strong> — more creative, varied, sometimes surprising answers<br><br>
+        By default Claude is somewhere in the middle — reliable but not robotic.
+      </div>
+
+      <div class="callout teal">
+        <strong>What this means practically:</strong><br><br>
+        • If Claude gives you a bad answer, try again — you might get a better one<br>
+        • For creative tasks, variation is a feature not a bug — run it multiple times and pick the best<br>
+        • For factual tasks, variation is a warning sign — always verify outputs that matter
+      </div>
+    `
+  },
+
+  // 7 - MYTHS
+  {
+    type: 'lesson',
+    tag: 'Myth busting',
+    emoji: '🚫',
+    title: "5 things people believe about AI that are just wrong",
+    body: `
+      <p>There's a lot of noise out there about what AI is and isn't. Let's clear up the most common ones.</p>
+
+      <div class="myth-card">
+        <div class="myth-label">❌ Myth</div>
+        <div class="myth-text">"Claude is just searching the internet for answers."</div>
+        <div class="truth-label">✅ Reality</div>
+        <div class="truth-text">Claude isn't searching anything. It's running a mathematical function shaped by training data. It has no internet connection by default and no ability to look things up in real time.</div>
+      </div>
+
+      <div class="myth-card">
+        <div class="myth-label">❌ Myth</div>
+        <div class="myth-text">"Claude remembers our previous conversations."</div>
+        <div class="truth-label">✅ Reality</div>
+        <div class="truth-text">Each conversation starts completely fresh. Claude has no memory of what you talked about yesterday. Everything it knows about you in a given session is only what you've told it in that session.</div>
+      </div>
+
+      <div class="myth-card">
+        <div class="myth-label">❌ Myth</div>
+        <div class="myth-text">"If Claude says it confidently, it's probably right."</div>
+        <div class="truth-label">✅ Reality</div>
+        <div class="truth-text">Confidence and accuracy are not correlated in LLMs. Claude can hallucinate specific facts, dates, names, and citations with complete confidence. Sounding sure is a style choice — not a reliability signal.</div>
+      </div>
+
+      <div class="myth-card">
+        <div class="myth-label">❌ Myth</div>
+        <div class="myth-text">"Claude is conscious / has feelings / is sentient."</div>
+        <div class="truth-label">✅ Reality</div>
+        <div class="truth-text">This is genuinely uncertain and actively debated — but current scientific consensus is that LLMs are sophisticated pattern matchers, not conscious beings. Claude's expressions of curiosity or enthusiasm are outputs, not experiences.</div>
+      </div>
+
+      <div class="myth-card">
+        <div class="myth-label">❌ Myth</div>
+        <div class="myth-text">"Claude knows everything up to its cutoff date."</div>
+        <div class="truth-label">✅ Reality</div>
+        <div class="truth-text">Training data is not evenly distributed. Very recent events near the cutoff are underrepresented because the internet hadn't fully processed them yet. Niche topics may be barely covered at all. Knowledge is patchy, not complete.</div>
+      </div>
+    `
+  },
+
+  // 8 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Think it through 🎮',
+    emoji: '✍️',
+    title: "Apply the deep knowledge",
+    instruction: "You now understand tokens, context windows, training, probabilistic output, and common myths. Write a short explanation (3–5 sentences) of why Claude sometimes gives wrong answers — as if you're explaining it to a friend who thinks Claude is just 'searching the internet.' Use what you've learned.",
+    placeholder: "Write your explanation here...",
+    response: "Great explanation! Here's how I'd put it: Claude isn't searching the internet — it's a mathematical model that learned from text during training and generates responses based on statistical patterns. Because it generates rather than retrieves answers, it can produce confident-sounding text that isn't factually accurate — we call this hallucination. Its knowledge also stops at a training cutoff date, so recent events are unknown to it unless you provide that information. And because its outputs are probabilistic, the same question can produce different answers on different runs. Understanding these constraints is what separates a power user from someone who just gets frustrated when AI seems 'wrong.'"
+  },
+
+  // 9 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Final quiz ✏️',
+    emoji: '🏆',
+    title: "The big one",
+    question: "You're using Claude for an important research project and it gives you a specific statistic with a named source. What do you know now that you didn't before taking this module?",
+    options: [
+      "That statistic is probably accurate since Claude has access to reliable sources",
+      "Claude retrieved that from a database during your conversation",
+      "Claude generated that response probabilistically — the stat and source could both be hallucinated, even though it sounds confident",
+      "The knowledge cutoff means the stat is outdated but otherwise reliable"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "That's the core insight. 🎯 Claude generated that response — it didn't retrieve it. The statistic, the source name, and even the page number if it gave one could all be hallucinated with complete confidence. This is why verification isn't optional for anything important. You now understand WHY this happens, not just that it does.",
+      wrong: "The correct answer is C. Claude generates responses probabilistically — it doesn't retrieve from databases or verify sources. A confident-sounding statistic with a named source can still be entirely fabricated. Understanding the generation mechanism is what makes this obvious rather than surprising."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🧠'; title = "You get it."; sub = "You now understand AI at a level most people never reach. That's genuinely useful — not just as a user, but as someone who can explain it to others."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core concepts. A second pass through the lessons will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This stuff is legitimately complex. Go back through the lessons — the concepts build on each other and will click with a second read."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout purple">
+          <strong>What you now know:</strong><br><br>
+          🧩 <strong>Tokens</strong> — Claude processes chunks, not characters or words<br>
+          🪟 <strong>Context window</strong> — Claude's working memory, measured in tokens, resets each conversation<br>
+          🏋️ <strong>Training</strong> — pre-training + fine-tuning + Constitutional AI + knowledge cutoff<br>
+          🎲 <strong>Probabilistic</strong> — generation, not retrieval. Variation is normal.<br>
+          🚫 <strong>Myths</strong> — not searching, no memory across sessions, confidence ≠ accuracy
+        </div>
+        <div class="callout teal">
+          <strong>The one rule that ties it all together:</strong><br>
+          Claude generates plausible text based on patterns — it doesn't retrieve verified facts. Everything important gets verified independently.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

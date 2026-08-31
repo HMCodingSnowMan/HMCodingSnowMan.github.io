@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 103 — Prompting Techniques & Use Cases</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0fdf4;
+  --card: #ffffff;
+  --border: #bbf7d0;
+  --green: #16a34a;
+  --green-dark: #14532d;
+  --green-light: #dcfce7;
+  --teal: #0d9488;
+  --teal-light: #ccfbf1;
+  --purple: #7c6af7;
+  --purple-light: #ede9fe;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --gold: #f59e0b;
+  --gold-light: #fef3c7;
+  --blue: #3b82f6;
+  --blue-light: #eff6ff;
+  --text: #052e16;
+  --muted: #4d7c61;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: var(--green-dark); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: #86efac; border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; opacity: 0.8; white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--green-light); color: var(--green-dark); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--gold-light); color: #92400e; }
+.lesson-tag.tip-tag { background: var(--teal-light); color: var(--teal); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green-dark); }
+.callout.teal { background: var(--teal-light); border-left: 4px solid var(--teal); color: #134e4a; }
+.callout.gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: #92400e; }
+.callout.purple { background: var(--purple-light); border-left: 4px solid var(--purple); color: #3b2f8a; }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: #7f1d1d; }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: #1e3a8a; }
+
+.technique-block { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.75rem 0; }
+.technique-name { font-size: 0.82rem; font-weight: 700; color: var(--green-dark); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.technique-desc { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.6rem; line-height: 1.5; }
+.prompt-example { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 0.6rem 0.875rem; font-size: 0.8rem; font-family: inherit; color: var(--text); line-height: 1.6; }
+.prompt-label { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); margin-bottom: 0.3rem; }
+
+.chat-example { background: var(--bg); border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+.chat-msg { display: flex; gap: 0.6rem; margin-bottom: 0.6rem; align-items: flex-start; }
+.chat-msg:last-child { margin-bottom: 0; }
+.chat-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.chat-avatar.user { background: var(--green); color: white; }
+.chat-avatar.claude { background: var(--text); color: white; }
+.chat-bubble { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.75rem; font-size: 0.82rem; line-height: 1.5; flex: 1; }
+.chat-bubble.user-bubble { background: var(--green-light); border-color: var(--green-light); }
+.chat-section-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.5rem; }
+
+.use-case-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin: 1rem 0; }
+.use-case-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem; }
+.use-case-icon { font-size: 1.25rem; margin-bottom: 0.3rem; }
+.use-case-title { font-size: 0.8rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.use-case-desc { font-size: 0.75rem; color: var(--muted); line-height: 1.4; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; }
+.quiz-option:hover { border-color: var(--green); background: var(--green-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green-dark); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: #7f1d1d; pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.5; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: white; }
+.quiz-option.wrong .option-letter { background: var(--red); color: white; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green-dark); }
+.quiz-feedback.wrong { background: var(--red-light); color: #7f1d1d; }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--bg); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--green); background: white; }
+.try-submit { margin-top: 0.5rem; background: var(--green-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; }
+.try-submit:hover { background: var(--green); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--green-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--green-dark); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--green-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; display: flex; align-items: center; gap: 0.5rem; }
+.btn-next:hover { background: var(--green); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--green-light); color: var(--green-dark); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--green-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .use-case-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🧠 Claude 103 — Prompting Techniques & Use Cases</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 9</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 3',
+    emoji: '🚀',
+    title: "You know the basics. Now let's make you dangerous.",
+    body: `
+      <p>You've used Claude. You know how to ask it stuff. But there's a gap between <em>using</em> AI and <em>getting the most out of it</em> — and that gap is almost entirely about how you write your prompts.</p>
+      <p>This module is about closing that gap. We're covering:</p>
+      <div class="callout green">
+        🎯 <strong>Prompting techniques</strong> — specific frameworks that consistently produce better output<br><br>
+        💼 <strong>Real use cases</strong> — actual workflows where Claude saves serious time<br><br>
+        ⚠️ <strong>Where Claude falls short</strong> — knowing the limits is just as important as knowing the strengths<br><br>
+        🔁 <strong>The iteration mindset</strong> — how to treat prompting like a skill you practice
+      </div>
+      <p>By the end of this you'll prompt differently. Let's go.</p>
+    `
+  },
+
+  // 1 - PROMPTING TECHNIQUES
+  {
+    type: 'lesson',
+    tag: 'Techniques',
+    emoji: '🎯',
+    title: "5 prompting techniques that actually work",
+    body: `
+      <p>These aren't tricks — they're frameworks. Use them intentionally and you'll see a measurable difference in output quality.</p>
+
+      <div class="technique-block">
+        <div class="technique-name">1. Role assignment</div>
+        <div class="technique-desc">Tell Claude who to be. It changes the tone, depth, and frame of the entire response.</div>
+        <div class="prompt-label">Example prompt</div>
+        <div class="prompt-example">"You are a senior marketing strategist reviewing this campaign brief. Give me your honest critique — what's strong, what's weak, and what's missing."</div>
+      </div>
+
+      <div class="technique-block">
+        <div class="technique-name">2. Format specification</div>
+        <div class="technique-desc">Tell Claude exactly how you want the output structured. Don't leave it to guess.</div>
+        <div class="prompt-label">Example prompt</div>
+        <div class="prompt-example">"Give me your answer as a numbered list, max 5 items, each with one sentence of explanation. No intro paragraph."</div>
+      </div>
+
+      <div class="technique-block">
+        <div class="technique-name">3. Chain of thought</div>
+        <div class="technique-desc">Ask Claude to think out loud before giving the final answer. Better for complex problems.</div>
+        <div class="prompt-label">Example prompt</div>
+        <div class="prompt-example">"Walk me through your reasoning step by step before you give me your recommendation."</div>
+      </div>
+
+      <div class="technique-block">
+        <div class="technique-name">4. Few-shot examples</div>
+        <div class="technique-desc">Show Claude an example of what you want before asking it to do the thing.</div>
+        <div class="prompt-label">Example prompt</div>
+        <div class="prompt-example">"Here's an example of the tone I want: [paste example]. Now write a product description for [product] in the same style."</div>
+      </div>
+
+      <div class="technique-block">
+        <div class="technique-name">5. Constraint setting</div>
+        <div class="technique-desc">Tell Claude what NOT to do. Negative constraints are often more powerful than positive ones.</div>
+        <div class="prompt-label">Example prompt</div>
+        <div class="prompt-example">"Write this email. Do not use corporate jargon. Do not start with 'I hope this email finds you well.' Keep it under 100 words."</div>
+      </div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Technique check",
+    question: "You want Claude to write a product description in the same casual, punchy style as your existing copy. Which technique is most useful here?",
+    options: [
+      "Chain of thought — ask it to reason through the style first",
+      "Few-shot examples — show it your existing copy before asking",
+      "Role assignment — tell it to be a copywriter",
+      "Constraint setting — list what words not to use"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right! 🎯 Few-shot examples are the most direct way to transfer style. Show Claude what you mean before asking it to replicate it. Words can describe style — examples demonstrate it.",
+      wrong: "Good thinking, but the strongest move here is few-shot examples. Showing Claude your existing copy before asking it to write more is more precise than trying to describe your style in words."
+    }
+  },
+
+  // 3 - USE CASES
+  {
+    type: 'lesson',
+    tag: 'Use cases',
+    emoji: '💼',
+    title: "Where Claude actually saves you time",
+    body: `
+      <p>Here are the use cases where people consistently report the biggest time savings. These aren't theoretical — they're what people are actually doing with Claude right now.</p>
+      <div class="use-case-grid">
+        <div class="use-case-card">
+          <div class="use-case-icon">📧</div>
+          <div class="use-case-title">Difficult emails</div>
+          <div class="use-case-desc">Paste the situation, ask for a draft. Saves 20–30 min of staring at a blank screen.</div>
+        </div>
+        <div class="use-case-card">
+          <div class="use-case-icon">📋</div>
+          <div class="use-case-title">Meeting prep</div>
+          <div class="use-case-desc">Feed it the agenda and background, ask for questions to ask and things to watch out for.</div>
+        </div>
+        <div class="use-case-card">
+          <div class="use-case-icon">🧹</div>
+          <div class="use-case-title">Editing your own writing</div>
+          <div class="use-case-desc">Paste your draft, ask for specific improvements. Keep your voice, fix the weak spots.</div>
+        </div>
+        <div class="use-case-card">
+          <div class="use-case-icon">🔍</div>
+          <div class="use-case-title">Research summaries</div>
+          <div class="use-case-desc">Paste articles or reports, ask for the key points and what it means for your situation.</div>
+        </div>
+        <div class="use-case-card">
+          <div class="use-case-icon">🧠</div>
+          <div class="use-case-title">Thinking out loud</div>
+          <div class="use-case-desc">Describe a problem you're stuck on. Use Claude as a sounding board to think it through.</div>
+        </div>
+        <div class="use-case-card">
+          <div class="use-case-icon">📝</div>
+          <div class="use-case-title">SOPs and templates</div>
+          <div class="use-case-desc">Describe a repeatable process, ask Claude to turn it into a clean, reusable template.</div>
+        </div>
+      </div>
+      <div class="callout teal">💡 <strong>The pattern:</strong> any task that's repetitive, that requires a first draft, or that involves synthesizing a lot of information is a Claude use case.</div>
+    `
+  },
+
+  // 4 - ITERATION
+  {
+    type: 'lesson',
+    tag: 'Iteration',
+    emoji: '🔁',
+    title: "Prompting is a skill. Here's how to practice it.",
+    body: `
+      <p>The difference between someone who gets mediocre AI output and someone who gets great output isn't talent — it's iteration. They tweak, they refine, they experiment.</p>
+      <p>Here's the iteration loop that works:</p>
+      <div class="callout green">
+        <strong>Step 1: Write your first prompt</strong><br>
+        Don't overthink it. Get something out there.
+      </div>
+      <div class="callout teal">
+        <strong>Step 2: Evaluate the output</strong><br>
+        What's right? What's wrong? What's missing? Be specific.
+      </div>
+      <div class="callout purple">
+        <strong>Step 3: Give targeted feedback</strong><br>
+        Not "that's bad" — tell it exactly what to fix. "Too formal." "Make the opening punchier." "Cut the last paragraph."
+      </div>
+      <div class="callout gold">
+        <strong>Step 4: Repeat until it's right</strong><br>
+        Most great AI outputs take 3–5 rounds of back and forth. That's normal — not a failure.
+      </div>
+      <div class="chat-example">
+        <div class="chat-section-label">Real iteration in action</div>
+        <div class="chat-msg">
+          <div class="chat-avatar user">You</div>
+          <div class="chat-bubble user-bubble">Write a LinkedIn post about my promotion.</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar claude">C</div>
+          <div class="chat-bubble">Excited to share that I've been promoted to Senior Manager at [Company]! Grateful for the opportunities and the incredible team...</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar user">You</div>
+          <div class="chat-bubble user-bubble">Too generic. Make it more personal — mention that it took 3 years, and add something genuine about what the team means to me. Less corporate.</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar claude">C</div>
+          <div class="chat-bubble">Three years ago I wasn't sure this was the right move. Today I got promoted to Senior Manager — and honestly the team is the whole reason...</div>
+        </div>
+      </div>
+      <p>See how the second version is actually usable? That's iteration at work.</p>
+    `
+  },
+
+  // 5 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🧐',
+    title: "Iteration quiz",
+    question: "Claude gave you a response that's 70% there — the structure is right but the tone is too formal. What's the best next move?",
+    options: [
+      "Start a new conversation with a completely different prompt",
+      "Accept it and edit the tone yourself",
+      "Say \"make the tone more casual and conversational\" in the same conversation",
+      "Ask Claude to explain why it wrote it so formally"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "That's the move! 💪 Targeted feedback in the same conversation is always the fastest path. Claude keeps all the context and makes exactly the change you asked for. Asking it to explain itself is interesting but wastes a turn when you already know what you want.",
+      wrong: "The fastest path is option C — just tell it what to change in the same conversation. Claude keeps all the context from your previous turns and can make a precise adjustment without you having to re-explain everything."
+    }
+  },
+
+  // 6 - LIMITATIONS
+  {
+    type: 'lesson',
+    tag: 'Know the limits',
+    emoji: '⚠️',
+    title: "Where Claude falls short — be honest with yourself",
+    body: `
+      <p>No tool is perfect. Knowing where Claude struggles is just as valuable as knowing where it shines. Here's the honest rundown:</p>
+
+      <div class="callout red">
+        ❌ <strong>Real-time information</strong><br>
+        Claude's knowledge has a cutoff date. Don't ask it for today's stock price, yesterday's news, or anything time-sensitive without giving it the information yourself.
+      </div>
+
+      <div class="callout red">
+        ❌ <strong>Math and calculations</strong><br>
+        It can do basic math, but it can make arithmetic errors on complex calculations. Always verify numbers. Use a calculator for anything important.
+      </div>
+
+      <div class="callout red">
+        ❌ <strong>Hallucination</strong><br>
+        Claude can confidently state something that isn't true — especially specific facts, citations, stats, or names. If something sounds slightly off, verify it. This is the big one.
+      </div>
+
+      <div class="callout red">
+        ❌ <strong>Your niche domain knowledge</strong><br>
+        Claude knows a lot but not everything. For highly specialized or proprietary information, it's only as good as what you give it. Feed it context, don't assume it already knows.
+      </div>
+
+      <div class="callout teal">
+        💡 <strong>The golden rule:</strong> Claude is a thinking partner and a first draft machine — not a source of truth. Verify anything that matters.
+      </div>
+    `
+  },
+
+  // 7 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it! 🎮',
+    emoji: '✍️',
+    title: "Apply a technique",
+    instruction: "Pick any one of the 5 techniques from Lesson 2 and apply it to a real task. Write a prompt that clearly uses role assignment, format specification, chain of thought, few-shot examples, or constraint setting. Label which technique you're using at the start.",
+    placeholder: "Technique: [name the technique]\n\nPrompt: [write your prompt here]",
+    response: "Nice work applying that technique deliberately! That's exactly the right approach — being intentional about which framework you're using makes a huge difference. Role assignment tends to shift the entire tone and depth of a response. Format specification cuts out all the fluff. Chain of thought is gold for complex decisions. Few-shot examples are the most precise way to transfer style. And constraint setting keeps Claude from doing the things that drive you crazy. Keep layering these — the best prompts often use two or three techniques at once."
+  },
+
+  // 8 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Final quiz ✏️',
+    emoji: '🏆',
+    title: "Final check",
+    question: "Claude gives you a confident answer with a specific statistic you've never seen before. What should you do?",
+    options: [
+      "Use it — Claude is usually right",
+      "Verify the statistic before using it anywhere important",
+      "Ask Claude where it got the number",
+      "Assume it's wrong and ignore it"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Yes. 🎯 Always verify specific facts, stats, and citations from Claude before using them in anything important. Claude can hallucinate confidently — which is more dangerous than obviously wrong. Asking it where it got the number can help, but it might just hallucinate a source too. Independent verification is the only safe move.",
+      wrong: "The right answer is B — always verify before using. Claude can hallucinate specific statistics confidently, which is the most dangerous kind of mistake. Even asking Claude for its source isn't fully reliable since it can fabricate citations. Independent verification is the only real safety net."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your prompt</div>
+        <textarea class="try-input" id="try-input" rows="4" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🏆'; title = "Clean sweep!"; sub = "You've got the intermediate game locked in. Module 4 is going to break your brain in the best way."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid work!"; sub = "You've got the core techniques down. Practice them on real tasks and they'll become second nature."; }
+  else { emoji = '💪'; title = "Keep going!"; sub = "These techniques take a little repetition to click. Go back through the lessons and try the exercises again."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout green">
+          <strong>The 5 techniques — quick reference:</strong><br><br>
+          🎭 <strong>Role assignment</strong> — tell it who to be<br>
+          📐 <strong>Format specification</strong> — tell it how to structure output<br>
+          🧠 <strong>Chain of thought</strong> — ask it to think out loud<br>
+          📋 <strong>Few-shot examples</strong> — show before you ask<br>
+          🚫 <strong>Constraint setting</strong> — tell it what NOT to do
+        </div>
+        <div class="callout red">
+          <strong>Always verify:</strong> facts, stats, citations, and anything time-sensitive. Claude is a thinking partner — not a source of truth.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
