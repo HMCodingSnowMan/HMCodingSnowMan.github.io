@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn Claude — AI Learning Series</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf9;
+  --card: #ffffff;
+  --border: #e8e8e6;
+  --text: #1a1a18;
+  --muted: #6b6b68;
+  --tag-bg: #f0f0ee;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.nav-name { font-size: 0.9rem; font-weight: 700; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+
+.hero { max-width: 780px; margin: 0 auto; padding: 5rem 2rem 3rem; }
+.hero-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+.hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 1.25rem; max-width: 580px; }
+.hero h1 em { font-style: italic; color: var(--muted); }
+.hero p { font-size: 1rem; color: var(--muted); max-width: 480px; line-height: 1.7; margin-bottom: 2rem; }
+
+.path-section { max-width: 780px; margin: 0 auto; padding: 0 2rem 6rem; }
+.section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+
+/* PATH CONNECTOR */
+.path { display: flex; flex-direction: column; gap: 0; }
+.path-item { display: flex; gap: 1.25rem; }
+.path-connector { display: flex; flex-direction: column; align-items: center; width: 48px; flex-shrink: 0; }
+.path-node { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; flex-shrink: 0; border: 3px solid; transition: transform 0.2s; }
+.path-line { width: 3px; flex: 1; min-height: 24px; border-radius: 2px; }
+
+/* MODULE CARDS */
+.module-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; text-decoration: none; color: inherit; display: block; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; position: relative; overflow: hidden; }
+.module-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.07); transform: translateY(-2px); }
+.module-card-accent { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 16px 16px 0 0; }
+.module-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+.module-number { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.2rem 0.6rem; border-radius: 20px; }
+.module-duration { font-size: 0.72rem; color: var(--muted); }
+.module-emoji { font-size: 1.75rem; margin-bottom: 0.5rem; display: block; }
+.module-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.4rem; line-height: 1.3; }
+.module-audience { font-size: 0.78rem; font-weight: 600; margin-bottom: 0.5rem; }
+.module-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+.module-topics { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem; }
+.topic-tag { font-size: 0.7rem; font-weight: 500; background: var(--tag-bg); color: var(--muted); padding: 0.2rem 0.55rem; border-radius: 20px; }
+.module-cta { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; border-top: 1px solid var(--border); padding-top: 1rem; transition: gap 0.15s; }
+.module-card:hover .module-cta { gap: 0.65rem; }
+
+/* MODULE COLOR THEMES */
+.mod-1 .module-card { border-color: #ddd6fe; }
+.mod-1 .module-card:hover { border-color: #a78bfa; }
+.mod-1 .module-number { background: #ede9fe; color: #5b21b6; }
+.mod-1 .module-audience { color: #7c3aed; }
+.mod-1 .module-cta { color: #7c3aed; }
+.mod-1 .path-node { background: #ede9fe; border-color: #a78bfa; color: #7c3aed; }
+.mod-1 .path-line { background: linear-gradient(#a78bfa, #0ea5e9); }
+
+.mod-2 .module-card { border-color: #bae6fd; }
+.mod-2 .module-card:hover { border-color: #38bdf8; }
+.mod-2 .module-number { background: #e0f2fe; color: #0369a1; }
+.mod-2 .module-audience { color: #0369a1; }
+.mod-2 .module-cta { color: #0369a1; }
+.mod-2 .path-node { background: #e0f2fe; border-color: #38bdf8; color: #0369a1; }
+.mod-2 .path-line { background: linear-gradient(#38bdf8, #16a34a); }
+
+.mod-3 .module-card { border-color: #bbf7d0; }
+.mod-3 .module-card:hover { border-color: #4ade80; }
+.mod-3 .module-number { background: #dcfce7; color: #14532d; }
+.mod-3 .module-audience { color: #16a34a; }
+.mod-3 .module-cta { color: #16a34a; }
+.mod-3 .path-node { background: #dcfce7; border-color: #4ade80; color: #14532d; }
+.mod-3 .path-line { background: linear-gradient(#4ade80, #7c3aed); }
+
+.mod-4 .module-card { border-color: #312e81; background: #0f0f1a; }
+.mod-4 .module-card:hover { border-color: #a78bfa; box-shadow: 0 4px 24px rgba(124,58,237,0.15); }
+.mod-4 .module-card .module-title { color: #e2e8f0; }
+.mod-4 .module-card .module-desc { color: #94a3b8; }
+.mod-4 .module-card .module-duration { color: #64748b; }
+.mod-4 .module-number { background: #1e1a3a; color: #a78bfa; }
+.mod-4 .module-audience { color: #a78bfa; }
+.mod-4 .module-cta { color: #a78bfa; border-color: #312e81; }
+.mod-4 .module-card .topic-tag { background: #1e1a3a; color: #64748b; }
+.mod-4 .module-card .module-card-accent { background: #7c3aed; }
+.mod-4 .module-card { border-top: 3px solid #7c3aed; }
+.mod-4 .path-node { background: #1e1a3a; border-color: #a78bfa; color: #a78bfa; }
+
+/* FAQ */
+.faq-section { max-width: 780px; margin: 0 auto; padding: 0 2rem 5rem; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 1.25rem 0; }
+.faq-q { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
+.faq-a { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: 0.8rem; color: var(--muted); }
+footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 560px) {
+  nav { padding: 0 1rem; }
+  .hero { padding: 3rem 1rem 2rem; }
+  .path-section, .faq-section { padding-left: 1rem; padding-right: 1rem; }
+  .path-connector { width: 36px; }
+  .path-node { width: 36px; height: 36px; font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">🤖 Learn Claude</div>
+  <div class="nav-links">
+    <a href="#modules">Modules</a>
+    <a href="#faq">FAQ</a>
+    <a href="index.html">← Portfolio</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">AI Learning Series · 4 Modules</div>
+  <h1>Learn Claude — <em>at your level.</em></h1>
+  <p>Four interactive modules that meet you where you are. Complete beginner or seasoned AI user — there's a track for you. Pick your starting point and go.</p>
+</section>
+
+<section class="path-section" id="modules">
+  <div class="section-label">Choose your starting point</div>
+
+  <div class="path">
+
+    <!-- MODULE 1 -->
+    <div class="path-item mod-1">
+      <div class="path-connector">
+        <div class="path-node">1</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="claude_101.html">
+        <div class="module-card-accent" style="background:#7c3aed"></div>
+        <div class="module-top">
+          <span class="module-number">Module 1 · Beginner</span>
+          <span class="module-duration">~8 min · 8 lessons</span>
+        </div>
+        <span class="module-emoji">👋</span>
+        <div class="module-title">Claude 101 — What Even Is This?</div>
+        <div class="module-audience">For: Complete beginners who've never used AI</div>
+        <div class="module-desc">Start here if AI feels like a mystery. We cover what Claude is, what it can do, and how to talk to it — no jargon, no assumptions, just the basics in plain language.</div>
+        <div class="module-topics">
+          <span class="topic-tag">What is Claude</span>
+          <span class="topic-tag">Basic prompting</span>
+          <span class="topic-tag">Everyday use cases</span>
+          <span class="topic-tag">Pro tips</span>
+        </div>
+        <div class="module-cta">Start Module 1 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 2 -->
+    <div class="path-item mod-2">
+      <div class="path-connector">
+        <div class="path-node">2</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="claude_102.html">
+        <div class="module-card-accent" style="background:#0369a1"></div>
+        <div class="module-top">
+          <span class="module-number">Module 2 · Familiar</span>
+          <span class="module-duration">~10 min · 8 lessons</span>
+        </div>
+        <span class="module-emoji">🔄</span>
+        <div class="module-title">Claude 102 — Coming from ChatGPT?</div>
+        <div class="module-audience">For: People who've used ChatGPT or other AI tools</div>
+        <div class="module-desc">You know how AI works at a surface level. Now let's talk about what makes Claude different — its personality, its long context window, and the habits you should drop from other tools.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Claude vs ChatGPT</span>
+          <span class="topic-tag">Context window</span>
+          <span class="topic-tag">Claude's personality</span>
+          <span class="topic-tag">Habits to change</span>
+        </div>
+        <div class="module-cta">Start Module 2 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 3 -->
+    <div class="path-item mod-3">
+      <div class="path-connector">
+        <div class="path-node">3</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="claude_103.html">
+        <div class="module-card-accent" style="background:#16a34a"></div>
+        <div class="module-top">
+          <span class="module-number">Module 3 · Intermediate</span>
+          <span class="module-duration">~12 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">🧠</span>
+        <div class="module-title">Claude 103 — Prompting Techniques & Use Cases</div>
+        <div class="module-audience">For: Regular AI users who want to level up their output</div>
+        <div class="module-desc">Five named prompting techniques, six real use cases where Claude saves the most time, how to iterate effectively, and an honest look at where Claude falls short.</div>
+        <div class="module-topics">
+          <span class="topic-tag">5 prompting techniques</span>
+          <span class="topic-tag">Real use cases</span>
+          <span class="topic-tag">Iteration mindset</span>
+          <span class="topic-tag">Claude's limitations</span>
+        </div>
+        <div class="module-cta">Start Module 3 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 4 -->
+    <div class="path-item mod-4">
+      <div class="path-connector">
+        <div class="path-node">4</div>
+      </div>
+      <a class="module-card" href="claude_104.html">
+        <div class="module-top">
+          <span class="module-number">Module 4 · Advanced</span>
+          <span class="module-duration">~15 min · 10 lessons</span>
+        </div>
+        <span class="module-emoji">⚡</span>
+        <div class="module-title">Claude 104 — How LLMs Actually Work</div>
+        <div class="module-audience">For: Power users who want to understand what's under the hood</div>
+        <div class="module-desc">Tokens, context windows, training pipelines, probabilistic output, and the five most common AI myths — explained without a PhD. This is the module that makes everything else click.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Tokens</span>
+          <span class="topic-tag">Context windows</span>
+          <span class="topic-tag">Training & fine-tuning</span>
+          <span class="topic-tag">Hallucination explained</span>
+          <span class="topic-tag">AI myths debunked</span>
+        </div>
+        <div class="module-cta">Start Module 4 <span>→</span></div>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section class="faq-section" id="faq">
+  <div class="section-label">FAQ</div>
+
+  <div class="faq-item">
+    <div class="faq-q">Do I have to start at Module 1?</div>
+    <div class="faq-a">Nope. Jump in wherever matches your level. If you've been using ChatGPT for a year, start at Module 2. If you already know prompting techniques, start at Module 3. Module 1 is only for complete beginners.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">How long does each module take?</div>
+    <div class="faq-a">Anywhere from 8–15 minutes depending on how long you spend on the exercises. They're designed to be done in one sitting — grab a coffee and go.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Is there a quiz at the end?</div>
+    <div class="faq-a">Each module has 3 quizzes built in throughout — not just at the end. The feedback explains why each answer is right or wrong, so you actually learn from them rather than just checking a box.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Do I need to create an account to use Claude?</div>
+    <div class="faq-a">You can try Claude for free at claude.ai — no credit card needed. A free account gives you access to basic conversations. Paid plans unlock longer context windows and more advanced models.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Who made this?</div>
+    <div class="faq-a">This learning series was designed and built by Hans Marasigan — data analyst and AI workflow consultant based in Los Angeles. <a href="index.html">View the full portfolio →</a></div>
+  </div>
+</section>
+
+<footer>
+  Built by <a href="index.html">Hans Marasigan</a> · Los Angeles, CA · <a href="mailto:hansmarasigan@gmail.com">hansmarasigan@gmail.com</a>
+</footer>
+
+</body>
+</html>
