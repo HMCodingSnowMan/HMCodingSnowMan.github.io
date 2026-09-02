@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TextLens — Text Statistics</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Literata:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #faf9f6;
+    --surface: #ffffff;
+    --surface2: #f3f2ef;
+    --border: #e4e2dc;
+    --text: #1a1917;
+    --text-dim: #7a7870;
+    --text-faint: #b8b5ae;
+    --accent: #2d6a4f;
+    --accent-light: #e8f4ef;
+    --accent2: #6b4c9a;
+    --accent2-light: #f0eaf8;
+    --sans: 'Inter', sans-serif;
+    --serif: 'Literata', Georgia, serif;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+  }
+
+  header h1 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  header h1 span { color: var(--accent); }
+
+  header p {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 32px 24px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Textarea panel */
+  .input-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .input-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .textarea-wrap {
+    position: relative;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 420px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    font-family: var(--serif);
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--text-faint); font-style: italic; }
+
+  .textarea-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clear-btn {
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 0;
+    transition: color 0.15s;
+  }
+
+  .clear-btn:hover { color: var(--text); }
+
+  .paste-hint {
+    font-size: 12px;
+    color: var(--text-faint);
+  }
+
+  /* Stats panel */
+  .stats-panel {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Stat cards */
+  .stat-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .stat-group-label {
+    padding: 10px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .stat-rows {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .stat-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+
+  .stat-row:last-child { border-bottom: none; }
+
+  .stat-name {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  .stat-val {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+
+  .stat-val.accent { color: var(--accent); }
+  .stat-val.accent2 { color: var(--accent2); }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-faint);
+    font-weight: 400;
+    display: block;
+  }
+
+  /* Read time card — special layout */
+  .readtime-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .readtime-card {
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
+  }
+
+  .readtime-card:last-child { border-right: none; }
+
+  .readtime-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .readtime-val {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .readtime-val.green { color: var(--accent); }
+  .readtime-val.purple { color: var(--accent2); }
+
+  .readtime-detail {
+    font-size: 11px;
+    color: var(--text-faint);
+    margin-top: 2px;
+  }
+
+  /* Top words */
+  .word-list {
+    padding: 12px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .word-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .word-rank {
+    font-size: 11px;
+    color: var(--text-faint);
+    width: 16px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .word-text {
+    font-size: 13px;
+    font-family: var(--serif);
+    color: var(--text);
+    flex: 1;
+  }
+
+  .word-bar-wrap {
+    flex: 2;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .word-bar {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.3s;
+  }
+
+  .word-count {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-variant-numeric: tabular-nums;
+    min-width: 24px;
+    text-align: right;
+  }
+
+  /* Empty state */
+  .empty-words {
+    padding: 16px;
+    font-size: 13px;
+    color: var(--text-faint);
+    text-align: center;
+    font-style: italic;
+  }
+
+  /* Sentiment pill */
+  .sentiment-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .sentiment-positive { background: var(--accent-light); color: var(--accent); }
+  .sentiment-neutral  { background: var(--surface2); color: var(--text-dim); }
+  .sentiment-negative { background: #fdecea; color: #c0392b; }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; padding: 16px; }
+    .stats-panel { position: static; }
+    header { padding: 16px; }
+    header p { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Text<span>Lens</span></h1>
+  <p>Paste or type any text to get instant statistics</p>
+</header>
+
+<main>
+
+  <!-- Left: input -->
+  <div class="input-panel">
+    <div class="input-label">Your text</div>
+    <div class="textarea-wrap">
+      <textarea id="text-input" placeholder="Paste an article, essay, email, speech, or any block of text…" oninput="analyze()"></textarea>
+    </div>
+    <div class="textarea-actions">
+      <button class="clear-btn" onclick="clearText()">Clear</button>
+      <span class="paste-hint">Ctrl+V to paste</span>
+    </div>
+  </div>
+
+  <!-- Right: stats -->
+  <div class="stats-panel">
+
+    <!-- Counts -->
+    <div class="stat-group">
+      <div class="stat-group-label">Counts</div>
+      <div class="stat-rows">
+        <div class="stat-row">
+          <span class="stat-name">Words</span>
+          <span class="stat-val accent" id="stat-words">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Characters</span>
+          <span class="stat-val" id="stat-chars">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Characters (no spaces)</span>
+          <span class="stat-val" id="stat-chars-ns">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Sentences</span>
+          <span class="stat-val" id="stat-sentences">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Paragraphs</span>
+          <span class="stat-val" id="stat-paragraphs">0</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Unique words</span>
+          <span class="stat-val" id="stat-unique">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read time -->
+    <div class="stat-group">
+      <div class="stat-group-label">Read time</div>
+      <div class="readtime-cards">
+        <div class="readtime-card">
+          <div class="readtime-label">📖 Silent read</div>
+          <div class="readtime-val green" id="rt-silent">—</div>
+          <div class="readtime-detail">~238 wpm average</div>
+        </div>
+        <div class="readtime-card">
+          <div class="readtime-label">🎙️ Speaking</div>
+          <div class="readtime-val purple" id="rt-speak">—</div>
+          <div class="readtime-detail">~140 wpm average</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Averages -->
+    <div class="stat-group">
+      <div class="stat-group-label">Averages</div>
+      <div class="stat-rows">
+        <div class="stat-row">
+          <span class="stat-name">Avg word length</span>
+          <span class="stat-val" id="stat-avg-word">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Avg sentence length</span>
+          <span class="stat-val" id="stat-avg-sent">—</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-name">Longest word</span>
+          <span class="stat-val" id="stat-longest" style="font-family:'Literata',serif;font-size:13px;">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top words -->
+    <div class="stat-group">
+      <div class="stat-group-label">Most frequent words</div>
+      <div class="word-list" id="word-list">
+        <div class="empty-words">No text yet</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ── Stop words ─────────────────────────────────────────────────────────────
+const STOP = new Set([
+  'the','a','an','and','or','but','in','on','at','to','for','of','with',
+  'is','are','was','were','be','been','being','have','has','had','do','does',
+  'did','will','would','could','should','may','might','shall','can','need',
+  'it','its','this','that','these','those','he','she','they','we','i','you',
+  'his','her','their','our','my','your','its','as','by','from','up','about',
+  'into','through','during','before','after','above','below','between',
+  'not','no','so','if','then','than','when','where','who','which','what',
+  'how','all','each','every','both','few','more','most','other','some',
+  'such','only','own','same','just','because','while','although','though',
+  'however','therefore','also','very','too','quite','rather','much','many'
+]);
+
+function formatTime(minutes) {
+  if (minutes < 1) return '< 1 min';
+  if (minutes < 60) {
+    const m = Math.round(minutes);
+    return `${m} min${m !== 1 ? 's' : ''}`;
+  }
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function analyze() {
+  const raw = document.getElementById('text-input').value;
+
+  // Basic counts
+  const chars = raw.length;
+  const charsNoSpace = raw.replace(/\s/g, '').length;
+
+  // Words
+  const wordMatches = raw.match(/\b[a-zA-Z'-]+\b/g) || [];
+  const wordCount = wordMatches.length;
+
+  // Sentences — split on . ! ? followed by space or end
+  const sentenceMatches = raw.match(/[^.!?]*[.!?]+/g) || [];
+  const sentenceCount = sentenceMatches.filter(s => s.trim().length > 0).length;
+
+  // Paragraphs — split on double newlines
+  const paraMatches = raw.split(/\n\s*\n/).filter(p => p.trim().length > 0);
+  const paraCount = paraMatches.length;
+
+  // Unique words (lowercase, no punctuation)
+  const cleanWords = wordMatches.map(w => w.toLowerCase().replace(/['-]/g, ''));
+  const uniqueCount = new Set(cleanWords).size;
+
+  // Averages
+  const avgWordLen = wordCount > 0
+    ? (wordMatches.reduce((sum, w) => sum + w.replace(/['-]/g, '').length, 0) / wordCount).toFixed(1)
+    : '—';
+
+  const avgSentLen = sentenceCount > 0
+    ? Math.round(wordCount / sentenceCount) + ' words'
+    : '—';
+
+  const longestWord = wordCount > 0
+    ? wordMatches.reduce((a, b) => a.length >= b.length ? a : b)
+    : '—';
+
+  // Read times
+  const silentMins = wordCount / 238;
+  const speakMins  = wordCount / 140;
+
+  // Top words (excluding stop words)
+  const freq = {};
+  cleanWords.forEach(w => {
+    if (w.length > 2 && !STOP.has(w)) {
+      freq[w] = (freq[w] || 0) + 1;
+    }
+  });
+  const topWords = Object.entries(freq)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 8);
+
+  // ── Update DOM ─────────────────────────────────────────────────────────
+  document.getElementById('stat-words').textContent       = wordCount.toLocaleString();
+  document.getElementById('stat-chars').textContent       = chars.toLocaleString();
+  document.getElementById('stat-chars-ns').textContent    = charsNoSpace.toLocaleString();
+  document.getElementById('stat-sentences').textContent   = sentenceCount.toLocaleString();
+  document.getElementById('stat-paragraphs').textContent  = paraCount.toLocaleString();
+  document.getElementById('stat-unique').textContent      = uniqueCount.toLocaleString();
+  document.getElementById('stat-avg-word').textContent    = wordCount > 0 ? avgWordLen + ' chars' : '—';
+  document.getElementById('stat-avg-sent').textContent    = avgSentLen;
+  document.getElementById('stat-longest').textContent     = longestWord;
+
+  document.getElementById('rt-silent').textContent = wordCount > 0 ? formatTime(silentMins) : '—';
+  document.getElementById('rt-speak').textContent  = wordCount > 0 ? formatTime(speakMins)  : '—';
+
+  // Top words
+  const wl = document.getElementById('word-list');
+  if (topWords.length === 0) {
+    wl.innerHTML = '<div class="empty-words">No significant words yet</div>';
+  } else {
+    const maxCount = topWords[0][1];
+    wl.innerHTML = topWords.map(([word, count], i) => `
+      <div class="word-item">
+        <span class="word-rank">${i + 1}</span>
+        <span class="word-text">${word}</span>
+        <div class="word-bar-wrap">
+          <div class="word-bar" style="width:${(count / maxCount * 100).toFixed(1)}%"></div>
+        </div>
+        <span class="word-count">${count}</span>
+      </div>
+    `).join('');
+  }
+}
+
+function clearText() {
+  document.getElementById('text-input').value = '';
+  analyze();
+}
+
+// Init
+analyze();
+</script>
+</body>
+</html>
