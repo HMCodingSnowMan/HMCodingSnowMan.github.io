@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataViz — Auto Chart Generator</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1e2435;
+    --border: #2a3050;
+    --accent: #4f8ef7;
+    --accent2: #a78bfa;
+    --accent3: #34d399;
+    --text: #e2e8f0;
+    --text-dim: #7c8db5;
+    --text-faint: #3d4e72;
+    --danger: #f87171;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  header h1 {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  header span {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px;
+  }
+
+  /* Drop zone */
+  #drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 64px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: var(--surface);
+  }
+
+  #drop-zone.drag-over {
+    border-color: var(--accent);
+    background: #1a2040;
+  }
+
+  #drop-zone:hover {
+    border-color: var(--accent);
+  }
+
+  .drop-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.6;
+  }
+
+  #drop-zone h2 {
+    font-size: 20px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  #drop-zone p {
+    color: var(--text-dim);
+    font-size: 14px;
+    margin-bottom: 24px;
+  }
+
+  .btn {
+    display: inline-block;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s;
+  }
+
+  .btn:hover { opacity: 0.85; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-ghost {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  #file-input { display: none; }
+
+  /* File info bar */
+  #file-info {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  #file-info.visible { display: flex; }
+
+  .file-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .file-tag {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 3px 8px;
+    color: var(--accent);
+  }
+
+  .file-stats {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* Column summary */
+  #column-summary {
+    display: none;
+    margin-bottom: 28px;
+  }
+
+  #column-summary.visible { display: block; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .cols-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .col-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px;
+    font-size: 13px;
+  }
+
+  .col-type {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  .type-numeric { background: #1a3a5c; color: var(--accent); }
+  .type-category { background: #2a1a5c; color: var(--accent2); }
+  .type-date { background: #1a3a2a; color: var(--accent3); }
+  .type-text { background: #2a2a2a; color: var(--text-dim); }
+
+  /* Charts grid */
+  #charts-container {
+    display: none;
+  }
+
+  #charts-container.visible { display: block; }
+
+  .charts-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .charts-toolbar h3 {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .charts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+    gap: 20px;
+  }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .chart-card-header {
+    padding: 14px 18px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .chart-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .chart-subtitle {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .chart-type-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .chart-controls {
+    padding: 10px 18px;
+    display: flex;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .chart-type-btn {
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-family: var(--sans);
+    transition: all 0.15s;
+  }
+
+  .chart-type-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .chart-type-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .chart-body {
+    padding: 16px;
+    position: relative;
+    height: 280px;
+  }
+
+  .chart-body canvas {
+    max-height: 100%;
+  }
+
+  /* Empty / error states */
+  #error-msg {
+    display: none;
+    background: #2a1a1a;
+    border: 1px solid #5a2a2a;
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: var(--danger);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  #error-msg.visible { display: block; }
+
+  #warn-msg {
+    display: none;
+    background: #2a2210;
+    border: 1px solid #6b5a20;
+    border-radius: 8px;
+    padding: 12px 20px;
+    color: #f59e0b;
+    font-size: 13px;
+    margin-bottom: 20px;
+  }
+  #warn-msg.visible { display: block; }
+
+  .no-charts {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  /* Loading */
+  #loading {
+    display: none;
+    text-align: center;
+    padding: 48px;
+    color: var(--text-dim);
+    font-size: 14px;
+  }
+
+  #loading.visible { display: block; }
+
+  .spinner {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 600px) {
+    main { padding: 16px; }
+    .charts-grid { grid-template-columns: 1fr; }
+    header { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>DataViz</h1>
+  <span>drop a file, get charts</span>
+</header>
+
+<main>
+  <div id="error-msg"></div>
+  <div id="warn-msg"></div>
+  <div id="loading"><div class="spinner"></div><br>Reading your data...</div>
+
+  <!-- Drop zone -->
+  <div id="drop-zone">
+    <div class="drop-icon">📊</div>
+    <h2>Drop your data file here</h2>
+    <p>Supports CSV and Excel (.xlsx, .xls) files</p>
+    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">Choose file</button>
+    <input type="file" id="file-input" accept=".csv,.xlsx,.xls">
+  </div>
+
+  <!-- File info -->
+  <div id="file-info">
+    <div class="file-meta">
+      <span class="file-tag" id="file-tag">CSV</span>
+      <span id="file-name" style="font-weight:500;"></span>
+      <span class="file-stats" id="file-stats"></span>
+    </div>
+    <button class="btn btn-ghost" onclick="resetApp()">Load different file</button>
+  </div>
+
+  <!-- Column summary -->
+  <div id="column-summary">
+    <div class="section-label">Detected columns</div>
+    <div class="cols-grid" id="cols-grid"></div>
+  </div>
+
+  <!-- Charts -->
+  <div id="charts-container">
+    <div class="charts-toolbar">
+      <h3>Auto-generated charts</h3>
+      <span style="font-size:13px;color:var(--text-dim);" id="chart-count"></span>
+    </div>
+    <div class="charts-grid" id="charts-grid"></div>
+  </div>
+</main>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let parsedRows = [];
+let columnTypes = {};
+let chartInstances = {};
+
+// ── Chart.js defaults ──────────────────────────────────────────────────────
+Chart.defaults.color = '#7c8db5';
+Chart.defaults.borderColor = '#2a3050';
+Chart.defaults.font.family = "'IBM Plex Sans', sans-serif";
+
+const PALETTE = [
+  '#4f8ef7','#a78bfa','#34d399','#f59e0b','#f87171',
+  '#38bdf8','#fb7185','#a3e635','#fb923c','#818cf8'
+];
+
+// ── DOM helpers ────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+function showError(msg) {
+  $('error-msg').textContent = msg;
+  $('error-msg').classList.add('visible');
+}
+function clearError() { $('error-msg').classList.remove('visible'); }
+function showWarn(msg) { $('warn-msg').textContent = msg; $('warn-msg').classList.add('visible'); }
+function clearWarn() { $('warn-msg').classList.remove('visible'); }
+function showLoading(v) { $('loading').classList.toggle('visible', v); }
+
+// ── File input / drag & drop ───────────────────────────────────────────────
+const dropZone = $('drop-zone');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFile(file);
+});
+
+$('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+});
+
+function resetApp() {
+  parsedRows = [];
+  columnTypes = {};
+  Object.values(chartInstances).forEach(c => c.destroy());
+  chartInstances = {};
+  $('file-info').classList.remove('visible');
+  $('column-summary').classList.remove('visible');
+  $('charts-container').classList.remove('visible');
+  $('charts-grid').innerHTML = '';
+  $('cols-grid').innerHTML = '';
+  $('drop-zone').style.display = '';
+  $('file-input').value = '';
+  clearError();
+  clearWarn();
+}
+
+// ── Limits ─────────────────────────────────────────────────────────────────
+const MAX_FILE_MB = 10;
+const MAX_ROWS = 10000;
+
+// ── File handling ──────────────────────────────────────────────────────────
+function handleFile(file) {
+  clearError();
+  const name = file.name.toLowerCase();
+  if (!name.endsWith('.csv') && !name.endsWith('.xlsx') && !name.endsWith('.xls')) {
+    showError('Please upload a CSV or Excel file (.csv, .xlsx, .xls).');
+    return;
+  }
+
+  const sizeMB = file.size / (1024 * 1024);
+  if (sizeMB > MAX_FILE_MB) {
+    showError(`File is ${sizeMB.toFixed(1)} MB — the limit is ${MAX_FILE_MB} MB. Try exporting a smaller date range or filtering columns before uploading.`);
+    return;
+  }
+
+  $('drop-zone').style.display = 'none';
+  showLoading(true);
+
+  if (name.endsWith('.csv')) {
+    Papa.parse(file, {
+      header: true, skipEmptyLines: true,
+      complete: res => { showLoading(false); processData(res.data, file.name, 'CSV'); },
+      error: () => { showLoading(false); showError('Could not parse CSV file.'); }
+    });
+  } else {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(ws, { defval: '' });
+        showLoading(false);
+        processData(data, file.name, 'XLSX');
+      } catch(err) {
+        showLoading(false);
+        showError('Could not read Excel file. Make sure it is not password protected.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+}
+
+// ── Data processing ────────────────────────────────────────────────────────
+function cleanNumber(v) {
+  if (typeof v === 'number') return v;
+  const s = String(v).replace(/[$,%\s]/g, '').replace(/,/g,'');
+  return isNaN(s) || s === '' ? null : parseFloat(s);
+}
+
+function looksLikeDate(v) {
+  if (v instanceof Date) return true;
+  const s = String(v).trim();
+  if (!s || s.length < 4) return false;
+  // ISO, slashes, dashes with 4-digit year, month names
+  return /^\d{4}-\d{2}-\d{2}/.test(s)
+    || /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(s)
+    || /^(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(s);
+}
+
+function detectType(values) {
+  const sample = values.filter(v => v !== '' && v !== null && v !== undefined).slice(0, 100);
+  if (!sample.length) return 'text';
+
+  let dateCt = 0, numCt = 0;
+  sample.forEach(v => {
+    if (looksLikeDate(v)) dateCt++;
+    else if (cleanNumber(v) !== null) numCt++;
+  });
+
+  if (dateCt / sample.length > 0.7) return 'date';
+  if (numCt / sample.length > 0.7) return 'numeric';
+
+  // category: few unique values relative to sample
+  const unique = new Set(sample.map(v => String(v).trim().toLowerCase()));
+  if (unique.size <= Math.max(12, sample.length * 0.4)) return 'category';
+  return 'text';
+}
+
+function processData(rows, filename, format) {
+  if (!rows || rows.length < 2) {
+    showError('File appears to be empty or has only one row.');
+    $('drop-zone').style.display = '';
+    return;
+  }
+
+  let trimmed = false;
+  const totalRows = rows.length;
+  if (rows.length > MAX_ROWS) {
+    rows = rows.slice(0, MAX_ROWS);
+    trimmed = true;
+  }
+
+  if (trimmed) {
+    showWarn(`Large file: showing the first ${MAX_ROWS.toLocaleString()} of ${totalRows.toLocaleString()} rows. Charts are based on this sample. For full analysis, filter your data before uploading.`);
+  } else {
+    clearWarn();
+  }
+
+  parsedRows = rows;
+  const columns = Object.keys(rows[0]);
+  columnTypes = {};
+
+  columns.forEach(col => {
+    const vals = rows.map(r => r[col]);
+    columnTypes[col] = detectType(vals);
+  });
+
+  // Show file info
+  $('file-tag').textContent = format;
+  $('file-name').textContent = filename;
+  $('file-stats').textContent = trimmed
+    ? `${MAX_ROWS.toLocaleString()} of ${'>'}${MAX_ROWS.toLocaleString()} rows shown · ${columns.length} columns`
+    : `${rows.length.toLocaleString()} rows · ${columns.length} columns`;
+  $('file-info').classList.add('visible');
+
+  // Show column chips
+  const grid = $('cols-grid');
+  grid.innerHTML = '';
+  columns.forEach(col => {
+    const t = columnTypes[col];
+    const chip = document.createElement('div');
+    chip.className = 'col-chip';
+    chip.innerHTML = `<span class="col-type type-${t}">${t}</span><span>${col}</span>`;
+    grid.appendChild(chip);
+  });
+  $('column-summary').classList.add('visible');
+
+  // Build charts
+  buildCharts(columns);
+}
+
+// ── Chart building ─────────────────────────────────────────────────────────
+function buildCharts(columns) {
+  const numerics = columns.filter(c => columnTypes[c] === 'numeric');
+  const categories = columns.filter(c => columnTypes[c] === 'category');
+  const dates = columns.filter(c => columnTypes[c] === 'date');
+
+  const chartDefs = [];
+
+  // 1. Each category × first few numerics → bar/pie
+  categories.slice(0, 3).forEach(cat => {
+    numerics.slice(0, 2).forEach(num => {
+      chartDefs.push({ type: 'bar', cat, num, dateCol: null, label: `${num} by ${cat}`, sub: 'sum per category' });
+    });
+  });
+
+  // 2. Date × numerics → line
+  if (dates.length && numerics.length) {
+    const dateCol = dates[0];
+    numerics.slice(0, 3).forEach(num => {
+      chartDefs.push({ type: 'line', cat: null, num, dateCol, label: `${num} over time`, sub: `by ${dateCol}` });
+    });
+  }
+
+  // 3. Two numerics → scatter
+  if (numerics.length >= 2) {
+    chartDefs.push({ type: 'scatter', cat: null, num: numerics[0], num2: numerics[1], dateCol: null,
+      label: `${numerics[0]} vs ${numerics[1]}`, sub: 'relationship' });
+  }
+
+  // 4. If only categories (no numerics), frequency bar
+  if (!numerics.length && categories.length) {
+    categories.slice(0, 2).forEach(cat => {
+      chartDefs.push({ type: 'bar', cat, num: null, dateCol: null, label: `${cat} frequency`, sub: 'count of rows' });
+    });
+  }
+
+  // Cap at 6 charts
+  const toRender = chartDefs.slice(0, 6);
+
+  if (!toRender.length) {
+    $('charts-grid').innerHTML = '<div class="no-charts">No chartable column combinations found. Try a file with numeric or category columns.</div>';
+    $('charts-container').classList.add('visible');
+    return;
+  }
+
+  $('chart-count').textContent = `${toRender.length} chart${toRender.length > 1 ? 's' : ''} generated`;
+  $('charts-grid').innerHTML = '';
+  toRender.forEach((def, i) => renderChartCard(def, i));
+  $('charts-container').classList.add('visible');
+}
+
+function aggregateByCategory(cat, num) {
+  const acc = {};
+  parsedRows.forEach(row => {
+    const k = String(row[cat] ?? 'Unknown').trim() || 'Unknown';
+    const v = num ? cleanNumber(row[num]) : 1;
+    if (!acc[k]) acc[k] = 0;
+    if (v !== null) acc[k] += v;
+  });
+  // Sort by value desc, take top 15
+  const sorted = Object.entries(acc).sort((a,b) => b[1]-a[1]).slice(0, 15);
+  return { labels: sorted.map(e=>e[0]), values: sorted.map(e=>e[1]) };
+}
+
+function aggregateByDate(dateCol, num) {
+  // Group by month-year or just date string
+  const acc = {};
+  parsedRows.forEach(row => {
+    let k;
+    const raw = row[dateCol];
+    if (raw instanceof Date) {
+      k = `${raw.getFullYear()}-${String(raw.getMonth()+1).padStart(2,'0')}`;
+    } else {
+      const s = String(raw).trim();
+      // Try to parse
+      const d = new Date(s);
+      k = isNaN(d) ? s : `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    }
+    const v = cleanNumber(row[num]);
+    if (!acc[k]) acc[k] = 0;
+    if (v !== null) acc[k] += v;
+  });
+  const sorted = Object.entries(acc).sort((a,b)=>a[0].localeCompare(b[0])).slice(0, 24);
+  return { labels: sorted.map(e=>e[0]), values: sorted.map(e=>e[1]) };
+}
+
+function scatterData(num, num2) {
+  return parsedRows
+    .map(row => ({ x: cleanNumber(row[num]), y: cleanNumber(row[num2]) }))
+    .filter(p => p.x !== null && p.y !== null)
+    .slice(0, 500);
+}
+
+function renderChartCard(def, idx) {
+  const id = `chart-${idx}`;
+  const card = document.createElement('div');
+  card.className = 'chart-card';
+
+  const availableTypes = def.type === 'scatter' ? ['scatter'] :
+    def.type === 'line' ? ['line','bar'] : ['bar','pie','line'];
+
+  card.innerHTML = `
+    <div class="chart-card-header">
+      <div>
+        <div class="chart-title">${def.label}</div>
+        <div class="chart-subtitle">${def.sub}</div>
+      </div>
+      <span class="chart-type-badge">${def.type}</span>
+    </div>
+    <div class="chart-controls">
+      ${availableTypes.map(t => `<button class="chart-type-btn${t===def.type?' active':''}" onclick="switchChartType('${id}','${t}',this)">${t}</button>`).join('')}
+    </div>
+    <div class="chart-body"><canvas id="${id}"></canvas></div>
+  `;
+  $('charts-grid').appendChild(card);
+  drawChart(id, def.type, def);
+}
+
+function drawChart(id, type, def) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+
+  const ctx = document.getElementById(id).getContext('2d');
+  let config;
+
+  if (type === 'scatter') {
+    const points = scatterData(def.num, def.num2);
+    config = {
+      type: 'scatter',
+      data: { datasets: [{ label: `${def.num} vs ${def.num2}`, data: points,
+        backgroundColor: PALETTE[0] + 'aa', pointRadius: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+        scales: { x: { title: { display: true, text: def.num, color: '#7c8db5' } },
+                  y: { title: { display: true, text: def.num2, color: '#7c8db5' } } } }
+    };
+  } else if (type === 'line' && def.dateCol) {
+    const { labels, values } = aggregateByDate(def.dateCol, def.num);
+    config = {
+      type: 'line',
+      data: { labels, datasets: [{ label: def.num, data: values, borderColor: PALETTE[0],
+        backgroundColor: PALETTE[0]+'22', tension: 0.3, fill: true, pointRadius: 3 }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { maxTicksLimit: 8, maxRotation: 45 } } } }
+    };
+  } else if (type === 'pie') {
+    const { labels, values } = aggregateByCategory(def.cat, def.num);
+    config = {
+      type: 'pie',
+      data: { labels, datasets: [{ data: values, backgroundColor: PALETTE.slice(0, labels.length) }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } }
+    };
+  } else {
+    // bar (default), or line over category
+    const { labels, values } = def.cat
+      ? aggregateByCategory(def.cat, def.num)
+      : aggregateByDate(def.dateCol, def.num);
+
+    if (type === 'line') {
+      config = {
+        type: 'line',
+        data: { labels, datasets: [{ label: def.num ?? 'count', data: values,
+          borderColor: PALETTE[0], backgroundColor: PALETTE[0]+'22', tension: 0.3, fill: true, pointRadius: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { ticks: { maxTicksLimit: 10, maxRotation: 45 } } } }
+      };
+    } else {
+      config = {
+        type: 'bar',
+        data: { labels, datasets: [{ label: def.num ?? 'count', data: values,
+          backgroundColor: PALETTE.slice(0, labels.length).map(c=>c+'cc'),
+          borderColor: PALETTE.slice(0, labels.length), borderWidth: 1 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { ticks: { maxTicksLimit: 12, maxRotation: 45 } } } }
+      };
+    }
+  }
+
+  chartInstances[id] = new Chart(ctx, config);
+}
+
+function switchChartType(id, newType, btn) {
+  // find def from existing instance (store on element)
+  const card = btn.closest('.chart-card');
+  card.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  card.querySelector('.chart-type-badge').textContent = newType;
+
+  // retrieve def stored on canvas
+  const canvas = document.getElementById(id);
+  if (canvas._def) drawChart(id, newType, canvas._def);
+}
+
+// Store def on canvas after draw
+const origDraw = drawChart;
+function drawChart(id, type, def) {
+  if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; }
+  const ctx = document.getElementById(id).getContext('2d');
+  document.getElementById(id)._def = def; // store for type switching
+  let config;
+
+  if (type === 'scatter') {
+    const points = scatterData(def.num, def.num2);
+    config = {
+      type: 'scatter',
+      data: { datasets: [{ label: `${def.num} vs ${def.num2}`, data: points,
+        backgroundColor: PALETTE[0] + 'aa', pointRadius: 4 }] },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } },
+        scales: { x: { title: { display: true, text: def.num, color: '#7c8db5' } },
+                  y: { title: { display: true, text: def.num2, color: '#7c8db5' } } } }
+    };
+  } else if (type === 'line' && def.dateCol) {
+    const { labels, values } = aggregateByDate(def.dateCol, def.num);
+    config = {
+      type: 'line',
+      data: { labels, datasets: [{ label: def.num, data: values, borderColor: PALETTE[0],
+        backgroundColor: PALETTE[0]+'22', tension: 0.3, fill: true, pointRadius: 3 }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { maxTicksLimit: 8, maxRotation: 45 } } } }
+    };
+  } else if (type === 'pie') {
+    const { labels, values } = aggregateByCategory(def.cat, def.num);
+    config = {
+      type: 'pie',
+      data: { labels, datasets: [{ data: values, backgroundColor: PALETTE.slice(0, labels.length) }] },
+      options: { responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } } } }
+    };
+  } else {
+    const { labels, values } = def.cat
+      ? aggregateByCategory(def.cat, def.num)
+      : aggregateByDate(def.dateCol, def.num);
+
+    if (type === 'line') {
+      config = {
+        type: 'line',
+        data: { labels, datasets: [{ label: def.num ?? 'count', data: values,
+          borderColor: PALETTE[0], backgroundColor: PALETTE[0]+'22', tension: 0.3, fill: true, pointRadius: 3 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { ticks: { maxTicksLimit: 10, maxRotation: 45 } } } }
+      };
+    } else {
+      config = {
+        type: 'bar',
+        data: { labels, datasets: [{ label: def.num ?? 'count', data: values,
+          backgroundColor: PALETTE.slice(0, labels.length).map(c=>c+'cc'),
+          borderColor: PALETTE.slice(0, labels.length), borderWidth: 1 }] },
+        options: { responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { x: { ticks: { maxTicksLimit: 12, maxRotation: 45 } } } }
+      };
+    }
+  }
+
+  chartInstances[id] = new Chart(ctx, config);
+}
+</script>
+</body>
+</html>
