@@ -240,7 +240,8 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h3 id="modal-title">Add food</h3>
-    <input type="text" class="search-input" id="food-search" placeholder="Search foods..." oninput="filterFoods()">
+    <input type="text" class="search-input" id="food-search" placeholder="Search foods (e.g. chicken breast, banana)..." oninput="filterFoods()">
+    <div id="search-status" style="font-size:0.75rem;color:var(--muted);min-height:1rem;margin:-0.25rem 0 0.5rem"></div>
     <div class="food-list" id="food-list"></div>
     <div class="serving-row" id="serving-row" style="display:none">
       <input type="number" id="serving-qty" value="1" min="0.1" step="0.1">
@@ -440,13 +441,63 @@ function closeModal() {
   document.getElementById('modal').classList.remove('open');
 }
 
+// ── Live food search (USDA via Vercel API) ─────────────────────────────────
+let searchDebounce = null;
+let apiResults = [];
+let lastRenderedList = []; // tracks what's currently shown so selectFood can index into it
+
 function filterFoods() {
-  const q = document.getElementById('food-search').value.toLowerCase();
-  const foods = allFoods().filter(f => f.name.toLowerCase().includes(q));
-  document.getElementById('food-list').innerHTML = foods.slice(0,30).map((f,i) => `
-    <div class="food-option" onclick="selectFood(${allFoods().indexOf(f)})">
+  const q = document.getElementById('food-search').value.trim();
+  const statusEl = document.getElementById('search-status');
+
+  // Always show local matches immediately (instant, no network wait)
+  const localMatches = q ? allFoods().filter(f => f.name.toLowerCase().includes(q.toLowerCase())) : allFoods();
+  renderFoodList(localMatches.slice(0, 30));
+
+  clearTimeout(searchDebounce);
+
+  if (q.length < 2) {
+    statusEl.textContent = '';
+    apiResults = [];
+    return;
+  }
+
+  statusEl.textContent = 'Searching USDA database…';
+
+  searchDebounce = setTimeout(async () => {
+    try {
+      const res = await fetch(`/api/food-search?q=${encodeURIComponent(q)}`);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      apiResults = data.results || [];
+
+      if (apiResults.length === 0) {
+        statusEl.textContent = localMatches.length ? '' : 'No results found — try a different search term.';
+        return;
+      }
+
+      statusEl.textContent = `${apiResults.length} result${apiResults.length !== 1 ? 's' : ''} from USDA database`;
+
+      // Merge: local matches first (already logged before, faster to reselect), then API results
+      // Dedupe by name so we don't show near-identical entries twice
+      const localNames = new Set(localMatches.map(f => f.name.toLowerCase()));
+      const merged = [...localMatches, ...apiResults.filter(f => !localNames.has(f.name.toLowerCase()))];
+      renderFoodList(merged.slice(0, 30));
+
+    } catch (err) {
+      statusEl.textContent = localMatches.length
+        ? 'Live search unavailable — showing saved foods only.'
+        : 'Live search unavailable. Try again or add this as a custom food.';
+    }
+  }, 400); // debounce so we don't hit the API on every keystroke
+}
+
+function renderFoodList(foods) {
+  lastRenderedList = foods;
+  document.getElementById('food-list').innerHTML = foods.map((f,i) => `
+    <div class="food-option" onclick="selectFood(${i})">
       <div>
-        <div class="fo-name">${f.name}</div>
+        <div class="fo-name">${f.name}${f.source === 'usda' ? ' <span style="font-size:0.65rem;color:var(--accent);font-weight:600">USDA</span>' : ''}</div>
         <div class="fo-detail">${f.cal} kcal · ${f.unit}</div>
       </div>
       <div style="font-size:0.75rem;color:var(--muted)">P:${f.prot}g C:${f.carb}g F:${f.fat}g</div>
@@ -454,7 +505,7 @@ function filterFoods() {
 }
 
 function selectFood(idx) {
-  selectedFood = allFoods()[idx];
+  selectedFood = lastRenderedList[idx];
   document.getElementById('serving-unit-label').textContent = selectedFood.unit;
   document.getElementById('serving-qty').value = 1;
   document.getElementById('serving-row').style.display = 'flex';
