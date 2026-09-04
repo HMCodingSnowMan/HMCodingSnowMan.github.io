@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TokenScope — AI Token Estimator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+  :root {
+    --bg: #09090b;
+    --surface: #111113;
+    --surface2: #18181b;
+    --surface3: #1f1f23;
+    --border: #27272a;
+    --accent: #f97316;
+    --accent-dim: #f9731610;
+    --accent-border: #f9731630;
+    --blue: #60a5fa;
+    --green: #4ade80;
+    --purple: #c084fc;
+    --pink: #f472b6;
+    --yellow: #fbbf24;
+    --text: #fafafa;
+    --text-dim: #71717a;
+    --text-faint: #27272a;
+    --sans: 'Inter', sans-serif;
+    --mono: 'Fira Code', monospace;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { font-size: 20px; }
+  .logo h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; }
+  .logo h1 span { color: var(--accent); }
+  header p { font-size: 13px; color: var(--text-dim); }
+
+  main {
+    flex: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 32px 24px;
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  /* Left */
+  .left-panel { display: flex; flex-direction: column; gap: 16px; }
+
+  .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 300px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    line-height: 1.8;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  textarea:focus { border-color: var(--accent-border); }
+  textarea::placeholder { color: var(--text-faint); font-family: var(--sans); font-style: italic; }
+
+  .text-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .clear-btn {
+    font-size: 13px;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: color 0.15s;
+  }
+  .clear-btn:hover { color: var(--text); }
+
+  .char-info { font-size: 12px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+
+  /* Token visualizer */
+  .token-viz-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .token-viz-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .token-viz-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .token-viz-note {
+    font-size: 11px;
+    color: var(--text-faint);
+  }
+
+  .token-viz-body {
+    padding: 14px 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 2;
+    min-height: 60px;
+    max-height: 180px;
+    overflow-y: auto;
+    word-break: break-word;
+  }
+
+  .token-viz-empty {
+    color: var(--text-faint);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  .tok { display: inline; border-radius: 3px; padding: 1px 0; }
+  .tok-0 { background: #f9731622; color: #f97316; }
+  .tok-1 { background: #60a5fa22; color: #60a5fa; }
+  .tok-2 { background: #4ade8022; color: #4ade80; }
+  .tok-3 { background: #c084fc22; color: #c084fc; }
+  .tok-4 { background: #f472b622; color: #f472b6; }
+  .tok-5 { background: #fbbf2422; color: #fbbf24; }
+
+  /* Right panel */
+  .right-panel {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Big token count */
+  .token-hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .token-big {
+    font-size: 56px;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.04em;
+    line-height: 1;
+  }
+
+  .token-big-label {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 6px;
+  }
+
+  .token-sub-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .sub-stat { text-align: center; }
+  .sub-val { font-size: 18px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; display: block; }
+  .sub-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; display: block; }
+
+  /* Model pricing table */
+  .pricing-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .pricing-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .model-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .model-tab {
+    flex: 1;
+    padding: 8px 6px;
+    font-family: var(--sans);
+    font-size: 11px;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+    text-align: center;
+  }
+
+  .model-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .pricing-rows { display: flex; flex-direction: column; }
+
+  .pricing-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 10px;
+  }
+
+  .pricing-row:last-child { border-bottom: none; }
+
+  .model-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .model-name {
+    font-size: 13px;
+    font-weight: 500;
+    flex: 1;
+    color: var(--text);
+  }
+
+  .model-context {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: var(--mono);
+  }
+
+  .model-cost {
+    font-size: 13px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    min-width: 60px;
+  }
+
+  .context-bar-wrap {
+    width: 100%;
+    height: 3px;
+    background: var(--surface3);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 0 16px 12px;
+  }
+
+  .context-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s;
+  }
+
+  /* Output token card */
+  .output-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .output-header {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .output-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+  .response-type-select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-family: var(--sans);
+    font-size: 13px;
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .response-type-select:focus { border-color: var(--accent-border); }
+  .output-range { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .output-range-val { text-align: center; flex: 1; }
+  .range-num { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--blue); display: block; line-height: 1; }
+  .range-label { font-size: 10px; color: var(--text-dim); margin-top: 3px; display: block; }
+  .range-sep { font-size: 13px; color: var(--text-faint); }
+  .total-cost-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); }
+  .total-cost-label { font-size: 12px; color: var(--text-dim); }
+  .total-cost-val { font-size: 13px; font-weight: 600; color: var(--accent); font-variant-numeric: tabular-nums; }
+
+  /* Info note */
+  .info-note {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+
+  .info-note strong { color: var(--accent); }
+
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; padding: 16px; }
+    .right-panel { position: static; }
+    header { padding: 16px; }
+    header p { display: none; }
+    .token-big { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">⚡</span>
+    <h1>Token<span>Scope</span></h1>
+  </div>
+  <p>Estimate tokens and costs across AI models</p>
+</header>
+
+<main>
+
+  <!-- Left -->
+  <div class="left-panel">
+
+    <div>
+      <div class="field-label">Your text</div>
+      <textarea id="text-input" placeholder="Paste any text — a prompt, document, email, code, or conversation — to see token and cost estimates." oninput="analyze()"></textarea>
+      <div class="text-actions" style="margin-top:8px">
+        <button class="clear-btn" onclick="clearText()">Clear</button>
+        <span class="char-info" id="char-info">0 characters · 0 words</span>
+      </div>
+    </div>
+
+    <!-- Token visualizer -->
+    <div class="token-viz-wrap">
+      <div class="token-viz-header">
+        <span class="token-viz-title">Token preview</span>
+        <span class="token-viz-note">colors = approximate token boundaries</span>
+      </div>
+      <div class="token-viz-body" id="token-viz">
+        <span class="token-viz-empty">Token breakdown will appear here</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Right -->
+  <div class="right-panel">
+
+    <!-- Hero count -->
+    <div class="token-hero">
+      <div class="token-big" id="token-count">0</div>
+      <div class="token-big-label">estimated tokens</div>
+      <div class="token-sub-stats">
+        <div class="sub-stat">
+          <span class="sub-val" id="stat-words">0</span>
+          <span class="sub-label">words</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-val" id="stat-chars">0</span>
+          <span class="sub-label">characters</span>
+        </div>
+        <div class="sub-stat">
+          <span class="sub-val" id="stat-ratio">—</span>
+          <span class="sub-label">chars/token</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Output tokens -->
+    <div class="output-card">
+      <div class="output-header">Output token estimate</div>
+      <div class="output-body">
+        <select class="response-type-select" id="response-type" onchange="updateOutput()">
+          <option value="auto">Auto (based on input length)</option>
+          <option value="short">Short answer (1–3 sentences)</option>
+          <option value="paragraph">Paragraph (100–200 tokens)</option>
+          <option value="detailed">Detailed explanation (300–600 tokens)</option>
+          <option value="long">Long report or document (800–2000 tokens)</option>
+          <option value="code">Code snippet (150–500 tokens)</option>
+          <option value="list">Bullet list (100–300 tokens)</option>
+        </select>
+        <div class="output-range">
+          <div class="output-range-val">
+            <span class="range-num" id="out-min">—</span>
+            <span class="range-label">min tokens</span>
+          </div>
+          <span class="range-sep">to</span>
+          <div class="output-range-val">
+            <span class="range-num" id="out-max">—</span>
+            <span class="range-label">max tokens</span>
+          </div>
+        </div>
+        <div class="total-cost-row" id="total-cost-row" style="display:none">
+          <span class="total-cost-label">Combined cost estimate</span>
+          <span class="total-cost-val" id="total-cost">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Model pricing -->
+    <div class="pricing-card">
+      <div class="pricing-header">Cost estimate by model</div>
+      <div class="model-tabs">
+        <button class="model-tab active" onclick="setProvider('anthropic', this)">Anthropic</button>
+        <button class="model-tab" onclick="setProvider('openai', this)">OpenAI</button>
+        <button class="model-tab" onclick="setProvider('google', this)">Google</button>
+      </div>
+      <div class="pricing-rows" id="pricing-rows"></div>
+    </div>
+
+    <!-- Info -->
+    <div class="info-note">
+      <strong>How tokens work:</strong> Most AI models break text into chunks called tokens — roughly 4 characters or ¾ of a word on average for English. Prices are per 1 million tokens. Output token estimates use typical response lengths; combined cost uses 5× input rate as an approximate output multiplier (varies by model). Prices are approximate and may change.
+    </div>
+
+  </div>
+
+</main>
+
+<script>
+// ── Model data ─────────────────────────────────────────────────────────────
+const MODELS = {
+  anthropic: [
+    { name: 'Claude Opus 4',    color: '#f97316', context: '200K', inputPer1M: 15.00 },
+    { name: 'Claude Sonnet 4',  color: '#60a5fa', context: '200K', inputPer1M: 3.00  },
+    { name: 'Claude Haiku 3.5', color: '#4ade80', context: '200K', inputPer1M: 0.80  },
+  ],
+  openai: [
+    { name: 'GPT-4o',        color: '#f97316', context: '128K', inputPer1M: 2.50  },
+    { name: 'GPT-4o mini',   color: '#60a5fa', context: '128K', inputPer1M: 0.15  },
+    { name: 'o3',            color: '#4ade80', context: '200K', inputPer1M: 10.00 },
+    { name: 'o4-mini',       color: '#c084fc', context: '200K', inputPer1M: 1.10  },
+  ],
+  google: [
+    { name: 'Gemini 2.5 Pro',   color: '#f97316', context: '1M',   inputPer1M: 1.25  },
+    { name: 'Gemini 2.5 Flash', color: '#60a5fa', context: '1M',   inputPer1M: 0.30  },
+    { name: 'Gemini 2.0 Flash', color: '#4ade80', context: '1M',   inputPer1M: 0.10  },
+  ]
+};
+
+let currentProvider = 'anthropic';
+let currentTokens = 0;
+
+function setProvider(provider, btn) {
+  currentProvider = provider;
+  document.querySelectorAll('.model-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  renderPricing();
+}
+
+// ── Token estimation ───────────────────────────────────────────────────────
+// Approximate tiktoken-style: ~4 chars per token for English prose,
+// code/punctuation-heavy text runs higher, very short words run lower.
+function estimateTokens(text) {
+  if (!text.trim()) return 0;
+
+  // More nuanced: split on whitespace and punctuation clusters
+  // Each word ≈ 1.3 tokens on average, punctuation adds ~0.5 per cluster
+  const words = text.match(/\S+/g) || [];
+  let tokens = 0;
+
+  words.forEach(word => {
+    const clean = word.replace(/[^a-zA-Z0-9]/g, '');
+    // Long words split more
+    if (clean.length <= 3) tokens += 1;
+    else if (clean.length <= 6) tokens += 1;
+    else if (clean.length <= 10) tokens += 2;
+    else tokens += Math.ceil(clean.length / 5);
+
+    // Punctuation/symbols alongside word
+    const punct = word.length - clean.length;
+    tokens += Math.ceil(punct / 2);
+  });
+
+  // Newlines cost tokens too
+  const newlines = (text.match(/\n/g) || []).length;
+  tokens += Math.ceil(newlines / 2);
+
+  return Math.max(1, tokens);
+}
+
+// ── Token visualizer ───────────────────────────────────────────────────────
+// Rough visual approximation: color every ~4 chars alternating
+function buildViz(text) {
+  if (!text) return '<span class="token-viz-empty">Token breakdown will appear here</span>';
+
+  // Simple approach: chunk by approximate token boundaries
+  // Split on spaces, punctuation, keeping them
+  const chunks = text.match(/\S+|\s+/g) || [];
+  let html = '';
+  let colorIdx = 0;
+  let charBuf = '';
+  let bufTokens = 0;
+
+  chunks.forEach(chunk => {
+    if (/^\s+$/.test(chunk)) {
+      // whitespace — render as-is
+      html += chunk.replace(/\n/g, '<br>');
+    } else {
+      // word chunk — color it as one token (approximately)
+      const cls = `tok tok-${colorIdx % 6}`;
+      html += `<span class="${cls}">${escHtml(chunk)}</span>`;
+      colorIdx++;
+    }
+  });
+
+  return html;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ── Pricing ────────────────────────────────────────────────────────────────
+function formatCost(tokens, perMillion) {
+  const cost = (tokens / 1_000_000) * perMillion;
+  if (cost < 0.000001) return '$0.00';
+  if (cost < 0.01) return `$${cost.toFixed(5)}`;
+  if (cost < 1) return `$${cost.toFixed(4)}`;
+  return `$${cost.toFixed(3)}`;
+}
+
+function contextTokens(contextStr) {
+  const n = parseFloat(contextStr);
+  const unit = contextStr.includes('M') ? 1_000_000 : 1_000;
+  return n * unit;
+}
+
+function renderPricing() {
+  const models = MODELS[currentProvider];
+  const rows = document.getElementById('pricing-rows');
+
+  rows.innerHTML = models.map(m => {
+    const ctxTokens = contextTokens(m.context);
+    const pct = currentTokens > 0 ? Math.min(100, (currentTokens / ctxTokens) * 100) : 0;
+    const cost = formatCost(currentTokens, m.inputPer1M);
+    const overCtx = currentTokens > ctxTokens;
+
+    return `
+      <div class="pricing-row">
+        <div class="model-dot" style="background:${m.color}"></div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+            <span class="model-name">${m.name}</span>
+            <span class="model-cost" style="color:${overCtx ? '#f87171' : m.color}">${overCtx ? '⚠ over limit' : cost}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden">
+              <div style="height:100%;width:${pct.toFixed(1)}%;background:${overCtx?'#f87171':m.color};border-radius:2px;transition:width 0.4s"></div>
+            </div>
+            <span style="font-size:10px;color:var(--text-dim);white-space:nowrap;font-family:var(--mono)">${m.context} ctx</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── Main analyze ───────────────────────────────────────────────────────────
+function analyze() {
+  const text = document.getElementById('text-input').value;
+  const chars = text.length;
+  const words = text.trim() ? (text.match(/\S+/g) || []).length : 0;
+  const tokens = estimateTokens(text);
+
+  currentTokens = tokens;
+
+  // Update hero
+  document.getElementById('token-count').textContent = tokens.toLocaleString();
+  document.getElementById('stat-words').textContent  = words.toLocaleString();
+  document.getElementById('stat-chars').textContent  = chars.toLocaleString();
+  document.getElementById('stat-ratio').textContent  = tokens > 0 ? (chars / tokens).toFixed(1) : '—';
+
+  // Char info
+  document.getElementById('char-info').textContent = `${chars.toLocaleString()} characters · ${words.toLocaleString()} words`;
+
+  // Token viz (cap at 500 words for performance)
+  const vizText = text.length > 3000 ? text.slice(0, 3000) + '…' : text;
+  document.getElementById('token-viz').innerHTML = buildViz(vizText);
+
+  // Pricing
+  renderPricing();
+  updateOutput();
+}
+
+
+// ── Output token estimation ────────────────────────────────────────────────
+const OUTPUT_RANGES = {
+  short:     { min: 20,   max: 80   },
+  paragraph: { min: 100,  max: 200  },
+  detailed:  { min: 300,  max: 600  },
+  long:      { min: 800,  max: 2000 },
+  code:      { min: 150,  max: 500  },
+  list:      { min: 100,  max: 300  },
+};
+
+function getAutoRange(inputTokens) {
+  if (inputTokens === 0) return { min: 0, max: 0 };
+  return {
+    min: Math.round(inputTokens * 0.3),
+    max: Math.round(inputTokens * 1.0)
+  };
+}
+
+function updateOutput() {
+  const type = document.getElementById('response-type').value;
+  const range = type === 'auto' ? getAutoRange(currentTokens) : OUTPUT_RANGES[type];
+
+  document.getElementById('out-min').textContent = range.min > 0 ? range.min.toLocaleString() : '—';
+  document.getElementById('out-max').textContent = range.max > 0 ? range.max.toLocaleString() : '—';
+
+  // Show combined cost for the current provider's first model
+  const models = MODELS[currentProvider];
+  const m = models[0];
+  if (currentTokens > 0 && range.max > 0) {
+    const avgOutput = (range.min + range.max) / 2;
+    // Most models charge 3-5x more for output; use 5x as estimate
+    const outputPer1M = m.inputPer1M * 5;
+    const inputCost  = (currentTokens / 1_000_000) * m.inputPer1M;
+    const outputCost = (avgOutput / 1_000_000) * outputPer1M;
+    const total = inputCost + outputCost;
+    document.getElementById('total-cost').textContent =
+      total < 0.000001 ? '$0.00' :
+      total < 0.01 ? `$${total.toFixed(5)}` :
+      total < 1 ? `$${total.toFixed(4)}` : `$${total.toFixed(3)}`;
+    document.getElementById('total-cost-row').style.display = 'flex';
+  } else {
+    document.getElementById('total-cost-row').style.display = 'none';
+  }
+}
+
+function clearText() {
+  document.getElementById('text-input').value = '';
+  analyze();
+}
+
+// Init
+analyze();
+</script>
+</body>
+</html>

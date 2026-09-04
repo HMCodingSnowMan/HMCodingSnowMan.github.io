@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PromptCraft — AI Prompt Builder</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0e0f14;
+    --surface: #14151c;
+    --surface2: #1a1b25;
+    --surface3: #20212e;
+    --border: #2a2b3d;
+    --accent: #6c63ff;
+    --accent-dim: #6c63ff18;
+    --accent-border: #6c63ff44;
+    --green: #3ecf8e;
+    --yellow: #f5c542;
+    --text: #e8e9f0;
+    --text-dim: #6e7090;
+    --text-faint: #32334a;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .logo-icon { font-size: 22px; }
+
+  .logo h1 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+
+  .logo h1 span { color: var(--accent); }
+
+  header p { font-size: 13px; color: var(--text-dim); }
+
+  main {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 32px 24px;
+    align-items: start;
+  }
+
+  /* Left panel */
+  .builder-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Template bar */
+  .template-bar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .template-bar-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .template-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .tpl-btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .tpl-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tpl-btn.active { background: var(--accent-dim); border-color: var(--accent-border); color: var(--accent); }
+
+  /* Sections */
+  .section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .section-card:focus-within { border-color: var(--accent-border); }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .section-icon {
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface3);
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .section-meta {
+    flex: 1;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .section-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .section-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+  }
+
+  .badge-required { background: #2a1f3d; color: var(--accent); }
+  .badge-optional { background: var(--surface3); color: var(--text-dim); }
+
+  textarea.section-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 14px 16px;
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  textarea.section-input::placeholder { color: var(--text-faint); }
+
+  /* Right panel — preview */
+  .preview-panel {
+    position: sticky;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .preview-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .preview-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface2);
+  }
+
+  .preview-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+
+  .preview-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .action-btn {
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface3);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .action-btn.copied { border-color: var(--green); color: var(--green); }
+
+  .preview-body {
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.75;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    min-height: 200px;
+    max-height: 480px;
+    overflow-y: auto;
+  }
+
+  .preview-empty {
+    color: var(--text-faint);
+    font-style: italic;
+    font-family: var(--sans);
+    font-size: 13px;
+  }
+
+  /* Prompt sections highlighted */
+  .preview-body .section-label-inline {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* Stats strip */
+  .stats-strip {
+    display: flex;
+    gap: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .strip-stat {
+    flex: 1;
+    padding: 12px 14px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+
+  .strip-stat:last-child { border-right: none; }
+
+  .strip-val {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    display: block;
+  }
+
+  .strip-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    display: block;
+  }
+
+  /* Tips */
+  .tips-card {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+
+  .tips-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: 0.03em;
+  }
+
+  .tips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .tip {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    display: flex;
+    gap: 6px;
+  }
+
+  .tip::before {
+    content: '→';
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  /* Quality score */
+  .quality-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .quality-label { font-size: 12px; color: var(--text-dim); }
+
+  .quality-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: var(--surface3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .quality-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.4s, background 0.4s;
+  }
+
+  .quality-text {
+    font-size: 12px;
+    font-weight: 600;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  @media (max-width: 720px) {
+    main { grid-template-columns: 1fr; padding: 16px; }
+    .preview-panel { position: static; }
+    header { padding: 16px; }
+    header p { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">✦</span>
+    <h1>Prompt<span>Craft</span></h1>
+  </div>
+  <p>Build better AI prompts with structure</p>
+</header>
+
+<main>
+
+  <!-- Left: builder -->
+  <div class="builder-panel">
+
+    <!-- Templates -->
+    <div class="template-bar">
+      <div class="template-bar-label">Templates</div>
+      <div class="template-pills">
+        <button class="tpl-btn" onclick="loadTemplate('blank')">Blank</button>
+        <button class="tpl-btn" onclick="loadTemplate('email')">✉️ Write an email</button>
+        <button class="tpl-btn" onclick="loadTemplate('summarize')">📄 Summarize</button>
+        <button class="tpl-btn" onclick="loadTemplate('analyze')">📊 Analyze data</button>
+        <button class="tpl-btn" onclick="loadTemplate('brainstorm')">💡 Brainstorm</button>
+        <button class="tpl-btn" onclick="loadTemplate('rewrite')">✏️ Rewrite / edit</button>
+        <button class="tpl-btn" onclick="loadTemplate('code')">💻 Write code</button>
+        <button class="tpl-btn" onclick="loadTemplate('explain')">🎓 Explain a concept</button>
+        <button class="tpl-btn" onclick="loadTemplate('plan')">📋 Make a plan</button>
+      </div>
+    </div>
+
+    <!-- Role -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">🎭</div>
+        <div class="section-meta">
+          <div class="section-title">Role</div>
+          <div class="section-hint">Who should the AI act as?</div>
+        </div>
+        <span class="section-badge badge-optional">Optional</span>
+      </div>
+      <textarea class="section-input" id="field-role" rows="2"
+        placeholder="e.g. You are an expert data analyst with 10 years of experience in the tech industry."
+        oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- Task -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">🎯</div>
+        <div class="section-meta">
+          <div class="section-title">Task</div>
+          <div class="section-hint">What do you want the AI to do?</div>
+        </div>
+        <span class="section-badge badge-required">Required</span>
+      </div>
+      <textarea class="section-input" id="field-task" rows="3"
+        placeholder="e.g. Write a professional email declining a meeting invitation while suggesting an alternative time."
+        oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- Context -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">📎</div>
+        <div class="section-meta">
+          <div class="section-title">Context</div>
+          <div class="section-hint">Background info the AI needs to know</div>
+        </div>
+        <span class="section-badge badge-optional">Optional</span>
+      </div>
+      <textarea class="section-input" id="field-context" rows="3"
+        placeholder="e.g. The meeting is scheduled for Monday at 10am. I'm unavailable that day but free Tuesday afternoon. The organizer is my manager."
+        oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- Format -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">📐</div>
+        <div class="section-meta">
+          <div class="section-title">Format</div>
+          <div class="section-hint">How should the output be structured?</div>
+        </div>
+        <span class="section-badge badge-optional">Optional</span>
+      </div>
+      <textarea class="section-input" id="field-format" rows="2"
+        placeholder="e.g. Keep it under 100 words. Use a professional but warm tone. No bullet points."
+        oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- Constraints -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">🚧</div>
+        <div class="section-meta">
+          <div class="section-title">Constraints</div>
+          <div class="section-hint">What should the AI avoid or not do?</div>
+        </div>
+        <span class="section-badge badge-optional">Optional</span>
+      </div>
+      <textarea class="section-input" id="field-constraints" rows="2"
+        placeholder="e.g. Do not mention specific names. Avoid using jargon. Do not suggest canceling entirely."
+        oninput="updatePreview()"></textarea>
+    </div>
+
+    <!-- Examples -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon">💬</div>
+        <div class="section-meta">
+          <div class="section-title">Examples</div>
+          <div class="section-hint">Show the AI what good output looks like</div>
+        </div>
+        <span class="section-badge badge-optional">Optional</span>
+      </div>
+      <textarea class="section-input" id="field-examples" rows="3"
+        placeholder="e.g. Here's an example of the tone I want: 'Thanks for the invite — I'm not available Monday but would Tuesday at 2pm work for you?'"
+        oninput="updatePreview()"></textarea>
+    </div>
+
+  </div>
+
+  <!-- Right: preview -->
+  <div class="preview-panel">
+
+    <!-- Stats -->
+    <div class="stats-strip">
+      <div class="strip-stat">
+        <span class="strip-val" id="stat-words">0</span>
+        <span class="strip-label">words</span>
+      </div>
+      <div class="strip-stat">
+        <span class="strip-val" id="stat-chars">0</span>
+        <span class="strip-label">chars</span>
+      </div>
+      <div class="strip-stat">
+        <span class="strip-val" id="stat-sections">0</span>
+        <span class="strip-label">sections</span>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-card">
+      <div class="preview-header">
+        <span class="preview-title">Generated Prompt</span>
+        <div class="preview-actions">
+          <button class="action-btn" onclick="clearAll()">Clear</button>
+          <button class="action-btn" id="copy-btn" onclick="copyPrompt()">Copy</button>
+        </div>
+      </div>
+      <div class="preview-body" id="preview-body">
+        <span class="preview-empty">Your prompt will appear here as you fill in the sections above.</span>
+      </div>
+      <div class="quality-row">
+        <span class="quality-label">Quality</span>
+        <div class="quality-bar-wrap">
+          <div class="quality-bar" id="quality-bar" style="width:0%;background:var(--text-faint)"></div>
+        </div>
+        <span class="quality-text" id="quality-text" style="color:var(--text-dim)">—</span>
+      </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="tips-card">
+      <div class="tips-title">✦ Prompt tips</div>
+      <div class="tips-list">
+        <div class="tip">Be specific in the Task — vague tasks get vague answers.</div>
+        <div class="tip">Use Role to set expertise level and perspective.</div>
+        <div class="tip">Context is everything — include details the AI can't guess.</div>
+        <div class="tip">Format saves editing time — specify length, tone, structure.</div>
+        <div class="tip">Examples are the fastest way to align on style.</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// ── Templates ──────────────────────────────────────────────────────────────
+const templates = {
+  blank: { role: '', task: '', context: '', format: '', constraints: '', examples: '' },
+
+  email: {
+    role: 'You are a professional business writer with expertise in workplace communication.',
+    task: 'Write a professional email to [recipient] about [topic].',
+    context: 'The recipient is [describe relationship, e.g. my manager / a client]. The purpose of the email is [explain goal]. Key details: [add any relevant info].',
+    format: 'Keep it concise — under 150 words. Use a professional but approachable tone. Include a clear subject line at the top.',
+    constraints: 'Do not use overly formal or stiff language. Avoid filler phrases like "I hope this email finds you well."',
+    examples: ''
+  },
+
+  summarize: {
+    role: '',
+    task: 'Summarize the following text into a concise summary.',
+    context: '[Paste the text you want summarized here]',
+    format: 'Write 3–5 bullet points covering the key points. Follow with a one-sentence overall summary. Keep each bullet under 20 words.',
+    constraints: 'Do not add opinions or information not present in the original text.',
+    examples: ''
+  },
+
+  analyze: {
+    role: 'You are a senior data analyst skilled at interpreting data and communicating insights clearly to non-technical audiences.',
+    task: 'Analyze the following data and identify the key trends, patterns, and anomalies.',
+    context: '[Describe or paste your data here. Include what each column or field represents.]',
+    format: 'Structure your response as: (1) Key findings (3–5 bullet points), (2) Notable anomalies, (3) Recommended next steps.',
+    constraints: 'Avoid jargon. Explain any statistical terms you use. Focus on actionable insights.',
+    examples: ''
+  },
+
+  brainstorm: {
+    role: 'You are a creative strategist with broad experience across industries.',
+    task: 'Brainstorm [number] ideas for [topic or goal].',
+    context: 'The context is [describe your situation, audience, or constraints]. The goal is [what you are trying to achieve].',
+    format: 'List each idea with a short title and 1–2 sentence explanation. Number them. Keep the tone energetic and imaginative.',
+    constraints: 'Avoid obvious or generic ideas. Push for creative, specific suggestions.',
+    examples: ''
+  },
+
+  rewrite: {
+    role: 'You are an expert editor with a sharp eye for clarity, tone, and conciseness.',
+    task: 'Rewrite the following text to improve [clarity / tone / conciseness — choose one or more].',
+    context: '[Paste the text you want rewritten here]',
+    format: 'Present the rewritten version only, no commentary. Match the original length unless clarity requires otherwise.',
+    constraints: 'Preserve the original meaning. Do not add new information. Keep the author\'s voice.',
+    examples: ''
+  },
+
+  code: {
+    role: 'You are a senior software engineer who writes clean, well-commented, production-ready code.',
+    task: 'Write a [language] function that [describe what it should do].',
+    context: 'The function will be used in [describe the broader system or context]. Inputs: [describe inputs]. Expected output: [describe output].',
+    format: 'Provide the code first, then a brief explanation of how it works. Include comments in the code for key steps.',
+    constraints: 'Do not use external libraries unless necessary. Handle edge cases. Keep the code readable.',
+    examples: ''
+  },
+
+  explain: {
+    role: 'You are a patient teacher who excels at explaining complex topics in simple, engaging ways.',
+    task: 'Explain [concept or topic] in a way that is easy to understand.',
+    context: 'The audience is [describe: beginners / professionals / students / etc.]. They already know [describe existing knowledge]. They are confused about [specific aspect].',
+    format: 'Start with a simple one-sentence definition. Then explain using an analogy. Follow with 2–3 key points. End with a practical example.',
+    constraints: 'Avoid jargon unless you define it immediately. Do not assume prior knowledge beyond what is stated.',
+    examples: ''
+  },
+
+  plan: {
+    role: 'You are an experienced project manager skilled at breaking down complex goals into clear, actionable steps.',
+    task: 'Create a step-by-step plan for [goal or project].',
+    context: 'The goal is [describe in detail]. Available resources: [time / budget / tools / people]. Key constraints: [deadlines, limitations].',
+    format: 'Present the plan as numbered steps with a short title and 1–2 sentence description for each. Include a timeline estimate if possible.',
+    constraints: 'Be realistic about time and effort. Highlight any steps that are dependencies for others.',
+    examples: ''
+  }
+};
+
+function loadTemplate(key) {
+  const t = templates[key];
+  document.getElementById('field-role').value        = t.role;
+  document.getElementById('field-task').value        = t.task;
+  document.getElementById('field-context').value     = t.context;
+  document.getElementById('field-format').value      = t.format;
+  document.getElementById('field-constraints').value = t.constraints;
+  document.getElementById('field-examples').value    = t.examples;
+
+  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+
+  updatePreview();
+}
+
+// ── Preview ────────────────────────────────────────────────────────────────
+function updatePreview() {
+  const fields = [
+    { id: 'field-role',        label: 'ROLE' },
+    { id: 'field-task',        label: 'TASK' },
+    { id: 'field-context',     label: 'CONTEXT' },
+    { id: 'field-format',      label: 'FORMAT' },
+    { id: 'field-constraints', label: 'CONSTRAINTS' },
+    { id: 'field-examples',    label: 'EXAMPLES' },
+  ];
+
+  let parts = [];
+  let filledCount = 0;
+
+  fields.forEach(f => {
+    const val = document.getElementById(f.id).value.trim();
+    if (val) {
+      parts.push(`[${f.label}]\n${val}`);
+      filledCount++;
+    }
+  });
+
+  const preview = document.getElementById('preview-body');
+
+  if (parts.length === 0) {
+    preview.innerHTML = '<span class="preview-empty">Your prompt will appear here as you fill in the sections above.</span>';
+  } else {
+    const fullText = parts.join('\n\n');
+    // Highlight section labels
+    const highlighted = fullText.replace(/\[([A-Z]+)\]/g,
+      '<span class="section-label-inline">[$1]</span>');
+    preview.innerHTML = highlighted;
+  }
+
+  // Stats
+  const allText = fields.map(f => document.getElementById(f.id).value).join(' ');
+  const words = allText.trim() ? allText.trim().split(/\s+/).length : 0;
+  const chars = allText.length;
+
+  document.getElementById('stat-words').textContent    = words.toLocaleString();
+  document.getElementById('stat-chars').textContent    = chars.toLocaleString();
+  document.getElementById('stat-sections').textContent = filledCount;
+
+  // Quality score
+  updateQuality(filledCount, words);
+}
+
+function updateQuality(sections, words) {
+  const taskFilled = document.getElementById('field-task').value.trim().length > 0;
+  const taskLength = document.getElementById('field-task').value.trim().split(/\s+/).length;
+
+  let score = 0;
+  if (taskFilled) score += 30;
+  if (taskLength >= 10) score += 10;
+  if (document.getElementById('field-role').value.trim())        score += 15;
+  if (document.getElementById('field-context').value.trim())     score += 20;
+  if (document.getElementById('field-format').value.trim())      score += 15;
+  if (document.getElementById('field-constraints').value.trim()) score += 5;
+  if (document.getElementById('field-examples').value.trim())    score += 5;
+  if (words >= 50)  score = Math.min(100, score + 5);
+  if (words >= 100) score = Math.min(100, score + 5);
+
+  score = Math.min(100, score);
+
+  let color, label;
+  if (score === 0)       { color = 'var(--text-faint)'; label = '—'; }
+  else if (score < 35)   { color = '#f87171'; label = 'Weak'; }
+  else if (score < 60)   { color = 'var(--yellow)'; label = 'Fair'; }
+  else if (score < 85)   { color = '#68d391'; label = 'Good'; }
+  else                   { color = 'var(--green)'; label = 'Strong'; }
+
+  document.getElementById('quality-bar').style.width      = score + '%';
+  document.getElementById('quality-bar').style.background = color;
+  document.getElementById('quality-text').textContent     = label;
+  document.getElementById('quality-text').style.color     = color;
+}
+
+// ── Copy ───────────────────────────────────────────────────────────────────
+function copyPrompt() {
+  const fields = [
+    { id: 'field-role',        label: 'ROLE' },
+    { id: 'field-task',        label: 'TASK' },
+    { id: 'field-context',     label: 'CONTEXT' },
+    { id: 'field-format',      label: 'FORMAT' },
+    { id: 'field-constraints', label: 'CONSTRAINTS' },
+    { id: 'field-examples',    label: 'EXAMPLES' },
+  ];
+
+  const parts = fields
+    .map(f => { const v = document.getElementById(f.id).value.trim(); return v ? `[${f.label}]\n${v}` : ''; })
+    .filter(Boolean);
+
+  if (!parts.length) return;
+
+  navigator.clipboard.writeText(parts.join('\n\n')).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+
+// ── Clear ──────────────────────────────────────────────────────────────────
+function clearAll() {
+  ['field-role','field-task','field-context','field-format','field-constraints','field-examples']
+    .forEach(id => document.getElementById(id).value = '');
+  document.querySelectorAll('.tpl-btn').forEach(b => b.classList.remove('active'));
+  updatePreview();
+}
+
+// Init
+updatePreview();
+</script>
+</body>
+</html>
