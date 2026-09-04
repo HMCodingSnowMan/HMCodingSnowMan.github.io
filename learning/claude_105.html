@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 105 — AI Agents & Tool Use</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a1414;
+  --card: #102121;
+  --surface: #0d1b1b;
+  --border: #1f3a3a;
+  --teal: #2dd4bf;
+  --teal-dark: #0d9488;
+  --teal-light: #0f2a28;
+  --amber: #fbbf24;
+  --amber-light: #2a1f0a;
+  --blue: #60a5fa;
+  --blue-light: #0f1f2a;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --text: #e2f2f0;
+  --muted: #7fa8a3;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #081010; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--teal); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--teal); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--teal-light); color: var(--teal); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--blue-light); color: var(--blue); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.teal { background: var(--teal-light); border-left: 4px solid var(--teal); color: var(--teal); }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--teal); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+/* AGENT LOOP DIAGRAM */
+.loop-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.loop-steps { display: flex; flex-direction: column; gap: 0; }
+.loop-step { display: flex; gap: 0.875rem; align-items: flex-start; }
+.loop-num { width: 30px; height: 30px; border-radius: 50%; background: var(--teal); color: #06201d; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.loop-connector { width: 2px; height: 22px; background: var(--border); margin-left: 14px; }
+.loop-content { padding-bottom: 0.5rem; }
+.loop-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.loop-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+.loop-cycle-note { text-align: center; font-size: 0.75rem; color: var(--teal); margin-top: 0.5rem; font-weight: 600; }
+
+/* TOOL CARDS */
+.tool-grid { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+.tool-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+.tool-icon { font-size: 1.3rem; flex-shrink: 0; }
+.tool-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.tool-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* AGENTIC SPECTRUM */
+.spectrum-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.spectrum-bar { height: 10px; border-radius: 6px; background: linear-gradient(90deg, var(--blue) 0%, var(--teal) 50%, var(--amber) 100%); margin: 1rem 0 0.5rem; position: relative; }
+.spectrum-labels { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--muted); margin-bottom: 0.75rem; }
+.spectrum-points { display: flex; flex-direction: column; gap: 0.6rem; }
+.spectrum-point { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.82rem; }
+.spectrum-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 0.3rem; }
+.spectrum-point strong { color: var(--text); }
+.spectrum-point span { color: var(--muted); }
+
+/* TRUST LEVELS */
+.trust-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); }
+.trust-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.trust-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.trust-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.trust-green { border-left: 4px solid var(--green); }
+.trust-green .trust-level { color: var(--green); }
+.trust-amber { border-left: 4px solid var(--amber); }
+.trust-amber .trust-level { color: var(--amber); }
+.trust-red { border-left: 4px solid var(--red); }
+.trust-red .trust-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--teal); background: var(--teal-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--teal); }
+.try-submit { margin-top: 0.5rem; background: var(--teal-dark); color: #06201d; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--teal); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--teal-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--teal); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--teal-dark); color: #06201d; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--teal); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--teal-light); color: var(--teal); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--teal-dark); color: #06201d; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤖 Claude 105 — AI Agents & Tool Use</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 5',
+    emoji: '🤖',
+    title: "Claude isn't just a chatbot anymore. It can act.",
+    body: `
+      <p>Up to now, you've probably thought of Claude as something you talk to — you type a question, it types back an answer. That's true, but it's only half the picture.</p>
+      <p>Claude can also <strong>use tools</strong> — search the web, run code, read files, browse websites, edit documents, and call other software — all in service of actually completing a task, not just describing how you might do it yourself.</p>
+      <div class="callout teal">
+        🔧 <strong>What tool use actually is</strong> — Claude calling outside systems mid-conversation<br><br>
+        🔁 <strong>The agent loop</strong> — how Claude decides what to do, does it, and checks its work<br><br>
+        📊 <strong>The agentic spectrum</strong> — from simple tool calls to fully autonomous agents<br><br>
+        🛡️ <strong>Trust and permissions</strong> — why some actions need your approval and others don't<br><br>
+        ⚙️ <strong>Where this shows up</strong> — real examples you've probably already used
+      </div>
+      <p>By the end you'll understand not just what "agentic AI" means, but why it's such a big shift from the chatbot era.</p>
+    `
+  },
+
+  // 1 - WHAT IS TOOL USE
+  {
+    type: 'lesson',
+    tag: 'The basics',
+    emoji: '🔧',
+    title: "Tool use: giving Claude hands, not just a voice",
+    body: `
+      <p>On its own, an AI model is really good at one thing: predicting the next chunk of text based on everything it's seen before. That's powerful for writing and reasoning, but it has a hard limit — it can't check today's weather, can't run your code, can't look inside a file you uploaded five minutes ago.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Think of Claude as a very smart consultant in a sealed room</div>
+        <div class="analogy-body">Without tools, that consultant can only give advice based on what they already knew walking in. Tool use is like handing them a phone, a laptop, and a set of keys — now they can look things up, run the numbers, and go check something themselves instead of guessing.</div>
+      </div>
+
+      <p>A "tool" in this context is just a defined action Claude can trigger — a function it can call, with specific inputs, that does something in the real world and returns a result. Web search is a tool. Running Python code is a tool. Reading a spreadsheet is a tool.</p>
+
+      <div class="callout amber">💡 <strong>The key shift:</strong> Instead of Claude guessing an answer from memory, it can go get the actual, current, verified answer — and show its work along the way.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Tool use check",
+    question: "Why can't a language model alone tell you today's weather, even if it's extremely knowledgeable?",
+    options: [
+      "It's not allowed to discuss weather",
+      "It has no way to access live, real-time information outside of what it was trained on",
+      "Weather is too complex for AI to understand",
+      "It would need a special weather-only version of the model"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 A model by itself only has what it learned during training — a snapshot frozen at a point in time. Getting today's weather requires reaching out to a live data source, which is exactly what a tool call does.",
+      wrong: "The answer is B. A model's knowledge is frozen at training time — it has no built-in connection to live data. Tools are what bridge that gap, letting Claude fetch current information instead of relying on memory."
+    }
+  },
+
+  // 3 - THE AGENT LOOP
+  {
+    type: 'lesson',
+    tag: 'The agent loop',
+    emoji: '🔁',
+    title: "How Claude actually decides what to do",
+    body: `
+      <p>When Claude has tools available, it doesn't just blurt out an answer. It runs through a loop — think, act, observe, repeat — until the task is actually done.</p>
+
+      <div class="loop-diagram">
+        <div class="loop-steps">
+          <div class="loop-step">
+            <div class="loop-num">1</div>
+            <div class="loop-content">
+              <div class="loop-title">Think</div>
+              <div class="loop-desc">Claude reads the request and decides what's actually needed to answer it well — does this need a tool, and if so, which one?</div>
+            </div>
+          </div>
+          <div class="loop-connector"></div>
+          <div class="loop-step">
+            <div class="loop-num">2</div>
+            <div class="loop-content">
+              <div class="loop-title">Act</div>
+              <div class="loop-desc">Claude calls the tool — say, a web search — with specific inputs, like a search query.</div>
+            </div>
+          </div>
+          <div class="loop-connector"></div>
+          <div class="loop-step">
+            <div class="loop-num">3</div>
+            <div class="loop-content">
+              <div class="loop-title">Observe</div>
+              <div class="loop-desc">The tool returns a result — search snippets, code output, file contents — and Claude reads it.</div>
+            </div>
+          </div>
+          <div class="loop-connector"></div>
+          <div class="loop-step">
+            <div class="loop-num">4</div>
+            <div class="loop-content">
+              <div class="loop-title">Decide</div>
+              <div class="loop-desc">Is that enough to answer well? If yes, respond. If not, loop back to step 1 — maybe a different search, or a second tool.</div>
+            </div>
+          </div>
+        </div>
+        <div class="loop-cycle-note">↻ This can repeat many times before you see a final answer</div>
+      </div>
+
+      <p>This is very different from a single text prediction. It's closer to how a person actually solves an open-ended problem — try something, look at what happened, adjust, try again.</p>
+
+      <div class="callout blue">💡 <strong>Why this matters:</strong> When you see Claude searching multiple times, or running code and then fixing an error, that's the loop in action — not Claude struggling, but Claude iterating the way a careful person would.</div>
+    `
+  },
+
+  // 4 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Agent loop check",
+    question: "You ask Claude a research question and see it run three separate web searches before answering. What's most likely happening?",
+    options: [
+      "Claude is malfunctioning and repeating itself",
+      "Claude is stalling to seem more thorough than it is",
+      "Claude is iterating — each search result is shaping what it searches for next, to build a complete answer",
+      "The first two searches failed silently"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Right. 🎯 That's the think → act → observe → decide loop working as intended. Each search result informs the next step, similar to how a person doing research follows one lead to the next rather than guessing everything up front.",
+      wrong: "The answer is C. Multiple tool calls usually mean Claude is genuinely iterating — using each result to refine the next action — not malfunctioning or stalling. This back-and-forth is a core part of how agentic tool use works."
+    }
+  },
+
+  // 5 - COMMON TOOLS
+  {
+    type: 'lesson',
+    tag: 'Common tools',
+    emoji: '🧰',
+    title: "The toolbox: what Claude can actually reach for",
+    body: `
+      <p>Different tools unlock different capabilities. Here are some of the most common ones you'll run into:</p>
+
+      <div class="tool-grid">
+        <div class="tool-card">
+          <div class="tool-icon">🔍</div>
+          <div>
+            <div class="tool-name">Web search</div>
+            <div class="tool-desc">Finds current information beyond the training cutoff — news, prices, current events, recent releases.</div>
+          </div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">💻</div>
+          <div>
+            <div class="tool-name">Code execution</div>
+            <div class="tool-desc">Actually runs code rather than just writing it — meaning math, data analysis, and file processing can be verified, not guessed at.</div>
+          </div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">📄</div>
+          <div>
+            <div class="tool-name">File & document tools</div>
+            <div class="tool-desc">Reads uploaded files (PDFs, spreadsheets, images) and creates new ones — reports, slide decks, spreadsheets.</div>
+          </div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">🌐</div>
+          <div>
+            <div class="tool-name">Browser control</div>
+            <div class="tool-desc">Navigates real websites, clicks buttons, fills forms — for tasks that require interacting with a live site, not just reading it.</div>
+          </div>
+        </div>
+        <div class="tool-card">
+          <div class="tool-icon">🔌</div>
+          <div>
+            <div class="tool-name">Connected apps (MCP)</div>
+            <div class="tool-desc">Talks to external services — calendars, project trackers, databases — through a standardized connection protocol.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout teal">💡 <strong>Key idea:</strong> None of these are built into the model itself. They're external systems Claude is given permission to call. Swap the toolset, and the same underlying model can do very different jobs.</div>
+    `
+  },
+
+  // 6 - THE AGENTIC SPECTRUM
+  {
+    type: 'lesson',
+    tag: 'The spectrum',
+    emoji: '📊',
+    title: '"Agentic" isn\'t one thing — it\'s a spectrum',
+    body: `
+      <p>People throw around the word "agent" a lot, but it's not a single on/off switch. It's more like a dial, from a plain chatbot on one end to a fully autonomous system on the other.</p>
+
+      <div class="spectrum-wrap">
+        <div class="spectrum-bar"></div>
+        <div class="spectrum-labels"><span>Least agentic</span><span>Most agentic</span></div>
+        <div class="spectrum-points">
+          <div class="spectrum-point">
+            <div class="spectrum-dot" style="background:var(--blue)"></div>
+            <div><strong>Plain chatbot:</strong> <span>answers using only what it already knows, no tools at all</span></div>
+          </div>
+          <div class="spectrum-point">
+            <div class="spectrum-dot" style="background:var(--teal)"></div>
+            <div><strong>Single tool call:</strong> <span>uses one tool, once, to answer a specific question (e.g. one web search)</span></div>
+          </div>
+          <div class="spectrum-point">
+            <div class="spectrum-dot" style="background:var(--teal)"></div>
+            <div><strong>Multi-step tool use:</strong> <span>chains several tool calls together, adjusting based on results, to complete a task</span></div>
+          </div>
+          <div class="spectrum-point">
+            <div class="spectrum-dot" style="background:var(--amber)"></div>
+            <div><strong>Autonomous agent:</strong> <span>given a broad goal, plans its own steps, and works largely unsupervised toward completion</span></div>
+          </div>
+        </div>
+      </div>
+
+      <p>Most of what you interact with day-to-day sits in the middle — multi-step tool use. Fully autonomous agents (the far right) are newer, more powerful, and require a lot more trust, since they're making more decisions with less human checking in along the way.</p>
+
+      <div class="callout amber">💡 <strong>Practical takeaway:</strong> When evaluating any "AI agent" product or claim, ask where on this spectrum it actually sits. A lot of "agentic" marketing describes something closer to a single tool call than genuine autonomy.</div>
+    `
+  },
+
+  // 7 - QUIZ 3
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Agentic spectrum check",
+    question: "A product claims to be a 'fully autonomous AI agent' but it only ever performs one web search per user request and never chains actions together. Where does this actually sit on the agentic spectrum?",
+    options: [
+      "It's genuinely at the most autonomous end, just simple to use",
+      "It's closer to a single tool call — a long way from true autonomy",
+      "It's not agentic at all, since it uses a tool",
+      "The spectrum doesn't apply to commercial products"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Correct. 🎯 One tool call per request is a long way from autonomy — true autonomous agents plan multi-step sequences and adjust course with minimal human input. Marketing language often overstates where a product actually sits on this spectrum.",
+      wrong: "The answer is B. A single, isolated tool call is much closer to the 'single tool call' end of the spectrum than to genuine autonomy. It's worth looking past the word 'agent' in marketing and checking what the system actually does."
+    }
+  },
+
+  // 8 - TRUST & PERMISSIONS
+  {
+    type: 'lesson',
+    tag: 'Trust & safety',
+    emoji: '🛡️',
+    title: "Why some actions need your OK — and some don't",
+    body: `
+      <p>Not all tool actions carry the same risk. Reading a public webpage is very different from sending an email on your behalf or spending your money. Responsible agentic systems reflect that with different levels of oversight.</p>
+
+      <div class="trust-card trust-green">
+        <div class="trust-level">Low risk — usually automatic</div>
+        <div class="trust-title">Read-only, reversible actions</div>
+        <div class="trust-desc">Searching the web, reading a file, running a calculation. Nothing changes in the outside world, so these typically don't need explicit permission each time.</div>
+      </div>
+
+      <div class="trust-card trust-amber">
+        <div class="trust-level">Medium risk — often confirmed</div>
+        <div class="trust-title">Actions with real but limited consequences</div>
+        <div class="trust-desc">Drafting an email (not sending), creating a file, modifying a document you're actively working on. Usually shown to you before anything is finalized.</div>
+      </div>
+
+      <div class="trust-card trust-red">
+        <div class="trust-level">High risk — should always require approval</div>
+        <div class="trust-title">Irreversible or high-stakes actions</div>
+        <div class="trust-desc">Sending a message on your behalf, making a purchase, deleting data, agreeing to terms. Good agentic systems are designed to pause and ask before crossing this line — not act first and explain later.</div>
+      </div>
+
+      <div class="callout red">⚠️ <strong>Why this matters for you:</strong> As AI agents get more capable, understanding this permission boundary is genuinely useful — it's the difference between a tool that saves you time and one that takes unwanted action in the real world. Good systems make this boundary clear and give you control over it.</div>
+    `
+  },
+
+  // 9 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Spot the risk level",
+    instruction: "Imagine an AI agent is helping you plan a birthday party. It searches for venue options, drafts an invitation, and is about to send that invitation to your guest list via email. In your own words, explain which of these three steps should require your explicit approval before happening, and why.",
+    placeholder: "Type your answer here...",
+    response: "Great instinct to work through this. Here's how it breaks down: searching for venues is low-risk and read-only — no approval needed. Drafting the invitation is medium-risk — Claude creating a draft doesn't affect anyone outside the conversation, so it's fine to do without asking, though you'd want to review it. Sending the invitation is high-risk and irreversible — once it's emailed to your guest list, it can't be unsent, and it affects other people directly. That step should always require your explicit go-ahead. The general pattern: the closer an action gets to affecting the outside world in a way that can't be undone, the more it should pause and check with you first."
+  },
+
+  // 10 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "You're using an AI coding agent. It reads your codebase, writes a fix, runs the tests to check the fix works, and then asks whether it should push the change to your live production server. What does this sequence demonstrate?",
+    options: [
+      "The agent is broken because it needed to ask a question",
+      "The agent loop (think/act/observe) combined with an appropriate trust boundary before an irreversible action",
+      "This isn't really agentic behavior since it asked for permission",
+      "Running tests means it doesn't need a human check at all"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Reading, writing, and testing code are all reversible, low-to-medium risk steps the agent can handle in its own loop. Pushing to production is high-stakes and hard to undo — exactly the kind of action that should pause for a human decision. This is agentic behavior done responsibly.",
+      wrong: "The answer is B. This is a textbook example of the agent loop (think, act, observe, repeat through reading/writing/testing code) paired with a sensible trust boundary — pausing before an irreversible, high-stakes action like a production deploy. Asking first doesn't make it less agentic; it makes it well-designed."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🤖'; title = "You get how agents work."; sub = "You now understand what's actually happening when AI moves from talking to doing — a genuinely useful distinction as more tools become 'agentic.'"; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of tool use and the agent loop. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This is a newer, evolving area. Go back through the lessons — the concepts build on each other and click more the second time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout teal">
+          <strong>What you now know:</strong><br><br>
+          🔧 <strong>Tool use</strong> — Claude calling outside systems to act, not just describe<br>
+          🔁 <strong>The agent loop</strong> — think, act, observe, decide, repeat<br>
+          🧰 <strong>Common tools</strong> — search, code execution, files, browsers, connected apps<br>
+          📊 <strong>The agentic spectrum</strong> — from plain chatbot to full autonomy, with most tools in the middle<br>
+          🛡️ <strong>Trust boundaries</strong> — low-risk actions run freely, high-risk actions should always pause for approval
+        </div>
+        <div class="callout blue">
+          <strong>The one rule that ties it all together:</strong><br>
+          Tools let Claude act in the world, not just describe it — and the more permanent an action is, the more it should require a human decision first.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

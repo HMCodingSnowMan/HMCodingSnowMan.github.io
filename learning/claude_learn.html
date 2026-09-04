@@ -80,6 +80,8 @@ nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92);
 .mod-3 .module-cta { color: #16a34a; }
 .mod-3 .path-node { background: #dcfce7; border-color: #4ade80; color: #14532d; }
 .mod-3 .path-line { background: linear-gradient(#4ade80, #7c3aed); }
+.mod-4 .path-line { background: linear-gradient(#7c3aed, #0d9488); }
+.mod-5 .path-line { background: linear-gradient(#0d9488, #9333ea); }
 
 .mod-4 .module-card { border-color: #312e81; background: #0f0f1a; }
 .mod-4 .module-card:hover { border-color: #a78bfa; box-shadow: 0 4px 24px rgba(124,58,237,0.15); }
@@ -92,6 +94,28 @@ nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92);
 .mod-4 .module-card .topic-tag { background: #1e1a3a; color: #64748b; }
 .mod-4 .module-card .module-card-accent { background: #7c3aed; }
 .mod-4 .module-card { border-top: 3px solid #7c3aed; }
+
+.mod-5 .module-card { border-color: #134e4a; background: #0a1414; }
+.mod-5 .module-card:hover { border-color: #2dd4bf; box-shadow: 0 4px 24px rgba(45,212,191,0.15); }
+.mod-5 .module-card .module-title { color: #e2f2f0; }
+.mod-5 .module-card .module-desc { color: #7fa8a3; }
+.mod-5 .module-card .module-duration { color: #5c8a85; }
+.mod-5 .module-card .module-audience { color: #5c8a85; }
+.mod-5 .module-card .module-number { color: #5c8a85; }
+.mod-5 .module-card .topic-tag { background: #0f2a28; color: #2dd4bf; }
+.mod-5 .module-card .module-card-accent { background: #0d9488; }
+.mod-5 .module-card { border-top: 3px solid #0d9488; }
+
+.mod-6 .module-card { border-color: #382a4a; background: #140f1a; }
+.mod-6 .module-card:hover { border-color: #c084fc; box-shadow: 0 4px 24px rgba(192,132,252,0.15); }
+.mod-6 .module-card .module-title { color: #f0e8f7; }
+.mod-6 .module-card .module-desc { color: #a893bd; }
+.mod-6 .module-card .module-duration { color: #7a6591; }
+.mod-6 .module-card .module-audience { color: #7a6591; }
+.mod-6 .module-card .module-number { color: #7a6591; }
+.mod-6 .module-card .topic-tag { background: #291a3a; color: #c084fc; }
+.mod-6 .module-card .module-card-accent { background: #9333ea; }
+.mod-6 .module-card { border-top: 3px solid #9333ea; }
 .mod-4 .path-node { background: #1e1a3a; border-color: #a78bfa; color: #a78bfa; }
 
 /* FAQ */
@@ -216,6 +240,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
     <div class="path-item mod-4">
       <div class="path-connector">
         <div class="path-node">4</div>
+        <div class="path-line"></div>
       </div>
       <a class="module-card" href="claude_104.html">
         <div class="module-top">
@@ -234,6 +259,55 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
           <span class="topic-tag">AI myths debunked</span>
         </div>
         <div class="module-cta">Start Module 4 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 5 -->
+    <div class="path-item mod-5">
+      <div class="path-connector">
+        <div class="path-node">5</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="claude_105.html">
+        <div class="module-top">
+          <span class="module-number">Module 5 · Advanced</span>
+          <span class="module-duration">~15 min · 11 lessons</span>
+        </div>
+        <span class="module-emoji">🤖</span>
+        <div class="module-title">Claude 105 — AI Agents & Tool Use</div>
+        <div class="module-audience">For: Anyone who wants to understand AI that acts, not just talks</div>
+        <div class="module-desc">What tool use actually is, how the think-act-observe agent loop works, the agentic spectrum from chatbot to full autonomy, and the trust boundaries that keep agentic AI safe to use.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Tool use</span>
+          <span class="topic-tag">The agent loop</span>
+          <span class="topic-tag">Agentic spectrum</span>
+          <span class="topic-tag">Trust & permissions</span>
+        </div>
+        <div class="module-cta">Start Module 5 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 6 -->
+    <div class="path-item mod-6">
+      <div class="path-connector">
+        <div class="path-node">6</div>
+      </div>
+      <a class="module-card" href="claude_106.html">
+        <div class="module-top">
+          <span class="module-number">Module 6 · Advanced</span>
+          <span class="module-duration">~15 min · 11 lessons</span>
+        </div>
+        <span class="module-emoji">⚖️</span>
+        <div class="module-title">Claude 106 — Comparing AI Models</div>
+        <div class="module-audience">For: Anyone trying to make sense of the crowded AI model landscape</div>
+        <div class="module-desc">Why most AI models share the same core architecture, what model size actually means, how to read benchmarks skeptically, open vs. closed models, and a practical framework for picking the right model for a task.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Architecture families</span>
+          <span class="topic-tag">Model size</span>
+          <span class="topic-tag">Benchmarks</span>
+          <span class="topic-tag">Open vs. closed</span>
+        </div>
+        <div class="module-cta">Start Module 6 <span>→</span></div>
       </a>
     </div>
 

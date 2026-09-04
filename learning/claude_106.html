@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 106 — Comparing AI Models</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #140f1a;
+  --card: #1f1728;
+  --surface: #1a1322;
+  --border: #382a4a;
+  --violet: #c084fc;
+  --violet-dark: #9333ea;
+  --violet-light: #291a3a;
+  --rose: #fb7185;
+  --rose-light: #2a1418;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --text: #f0e8f7;
+  --muted: #a893bd;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #100b16; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--violet); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--violet); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--violet-light); color: var(--violet); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--rose-light); color: var(--rose); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.violet { background: var(--violet-light); border-left: 4px solid var(--violet); color: var(--violet); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.rose { background: var(--rose-light); border-left: 4px solid var(--rose); color: var(--rose); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--violet); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+/* ARCHITECTURE FAMILY CARDS */
+.family-grid { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+.family-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; }
+.family-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem; }
+.family-tag { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--violet-light); color: var(--violet); padding: 0.15rem 0.5rem; border-radius: 8px; }
+.family-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* SIZE COMPARISON */
+.size-diagram { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.size-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.7rem; }
+.size-row:last-child { margin-bottom: 0; }
+.size-label { font-size: 0.78rem; font-weight: 600; color: var(--text); width: 76px; flex-shrink: 0; }
+.size-bar-wrap { flex: 1; height: 20px; background: var(--border); border-radius: 6px; overflow: hidden; }
+.size-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 0.5rem; font-size: 0.68rem; font-weight: 700; color: #140f1a; }
+
+/* BENCHMARK CARDS */
+.bench-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; }
+.bench-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; }
+.bench-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.4rem; }
+.bench-caveat { font-size: 0.75rem; color: var(--rose); line-height: 1.5; }
+
+/* COMPARISON TABLE */
+.compare-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.78rem; }
+.compare-table th { text-align: left; padding: 0.6rem 0.5rem; color: var(--violet); font-weight: 700; border-bottom: 2px solid var(--border); }
+.compare-table td { padding: 0.6rem 0.5rem; color: var(--muted); border-bottom: 1px solid var(--border); vertical-align: top; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+
+/* OPEN VS CLOSED */
+.oc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+.oc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem; }
+.oc-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+.oc-title.open { color: var(--cyan); }
+.oc-title.closed { color: var(--violet); }
+.oc-list { font-size: 0.75rem; color: var(--muted); line-height: 1.7; list-style: none; }
+.oc-list li::before { content: '• '; color: var(--muted); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--violet); background: var(--violet-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--violet); }
+.try-submit { margin-top: 0.5rem; background: var(--violet-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--violet); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--violet-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--violet); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--violet-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--violet); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--violet-light); color: var(--violet); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--violet-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .oc-grid { grid-template-columns: 1fr; }
+  .compare-table { font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚖️ Claude 106 — Comparing AI Models</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 6',
+    emoji: '⚖️',
+    title: "Claude, GPT, Gemini, Llama... what's actually different between them?",
+    body: `
+      <p>By now you understand how Claude works under the hood — tokens, context windows, training, tool use. But Claude is just one of many AI models out there. This module zooms out to the bigger landscape.</p>
+      <p>We'll cover:</p>
+      <div class="callout violet">
+        🏗️ <strong>Architecture families</strong> — why most modern AI models are more similar than you'd think<br><br>
+        📏 <strong>What "model size" actually means</strong> — and why bigger isn't automatically better<br><br>
+        📊 <strong>Benchmarks</strong> — how models get compared, and why you should be skeptical of leaderboards<br><br>
+        🔓 <strong>Open vs. closed models</strong> — what that distinction really means for you<br><br>
+        🎯 <strong>Choosing the right tool</strong> — how to actually pick a model for a task, not just chase a name
+      </div>
+      <p>This isn't about picking a "winner." It's about understanding what actually varies between models, so you can make informed choices instead of going on brand reputation alone.</p>
+    `
+  },
+
+  // 1 - ARCHITECTURE FAMILIES
+  {
+    type: 'lesson',
+    tag: 'Under the hood',
+    emoji: '🏗️',
+    title: "Most modern AI models share the same basic blueprint",
+    body: `
+      <p>Here's something that surprises people: Claude, GPT, Gemini, and most other major language models are all built on the same core architecture, called the <strong>Transformer</strong>. It was introduced in a 2017 research paper and has become the foundation almost everyone builds on.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Think of it like car engines</div>
+        <div class="analogy-body">Nearly every modern car uses an internal combustion or electric engine — the basic blueprint is shared. What makes a Toyota drive differently from a Tesla isn't a totally different kind of engine, it's the engineering choices, tuning, and materials built on top of that shared foundation. AI models work similarly.</div>
+      </div>
+
+      <p>So if the underlying architecture is largely the same, what actually makes models different from each other?</p>
+
+      <div class="family-grid">
+        <div class="family-card">
+          <div class="family-name"><span class="family-tag">Training data</span></div>
+          <div class="family-desc">What text (and images, code, etc.) the model learned from — the quality, diversity, and recency of that data shapes what the model knows and how it "thinks."</div>
+        </div>
+        <div class="family-card">
+          <div class="family-name"><span class="family-tag">Fine-tuning approach</span></div>
+          <div class="family-desc">How the raw model gets shaped into something helpful and safe — the specific techniques and values baked in during this stage vary a lot between companies.</div>
+        </div>
+        <div class="family-card">
+          <div class="family-name"><span class="family-tag">Scale & efficiency</span></div>
+          <div class="family-desc">How large the model is, and how efficiently it was trained — this affects both capability and cost.</div>
+        </div>
+        <div class="family-card">
+          <div class="family-name"><span class="family-tag">Product design</span></div>
+          <div class="family-desc">What tools are connected, what interface it's wrapped in, what guardrails exist — this is often where the day-to-day experience differs most.</div>
+        </div>
+      </div>
+
+      <div class="callout cyan">💡 <strong>Key takeaway:</strong> The differences between AI models are less about a secret architecture and more about training choices, scale, and product decisions layered on a shared foundation.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Architecture check",
+    question: "If Claude, GPT, and Gemini are all built on the same basic Transformer architecture, what actually explains the differences in how they behave?",
+    options: [
+      "They don't actually behave differently at all",
+      "Training data, fine-tuning approach, scale, and product design choices layered on top of the shared architecture",
+      "Only the company's marketing team decides how they seem to behave",
+      "Random chance during training"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 The shared architecture is like a shared engine type — the real differentiation comes from what data the model trained on, how it was fine-tuned, how large it is, and how it's packaged into a product.",
+      wrong: "The answer is B. Sharing a base architecture doesn't mean models are identical — training data, fine-tuning, scale, and product design all meaningfully shape how a model actually behaves and feels to use."
+    }
+  },
+
+  // 3 - MODEL SIZE
+  {
+    type: 'lesson',
+    tag: 'Model size',
+    emoji: '📏',
+    title: 'What "parameters" actually mean — and why bigger isn\'t automatically better',
+    body: `
+      <p>You've probably seen models described by their <strong>parameter count</strong> — "a 70 billion parameter model" or similar. Parameters are the adjustable internal values a model learns during training — very roughly, its capacity to store patterns.</p>
+
+      <p>More parameters generally means more capacity to learn complex patterns. But it's not a simple "bigger number wins" situation:</p>
+
+      <div class="size-diagram">
+        <div class="size-row">
+          <div class="size-label">Small model</div>
+          <div class="size-bar-wrap"><div class="size-bar" style="width:25%;background:var(--cyan)">Fast, cheap</div></div>
+        </div>
+        <div class="size-row">
+          <div class="size-label">Medium model</div>
+          <div class="size-bar-wrap"><div class="size-bar" style="width:60%;background:var(--violet)">Balanced</div></div>
+        </div>
+        <div class="size-row">
+          <div class="size-label">Large model</div>
+          <div class="size-bar-wrap"><div class="size-bar" style="width:95%;background:var(--rose)">Capable, slower, pricier</div></div>
+        </div>
+      </div>
+
+      <p>Companies typically offer a family of model sizes — like Claude Haiku, Sonnet, and Opus — precisely because bigger isn't always better <em>for the task at hand</em>. A small model that responds instantly and cheaply is often the right choice for simple, high-volume tasks, while a large model earns its cost on genuinely hard problems.</p>
+
+      <div class="callout rose">💡 <strong>Common misconception:</strong> "The biggest model is always the best choice." In practice, training quality, data, and fine-tuning often matter more than raw size — and a smaller, well-tuned model can outperform a larger, poorly-tuned one on specific tasks.</div>
+    `
+  },
+
+  // 4 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Model size check",
+    question: "A company offers a small, medium, and large version of their model. Why would anyone choose the small one if the large one is more capable?",
+    options: [
+      "They wouldn't — always choose the largest model available",
+      "The small model is faster and cheaper, which matters for simple or high-volume tasks where the extra capability isn't needed",
+      "Small models are actually secretly more accurate",
+      "Small models are only for testing, never for real use"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 For simple or repetitive tasks, a smaller model's speed and lower cost often outweigh the marginal capability gain from a larger model. Matching model size to task difficulty is a real skill, not a compromise.",
+      wrong: "The answer is B. Bigger isn't always better in practice — smaller models are faster and cheaper, which is exactly what you want for simple, high-volume, or latency-sensitive tasks. The 'always use the biggest model' instinct wastes both time and money."
+    }
+  },
+
+  // 5 - BENCHMARKS
+  {
+    type: 'lesson',
+    tag: 'Benchmarks',
+    emoji: '📊',
+    title: "Benchmarks: useful, but easy to misread",
+    body: `
+      <p>You'll often see models compared using <strong>benchmarks</strong> — standardized tests measuring things like reasoning, coding, or math ability, with models scored on a leaderboard. They're genuinely useful for tracking progress, but they get misread constantly.</p>
+
+      <div class="bench-card">
+        <div class="bench-name">🧮 MMLU (Massive Multitask Language Understanding)</div>
+        <div class="bench-desc">Tests broad knowledge across dozens of academic subjects, from history to law to physics.</div>
+        <div class="bench-caveat">⚠️ High-knowledge recall doesn't always translate to good real-world reasoning or writing.</div>
+      </div>
+
+      <div class="bench-card">
+        <div class="bench-name">💻 HumanEval / coding benchmarks</div>
+        <div class="bench-desc">Measures whether a model can write correct, working code for defined programming problems.</div>
+        <div class="bench-caveat">⚠️ Real-world coding involves messy, ambiguous requirements — very different from clean benchmark problems.</div>
+      </div>
+
+      <div class="bench-card">
+        <div class="bench-name">🗣️ Chatbot Arena / human preference rankings</div>
+        <div class="bench-desc">Real people compare two anonymous model responses side by side and vote for the better one.</div>
+        <div class="bench-caveat">⚠️ People often prefer confident-sounding or longer answers, which isn't the same as more accurate ones.</div>
+      </div>
+
+      <div class="callout rose">⚠️ <strong>Why skepticism matters:</strong> Benchmarks can be optimized for directly ("teaching to the test"), and a model that tops one leaderboard might perform worse on your specific, real task. Leaderboard rank is a data point, not a verdict.</div>
+    `
+  },
+
+  // 6 - QUIZ 3
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Benchmark check",
+    question: "A model tops the leaderboard on a popular coding benchmark. What's the most reasonable conclusion?",
+    options: [
+      "It will definitely be the best choice for your specific coding project",
+      "It performed well on that specific, structured test — worth investigating further, but not a guarantee for messy real-world tasks",
+      "Benchmarks are completely meaningless and should be ignored",
+      "All other models are now obsolete"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 A strong benchmark score is a genuine signal worth noting, but real-world tasks are messier than clean test problems. It's a data point to investigate, not a final verdict on which model to use.",
+      wrong: "The answer is B. Benchmarks provide real signal but aren't the whole picture — structured test problems don't capture the ambiguity of real projects. Treat a leaderboard win as one input, not a guarantee of real-world performance."
+    }
+  },
+
+  // 7 - OPEN VS CLOSED
+  {
+    type: 'lesson',
+    tag: 'Open vs. closed',
+    emoji: '🔓',
+    title: "Open-weight vs. closed models: what the distinction actually means",
+    body: `
+      <p>You'll hear models described as "open source" or "open-weight" versus "closed" or "proprietary." This is really about <strong>access</strong>, not necessarily quality.</p>
+
+      <div class="oc-grid">
+        <div class="oc-card">
+          <div class="oc-title open">🔓 Open-weight models</div>
+          <ul class="oc-list">
+            <li>Model files can be downloaded and run on your own hardware</li>
+            <li>Can be inspected, modified, and fine-tuned by anyone</li>
+            <li>No per-request cost once you're running it yourself</li>
+            <li>You're responsible for hosting, safety tuning, and updates</li>
+            <li>Examples: Llama, Mistral, DeepSeek</li>
+          </ul>
+        </div>
+        <div class="oc-card">
+          <div class="oc-title closed">🔒 Closed models</div>
+          <ul class="oc-list">
+            <li>Accessed only through the provider's API or app</li>
+            <li>Internal weights and training details stay private</li>
+            <li>Provider handles hosting, updates, and safety work</li>
+            <li>Usually the most capable models at any given time</li>
+            <li>Examples: Claude, GPT, Gemini</li>
+          </ul>
+        </div>
+      </div>
+
+      <p>Neither approach is universally "better" — it depends what you need. Open-weight models offer control, privacy (nothing leaves your own servers), and no per-use fees, but require real technical work to run well. Closed models are easier to use and often more capable, but you depend entirely on the provider.</p>
+
+      <div class="callout violet">💡 <strong>Real-world relevance:</strong> A company with strict data privacy needs might choose an open-weight model they can run entirely in-house, even if it's less capable, simply because nothing leaves their own infrastructure.</div>
+    `
+  },
+
+  // 8 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Match the model to the job",
+    instruction: "Imagine you're advising a small business with three different needs: (1) a chatbot that answers simple FAQ questions thousands of times a day, (2) a tool that drafts complex legal contract summaries, and (3) an internal tool handling sensitive medical records that can't leave the company's own servers. In your own words, explain what kind of model (size and open/closed) would make sense for each, and why.",
+    placeholder: "Type your answer here...",
+    response: "Solid way to think it through. Here's a reasonable breakdown: (1) The FAQ chatbot handles simple, repetitive, high-volume requests — a small, fast, cheap closed model (like a 'mini' or 'lite' tier) is ideal here, since the task doesn't need heavy reasoning and cost adds up fast at that volume. (2) Legal contract summaries require careful reasoning and nuance, so a large, highly capable closed model makes sense — the stakes and complexity justify the higher cost per request. (3) Sensitive medical records that can't leave company servers point toward an open-weight model run entirely in-house — even if it's somewhat less capable, data never leaving your infrastructure is a hard requirement that overrides raw performance. The general pattern: match model size and access type to the actual constraints of the task — volume, complexity, and data sensitivity — rather than always reaching for 'the best model.'"
+  },
+
+  // 9 - CHOOSING THE RIGHT MODEL
+  {
+    type: 'lesson',
+    tag: 'Practical guide',
+    emoji: '🎯',
+    title: "How to actually pick a model for a task",
+    body: `
+      <p>Pulling this all together — here's a practical framework instead of chasing whichever model is trending:</p>
+
+      <table class="compare-table">
+        <tr><th>Question to ask</th><th>What it tells you</th></tr>
+        <tr><td>How complex is the task?</td><td>Simple/repetitive → smaller model. Nuanced/high-stakes → larger model.</td></tr>
+        <tr><td>How much does speed matter?</td><td>Real-time or high-volume → prioritize smaller, faster models.</td></tr>
+        <tr><td>Are there data privacy requirements?</td><td>Strict privacy needs may point toward open-weight, self-hosted models.</td></tr>
+        <tr><td>What's the actual cost at your volume?</td><td>Cost scales with usage — test smaller/cheaper options before defaulting to the priciest tier.</td></tr>
+        <tr><td>Does it need to use tools?</td><td>Confirm the model and platform actually support the tool use your task needs.</td></tr>
+      </table>
+
+      <p>Notice none of these questions are "which model has the best reputation." That's the trap — reputation is a starting point for research, not a substitute for it.</p>
+
+      <div class="callout cyan">💡 <strong>The habit worth building:</strong> Before defaulting to whatever model is most talked about, ask what your specific task actually needs. Often the right answer is "the cheapest model that reliably gets this specific job done" — not the most powerful one available.</div>
+    `
+  },
+
+  // 10 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "A startup wants to add AI to their app. They pick the single most expensive, most capable closed model available for every single feature, including simple tasks like sorting support tickets by category. What's the issue with this approach?",
+    options: [
+      "There's no issue — always use the best model for everything",
+      "They're likely overpaying for capability the simple tasks don't need, when a smaller/cheaper model would do just as well for those",
+      "Expensive models are always wrong for startups",
+      "Closed models can't sort support tickets"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Matching model size to task complexity is one of the most practical skills here. Simple, high-volume tasks like ticket sorting rarely need a frontier-level model — using one anyway just means paying premium prices for capability that's going unused.",
+      wrong: "The answer is B. The core issue is cost-efficiency, not capability — the startup is likely paying premium prices for tasks that a smaller, cheaper model could handle equally well. Matching the model to the task is what separates efficient AI use from wasteful AI use."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '⚖️'; title = "You can compare models like a pro."; sub = "You now understand what actually differentiates AI models — a genuinely useful skill as the number of options keeps growing."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of how models differ and how to evaluate them. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This is a nuanced area with a lot of marketing noise. Go back through the lessons — the concepts build on each other and click more the second time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout violet">
+          <strong>What you now know:</strong><br><br>
+          🏗️ <strong>Shared architecture</strong> — most models are built on the Transformer; differences come from data, tuning, scale, and product design<br>
+          📏 <strong>Model size</strong> — bigger isn't automatically better; match size to task<br>
+          📊 <strong>Benchmarks</strong> — a useful signal, not a final verdict<br>
+          🔓 <strong>Open vs. closed</strong> — a question of access and control, not just quality<br>
+          🎯 <strong>Choosing a model</strong> — start from task needs, not brand reputation
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          The "best" AI model doesn't exist in the abstract — only the best model for your specific task, budget, and constraints.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
