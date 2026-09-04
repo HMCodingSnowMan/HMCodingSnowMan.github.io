@@ -82,6 +82,42 @@ nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92);
 .mod-3 .path-line { background: linear-gradient(#4ade80, #7c3aed); }
 .mod-4 .path-line { background: linear-gradient(#7c3aed, #0d9488); }
 .mod-5 .path-line { background: linear-gradient(#0d9488, #9333ea); }
+.mod-6 .path-line { background: linear-gradient(#9333ea, #dc2626); }
+
+.mod-7 .module-card { border-color: #402828; background: #1a0f0f; }
+.mod-7 .module-card:hover { border-color: #f87171; box-shadow: 0 4px 24px rgba(248,113,113,0.15); }
+.mod-7 .module-card .module-title { color: #f5e8e8; }
+.mod-7 .module-card .module-desc { color: #b08888; }
+.mod-7 .module-card .module-duration { color: #8a6666; }
+.mod-7 .module-card .module-audience { color: #8a6666; }
+.mod-7 .module-card .module-number { color: #8a6666; }
+.mod-7 .module-card .topic-tag { background: #2e1616; color: #f87171; }
+.mod-7 .module-card .module-card-accent { background: #dc2626; }
+.mod-7 .module-card { border-top: 3px solid #dc2626; }
+.mod-7 .path-line { background: linear-gradient(#dc2626, #2563eb); }
+
+.mod-8 .module-card { border-color: #1e3050; background: #0a1220; }
+.mod-8 .module-card:hover { border-color: #3b82f6; box-shadow: 0 4px 24px rgba(59,130,246,0.15); }
+.mod-8 .module-card .module-title { color: #e8f0fa; }
+.mod-8 .module-card .module-desc { color: #7d94ba; }
+.mod-8 .module-card .module-duration { color: #5c7099; }
+.mod-8 .module-card .module-audience { color: #5c7099; }
+.mod-8 .module-card .module-number { color: #5c7099; }
+.mod-8 .module-card .topic-tag { background: #101f3d; color: #3b82f6; }
+.mod-8 .module-card .module-card-accent { background: #2563eb; }
+.mod-8 .module-card { border-top: 3px solid #2563eb; }
+.mod-8 .path-line { background: linear-gradient(#2563eb, #16a34a); }
+
+.mod-9 .module-card { border-color: #24402a; background: #0f1a12; }
+.mod-9 .module-card:hover { border-color: #4ade80; box-shadow: 0 4px 24px rgba(74,222,128,0.15); }
+.mod-9 .module-card .module-title { color: #ecf5ee; }
+.mod-9 .module-card .module-desc { color: #85a68e; }
+.mod-9 .module-card .module-duration { color: #5f8268; }
+.mod-9 .module-card .module-audience { color: #5f8268; }
+.mod-9 .module-card .module-number { color: #5f8268; }
+.mod-9 .module-card .topic-tag { background: #142a1a; color: #4ade80; }
+.mod-9 .module-card .module-card-accent { background: #16a34a; }
+.mod-9 .module-card { border-top: 3px solid #16a34a; }
 
 .mod-4 .module-card { border-color: #312e81; background: #0f0f1a; }
 .mod-4 .module-card:hover { border-color: #a78bfa; box-shadow: 0 4px 24px rgba(124,58,237,0.15); }
@@ -291,6 +327,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
     <div class="path-item mod-6">
       <div class="path-connector">
         <div class="path-node">6</div>
+        <div class="path-line"></div>
       </div>
       <a class="module-card" href="claude_106.html">
         <div class="module-top">
@@ -308,6 +345,80 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
           <span class="topic-tag">Open vs. closed</span>
         </div>
         <div class="module-cta">Start Module 6 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 7 -->
+    <div class="path-item mod-7">
+      <div class="path-connector">
+        <div class="path-node">7</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="claude_107.html">
+        <div class="module-top">
+          <span class="module-number">Module 7 · Advanced</span>
+          <span class="module-duration">~15 min · 11 lessons</span>
+        </div>
+        <span class="module-emoji">⚠️</span>
+        <div class="module-title">Claude 107 — AI Hallucinations & Reliability</div>
+        <div class="module-audience">For: Anyone who relies on AI output for real work</div>
+        <div class="module-desc">What hallucinations actually are and why they happen, how to gauge risk level before trusting an answer, a practical verification checklist, and where AI tends to be strong versus where to stay cautious.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Hallucinations</span>
+          <span class="topic-tag">Risk levels</span>
+          <span class="topic-tag">Verification habits</span>
+          <span class="topic-tag">Reliability map</span>
+        </div>
+        <div class="module-cta">Start Module 7 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 8 -->
+    <div class="path-item mod-8">
+      <div class="path-connector">
+        <div class="path-node">8</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="claude_108.html">
+        <div class="module-top">
+          <span class="module-number">Module 8 · Advanced</span>
+          <span class="module-duration">~15 min · 11 lessons</span>
+        </div>
+        <span class="module-emoji">🛠️</span>
+        <div class="module-title">Claude 108 — Fine-tuning & Custom AI</div>
+        <div class="module-audience">For: Anyone evaluating "custom AI" claims or projects</div>
+        <div class="module-desc">The real ladder of AI customization from prompting to training from scratch, the key difference between prompting and fine-tuning, what fine-tuning actually requires, and a practical framework for choosing the right approach.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Customization ladder</span>
+          <span class="topic-tag">Fine-tuning</span>
+          <span class="topic-tag">Training from scratch</span>
+          <span class="topic-tag">Choosing an approach</span>
+        </div>
+        <div class="module-cta">Start Module 8 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 9 -->
+    <div class="path-item mod-9">
+      <div class="path-connector">
+        <div class="path-node">9</div>
+      </div>
+      <a class="module-card" href="claude_109.html">
+        <div class="module-top">
+          <span class="module-number">Module 9 · Advanced</span>
+          <span class="module-duration">~15 min · 11 lessons</span>
+        </div>
+        <span class="module-emoji">🏢</span>
+        <div class="module-title">Claude 109 — AI in the Workplace</div>
+        <div class="module-audience">For: Anyone leading or navigating AI adoption on a team</div>
+        <div class="module-desc">How AI adoption spreads through a team, the predictable ways rollouts fail, understanding resistance as a legitimate signal, what successful rollouts do differently, and realistic use cases versus hype.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Adoption curve</span>
+          <span class="topic-tag">Failure modes</span>
+          <span class="topic-tag">Resistance</span>
+          <span class="topic-tag">Realistic use cases</span>
+        </div>
+        <div class="module-cta">Start Module 9 <span>→</span></div>
       </a>
     </div>
 

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 107 — AI Hallucinations & Reliability</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #1a0f0f;
+  --card: #241616;
+  --surface: #1e1313;
+  --border: #402828;
+  --red: #f87171;
+  --red-dark: #dc2626;
+  --red-light: #2e1616;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --blue: #60a5fa;
+  --blue-light: #101f2e;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --text: #f5e8e8;
+  --muted: #b08888;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #140a0a; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--red); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--red); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--red-light); color: var(--red); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--blue-light); color: var(--blue); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--red); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+/* WHY IT HAPPENS DIAGRAM */
+.cause-grid { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+.cause-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+.cause-icon { font-size: 1.3rem; flex-shrink: 0; }
+.cause-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.cause-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* RISK LEVELS */
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green { border-left: 4px solid var(--green); }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber { border-left: 4px solid var(--amber); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red { border-left: 4px solid var(--red); }
+.risk-red .risk-level { color: var(--red); }
+
+/* VERIFICATION CHECKLIST */
+.checklist { display: flex; flex-direction: column; gap: 0.5rem; margin: 1rem 0; }
+.check-item { display: flex; gap: 0.7rem; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; }
+.check-num { width: 22px; height: 22px; border-radius: 50%; background: var(--red-dark); color: white; font-size: 0.7rem; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.check-text { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.check-text strong { color: var(--text); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--red); background: var(--red-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--red); }
+.try-submit { margin-top: 0.5rem; background: var(--red-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--red); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--red-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--red); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--red-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--red); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--red-light); color: var(--red); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--red-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⚠️ Claude 107 — AI Hallucinations & Reliability</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 7',
+    emoji: '⚠️',
+    title: "AI can be confidently, fluently wrong. Here's how to catch it.",
+    body: `
+      <p>This might be the single most important module in the whole series, because it's the one that protects you from the biggest real-world risk of using AI: trusting something false because it was stated with total confidence.</p>
+      <p>We'll cover:</p>
+      <div class="callout red">
+        👻 <strong>What a "hallucination" actually is</strong> — and why the term is a little misleading<br><br>
+        🧠 <strong>Why it happens</strong> — the mechanical reason AI states false things confidently<br><br>
+        🚦 <strong>Risk levels</strong> — when hallucination risk is low-stakes vs. genuinely dangerous<br><br>
+        ✅ <strong>A practical verification habit</strong> — how to actually check AI output before relying on it<br><br>
+        🎯 <strong>Where AI is most and least reliable</strong> — so you know where to be most careful
+      </div>
+      <p>None of this means "don't trust AI." It means knowing exactly where the trust should — and shouldn't — go unquestioned.</p>
+    `
+  },
+
+  // 1 - WHAT IS A HALLUCINATION
+  {
+    type: 'lesson',
+    tag: 'The basics',
+    emoji: '👻',
+    title: 'What "hallucination" actually means',
+    body: `
+      <p>In AI, a <strong>hallucination</strong> is when a model states something false, made-up, or unsupported — a fake citation, a nonexistent event, a wrong statistic — but delivers it with the same fluent confidence as something true.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Think of an overconfident student on an exam</div>
+        <div class="analogy-body">A student who doesn't know an answer sometimes writes something plausible-sounding anyway, in the same handwriting and tone as their confident answers. If you didn't already know the subject, you couldn't tell the guess from the fact just by reading it. That's exactly the problem with AI hallucinations — the delivery gives you no signal about the reliability.</div>
+      </div>
+
+      <p>Common examples: making up a book that doesn't exist, citing a court case or statistic that was never real, or getting a date, name, or number confidently wrong.</p>
+
+      <div class="callout amber">💡 <strong>Why the name is a bit misleading:</strong> "Hallucination" makes it sound like a rare glitch. In reality, it's a predictable side effect of how these models generate text in the first place — worth understanding at a mechanical level, which is what the next lesson covers.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Hallucination basics check",
+    question: "What makes AI hallucinations particularly tricky to catch compared to, say, an obvious typo?",
+    options: [
+      "They only happen in older, less advanced models",
+      "They're delivered with the exact same fluent, confident tone as accurate information — there's no built-in warning sign",
+      "They always involve numbers, never names or facts",
+      "They only happen when you ask AI a trick question on purpose"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 The core danger isn't that AI gets things wrong sometimes — it's that wrong answers look and sound identical to right ones. There's no tonal or stylistic tell that flags a hallucination.",
+      wrong: "The answer is B. The real risk of hallucinations is that they carry no distinguishing signal — false information reads exactly as confidently and fluently as accurate information, which is why verification habits matter so much."
+    }
+  },
+
+  // 3 - WHY IT HAPPENS
+  {
+    type: 'lesson',
+    tag: 'The mechanism',
+    emoji: '🧠',
+    title: "Why this happens: it's about prediction, not lying",
+    body: `
+      <p>It helps to remember what a language model is actually doing under the hood: at each step, it's predicting the most statistically likely next chunk of text based on patterns learned during training. It's not retrieving a fact from a database and checking it — it's generating plausible-sounding text.</p>
+
+      <div class="cause-grid">
+        <div class="cause-card">
+          <div class="cause-icon">📉</div>
+          <div>
+            <div class="cause-name">Gaps in training data</div>
+            <div class="cause-desc">If a topic was rarely or never covered in training, the model may still generate a confident-sounding answer by pattern-matching to similar things it has seen.</div>
+          </div>
+        </div>
+        <div class="cause-card">
+          <div class="cause-icon">🎯</div>
+          <div>
+            <div class="cause-name">Optimized for plausibility, not truth</div>
+            <div class="cause-desc">The model's core skill is producing text that sounds right, grammatically and structurally — that's a different goal than verifying something is factually correct.</div>
+          </div>
+        </div>
+        <div class="cause-card">
+          <div class="cause-icon">🕰️</div>
+          <div>
+            <div class="cause-name">Knowledge cutoffs</div>
+            <div class="cause-desc">Ask about something after the model's training cutoff and, without a tool like web search, it may guess based on old patterns rather than say "I don't know."</div>
+          </div>
+        </div>
+        <div class="cause-card">
+          <div class="cause-icon">🔗</div>
+          <div>
+            <div class="cause-name">Specific, obscure details</div>
+            <div class="cause-desc">Broad, well-covered topics are more reliable than highly specific ones — exact citations, niche statistics, or narrow technical specs are where hallucination risk climbs.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout blue">💡 <strong>Key mental model:</strong> The model isn't trying to deceive you — it doesn't have an internal fact-checker running by default. It's generating the most statistically plausible continuation of text, which is usually accurate but isn't guaranteed to be.</div>
+    `
+  },
+
+  // 4 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Mechanism check",
+    question: "Why is a very specific, obscure factual question (like an exact minor court case citation) more likely to trigger a hallucination than a broad, well-known topic?",
+    options: [
+      "AI is programmed to lie specifically about legal topics",
+      "Obscure details are less represented in training data, so the model may generate a plausible-sounding but fabricated answer instead of recognizing it doesn't know",
+      "Court cases are a special restricted topic for AI",
+      "Broad topics are always 100% accurate, with zero exceptions"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 Sparse training coverage on a narrow topic means the model has less reliable pattern data to draw from, increasing the odds it fills the gap with something plausible-sounding but wrong.",
+      wrong: "The answer is B. The issue is data coverage, not any special restriction — obscure or narrow topics are underrepresented in training, which raises the odds of a fabricated but fluent-sounding answer."
+    }
+  },
+
+  // 5 - RISK LEVELS
+  {
+    type: 'lesson',
+    tag: 'Risk levels',
+    emoji: '🚦',
+    title: "Not all hallucination risk is equal — know when to worry",
+    body: `
+      <p>The right amount of caution depends heavily on what you're actually using the answer for. Here's a useful way to think about it:</p>
+
+      <div class="risk-card risk-green">
+        <div class="risk-level">Low stakes</div>
+        <div class="risk-title">Brainstorming, drafts, casual questions</div>
+        <div class="risk-desc">Coming up with blog post ideas, a first draft of an email, casual trivia. Being wrong here costs little — you're the editor, not blindly trusting a final output.</div>
+      </div>
+
+      <div class="risk-card risk-amber">
+        <div class="risk-level">Medium stakes</div>
+        <div class="risk-title">Work deliverables, research summaries</div>
+        <div class="risk-desc">A report you'll show colleagues, a summary you'll act on, code that will run in a real system. Errors here have real cost and should be spot-checked before you rely on them.</div>
+      </div>
+
+      <div class="risk-card risk-red">
+        <div class="risk-level">High stakes</div>
+        <div class="risk-title">Legal, medical, financial, safety-critical</div>
+        <div class="risk-desc">Legal citations, medical guidance, financial figures, anything safety-related. These demand independent verification from authoritative sources every time — no exceptions, regardless of how confident the AI sounds.</div>
+      </div>
+
+      <div class="callout red">⚠️ <strong>The rule of thumb:</strong> The more consequential the decision built on the answer, the more independent verification it deserves — completely separate from how confident or detailed the AI's response sounds.</div>
+    `
+  },
+
+  // 6 - QUIZ 3
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Risk levels check",
+    question: "You ask an AI model for a specific drug dosage recommendation for a family member and it responds with a precise, confident-sounding number. What's the appropriate response?",
+    options: [
+      "Trust it completely since it sounded very confident and specific",
+      "Treat this as high-stakes and verify independently with a pharmacist or doctor before acting on it, regardless of how confident the answer sounded",
+      "Only verify if the AI seems unsure of itself",
+      "Confidence level is a reliable indicator of accuracy for medical questions"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Medical dosing is about as high-stakes as it gets. Confidence in tone tells you nothing about accuracy — this is exactly the category of question that requires independent verification from a qualified professional every time.",
+      wrong: "The answer is B. High-stakes categories like medical dosing should always be independently verified with a qualified professional — the AI's tone of confidence is not a reliable signal of correctness, especially here."
+    }
+  },
+
+  // 7 - VERIFICATION HABITS
+  {
+    type: 'lesson',
+    tag: 'Practical habit',
+    emoji: '✅',
+    title: "A simple verification checklist you can actually use",
+    body: `
+      <p>You don't need to fact-check every single AI response — that would defeat the purpose of using it. But building a quick verification habit for anything that matters is genuinely valuable:</p>
+
+      <div class="checklist">
+        <div class="check-item">
+          <div class="check-num">1</div>
+          <div class="check-text"><strong>Ask "does this matter if it's wrong?"</strong> If the stakes are low, move on. If not, keep going.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-num">2</div>
+          <div class="check-text"><strong>Check for suspiciously specific details.</strong> Exact quotes, precise statistics, and named sources are the most common hallucination hotspots — verify these first.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-num">3</div>
+          <div class="check-text"><strong>Cross-reference with a real search or source.</strong> If AI cites a study, statistic, or fact, a quick search to confirm it exists takes seconds and catches most fabrications.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-num">4</div>
+          <div class="check-text"><strong>Use tools that can actually verify, not just generate.</strong> AI with live web search access is meaningfully more reliable for current facts than one relying purely on training memory.</div>
+        </div>
+        <div class="check-item">
+          <div class="check-num">5</div>
+          <div class="check-text"><strong>Ask the AI to show its reasoning or sources.</strong> This doesn't guarantee accuracy, but it gives you something concrete to check rather than a bare assertion.</div>
+        </div>
+      </div>
+
+      <div class="callout green">💡 <strong>The habit worth building:</strong> Treat AI output the way you'd treat a knowledgeable but occasionally overconfident colleague — genuinely useful, worth listening to, but still worth double-checking before it goes into something important.</div>
+    `
+  },
+
+  // 8 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Rate the risk",
+    instruction: "You're using AI for three tasks: (1) brainstorming names for a new pet, (2) summarizing a 10-page contract before you sign it, (3) writing a product description for your online shop. For each, explain in your own words how much verification effort you'd apply and why.",
+    placeholder: "Type your answer here...",
+    response: "Nice way to think it through. Here's a reasonable take: (1) Pet names are purely low-stakes and subjective — there's no factual claim to even verify, so zero verification effort needed. (2) Summarizing a contract before signing is high-stakes — a missed clause or misread term could have real legal or financial consequences, so this deserves your own careful read of the actual contract, not just trust in the AI summary; use the summary as a starting map, not a replacement for reading the real document. (3) A product description sits in the middle — factual claims about the product (materials, dimensions, care instructions) should be double-checked against your own product specs since customers may rely on them, while marketing language and tone can be trusted more loosely since it's subjective, not factual. The general pattern: match your verification effort to how much real-world consequence rides on the answer being correct."
+  },
+
+  // 9 - WHERE AI IS RELIABLE
+  {
+    type: 'lesson',
+    tag: 'Reliability map',
+    emoji: '🗺️',
+    title: "Where AI tends to be strong vs. where to stay cautious",
+    body: `
+      <p>Broad patterns worth knowing, though individual cases always vary:</p>
+
+      <div class="cause-grid">
+        <div class="cause-card">
+          <div class="cause-icon">💪</div>
+          <div>
+            <div class="cause-name">Generally reliable</div>
+            <div class="cause-desc">Well-known, widely-documented topics; general reasoning and explanation; grammar and language tasks; brainstorming and idea generation; summarizing text you provide directly.</div>
+          </div>
+        </div>
+        <div class="cause-card">
+          <div class="cause-icon">⚠️</div>
+          <div>
+            <div class="cause-name">Use with caution</div>
+            <div class="cause-desc">Exact quotes and citations; precise statistics and dates; very recent events (unless using live search); niche or highly specialized technical details; anything from memory rather than a provided source.</div>
+          </div>
+        </div>
+      </div>
+
+      <p>Notice the pattern: AI is strongest at reasoning, synthesis, and working with information you give it directly. It's weakest when asked to recall a very specific fact purely from memory, with nothing to check it against.</p>
+
+      <div class="callout blue">💡 <strong>Practical tip:</strong> When accuracy really matters, try giving the AI the source material directly (a document, article, or dataset) rather than asking it to recall facts unaided. Working from provided text is far more reliable than working from memory alone.</div>
+    `
+  },
+
+  // 10 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "You want an accurate summary of a scientific paper's findings. Which approach is most reliable?",
+    options: [
+      "Ask the AI to recall the paper from memory using just the title",
+      "Upload or paste the actual paper's text and ask the AI to summarize that specific document",
+      "Both approaches are equally reliable",
+      "Neither approach works — AI cannot summarize scientific content"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Providing the actual source material grounds the AI's response in real content it can directly reference, dramatically reducing hallucination risk compared to relying on memory of a paper it may have only partially seen — or never seen at all — during training.",
+      wrong: "The answer is B. Giving the AI the actual document to work from is far more reliable than asking it to recall specifics from memory — working from provided source material is one of the most effective ways to reduce hallucination risk."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🛡️'; title = "You know how to verify AI output."; sub = "You now understand exactly when to trust AI and when to double-check — one of the most practically useful skills for working with AI responsibly."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of hallucination risk and verification. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This is one of the most important topics in the series. Go back through the lessons — the concepts build on each other and click more the second time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout red">
+          <strong>What you now know:</strong><br><br>
+          👻 <strong>Hallucinations</strong> — confident, fluent, but false statements — no tonal warning sign<br>
+          🧠 <strong>Why it happens</strong> — models predict plausible text, not verified facts<br>
+          🚦 <strong>Risk levels</strong> — low/medium/high stakes require different verification effort<br>
+          ✅ <strong>Verification habits</strong> — check specifics, cross-reference, use tools with live search<br>
+          🗺️ <strong>Reliability map</strong> — strongest at reasoning and provided-text tasks, weakest at pure memory recall
+        </div>
+        <div class="callout blue">
+          <strong>The one rule that ties it all together:</strong><br>
+          AI confidence is not a reliability signal. Match your verification effort to the real-world stakes of being wrong, not to how sure the answer sounds.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

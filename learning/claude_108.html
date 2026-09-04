@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 108 — Fine-tuning & Custom AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a1220;
+  --card: #101b2e;
+  --surface: #0d1626;
+  --border: #1e3050;
+  --blue: #3b82f6;
+  --blue-dark: #2563eb;
+  --blue-light: #101f3d;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --text: #e8f0fa;
+  --muted: #7d94ba;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #060d17; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--blue); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--blue); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--blue-light); color: var(--blue); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+/* CUSTOMIZATION LADDER */
+.ladder-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.ladder-step { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 1rem; position: relative; }
+.ladder-step:last-child { padding-bottom: 0; }
+.ladder-step:not(:last-child)::after { content: ''; position: absolute; left: 15px; top: 32px; bottom: 0; width: 2px; background: var(--border); }
+.ladder-num { width: 32px; height: 32px; border-radius: 50%; color: white; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; z-index: 1; }
+.ladder-content { padding-top: 0.2rem; }
+.ladder-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
+.ladder-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+.ladder-meta { font-size: 0.7rem; color: var(--cyan); margin-top: 0.3rem; font-weight: 600; }
+
+/* COMPARISON TABLE */
+.compare-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.78rem; }
+.compare-table th { text-align: left; padding: 0.6rem 0.5rem; color: var(--blue); font-weight: 700; border-bottom: 2px solid var(--border); }
+.compare-table td { padding: 0.6rem 0.5rem; color: var(--muted); border-bottom: 1px solid var(--border); vertical-align: top; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+
+/* DECISION CARDS */
+.decision-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; }
+.decision-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+.decision-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--blue); background: var(--blue-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--blue); }
+.try-submit { margin-top: 0.5rem; background: var(--blue-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--blue); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--blue-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--blue); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--blue-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--blue); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--blue-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .compare-table { font-size: 0.72rem; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🛠️ Claude 108 — Fine-tuning & Custom AI</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 8',
+    emoji: '🛠️',
+    title: '"Custom AI" gets thrown around a lot. Here\'s what it actually means.',
+    body: `
+      <p>You've probably heard phrases like "we fine-tuned our own AI" or "train a custom model on your data." These sound impressive, but they cover a huge range of very different things — from a five-minute setup to a multi-million dollar undertaking.</p>
+      <p>This module breaks down:</p>
+      <div class="callout blue">
+        🪜 <strong>The customization ladder</strong> — from prompting to full training, and everything between<br><br>
+        💬 <strong>Prompting vs. fine-tuning</strong> — the most common confusion, cleared up<br><br>
+        📚 <strong>What fine-tuning actually requires</strong> — data, cost, and effort realistically<br><br>
+        🏗️ <strong>Training from scratch</strong> — why almost nobody actually does this<br><br>
+        🎯 <strong>How to choose</strong> — a practical framework for matching the approach to the need
+      </div>
+      <p>By the end, you'll be able to cut through "custom AI" marketing claims and understand what's actually being offered.</p>
+    `
+  },
+
+  // 1 - THE CUSTOMIZATION LADDER
+  {
+    type: 'lesson',
+    tag: 'The big picture',
+    emoji: '🪜',
+    title: "There isn't one way to 'customize' AI — there's a ladder",
+    body: `
+      <p>Think of customizing AI behavior as a ladder with increasing effort, cost, and control as you climb:</p>
+
+      <div class="ladder-wrap">
+        <div class="ladder-step">
+          <div class="ladder-num" style="background:#22d3ee">1</div>
+          <div class="ladder-content">
+            <div class="ladder-title">Prompting</div>
+            <div class="ladder-desc">Just describing what you want in plain language — instructions, examples, context — every time you ask.</div>
+            <div class="ladder-meta">Effort: minutes · Cost: free-to-low</div>
+          </div>
+        </div>
+        <div class="ladder-step">
+          <div class="ladder-num" style="background:#3b82f6">2</div>
+          <div class="ladder-content">
+            <div class="ladder-title">System prompts / custom instructions</div>
+            <div class="ladder-desc">Setting standing instructions once so they apply automatically across a conversation or account, without repeating yourself each time.</div>
+            <div class="ladder-meta">Effort: minutes · Cost: free-to-low</div>
+          </div>
+        </div>
+        <div class="ladder-step">
+          <div class="ladder-num" style="background:#2563eb">3</div>
+          <div class="ladder-content">
+            <div class="ladder-title">Retrieval (giving the model your data to reference)</div>
+            <div class="ladder-desc">Connecting documents, databases, or files so the model can look up your specific information rather than relying purely on training memory.</div>
+            <div class="ladder-meta">Effort: hours-to-days · Cost: low-to-medium</div>
+          </div>
+        </div>
+        <div class="ladder-step">
+          <div class="ladder-num" style="background:#7c3aed">4</div>
+          <div class="ladder-content">
+            <div class="ladder-title">Fine-tuning</div>
+            <div class="ladder-desc">Taking an existing trained model and further training it on your specific examples, so its behavior shifts to match a particular style, format, or domain.</div>
+            <div class="ladder-meta">Effort: days-to-weeks · Cost: medium-to-high</div>
+          </div>
+        </div>
+        <div class="ladder-step">
+          <div class="ladder-num" style="background:#dc2626">5</div>
+          <div class="ladder-content">
+            <div class="ladder-title">Training from scratch</div>
+            <div class="ladder-desc">Building an entirely new model from raw data with no starting point — essentially what Anthropic, OpenAI, and Google do.</div>
+            <div class="ladder-meta">Effort: months-to-years · Cost: millions to billions</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout amber">💡 <strong>Key insight:</strong> The vast majority of "custom AI" you'll encounter in business — probably over 95% of it — happens at rungs 1-3. Fine-tuning is real but much less common than the marketing suggests, and training from scratch is essentially never done outside a handful of major AI labs.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Customization ladder check",
+    question: "A small business says they built a 'custom AI chatbot' by writing detailed instructions and connecting it to their product FAQ documents. What rung of the customization ladder does this actually represent?",
+    options: [
+      "Training from scratch — they built their own AI model",
+      "Fine-tuning — they retrained the model's internal weights",
+      "Prompting and retrieval — instructions plus connected reference documents, no retraining involved",
+      "This isn't AI customization at all"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Exactly right. 🎯 Writing instructions plus connecting documents for reference sits at rungs 1-3 — prompting and retrieval. No model weights were touched, no retraining happened. This is genuinely useful customization, just not fine-tuning.",
+      wrong: "The answer is C. Instructions plus connected documents is prompting and retrieval — a very common and legitimate approach, but distinct from fine-tuning or training a new model, which involve actually modifying the model's internal weights."
+    }
+  },
+
+  // 3 - PROMPTING VS FINE-TUNING
+  {
+    type: 'lesson',
+    tag: 'Common confusion',
+    emoji: '💬',
+    title: "Prompting vs. fine-tuning: the distinction that matters most",
+    body: `
+      <p>This is the confusion worth clearing up first, since it comes up constantly: prompting and fine-tuning are fundamentally different operations.</p>
+
+      <table class="compare-table">
+        <tr><th></th><th>Prompting</th><th>Fine-tuning</th></tr>
+        <tr><td>What changes</td><td>Nothing in the model — you just phrase your request well each time</td><td>The model's internal weights are adjusted through additional training</td></tr>
+        <tr><td>Where it lives</td><td>In your instructions/conversation</td><td>Baked permanently into the model itself</td></tr>
+        <tr><td>Reusability</td><td>Has to be included every time (or set as a standing instruction)</td><td>Behavior persists automatically, no repeated instructions needed</td></tr>
+        <tr><td>Data needed</td><td>None, or a few examples in the prompt itself</td><td>Typically hundreds to thousands of examples</td></tr>
+        <tr><td>Cost/effort</td><td>Low — mostly your time to write good instructions</td><td>Higher — data prep, training runs, evaluation</td></tr>
+      </table>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Prompting is giving directions. Fine-tuning is teaching a new habit.</div>
+        <div class="analogy-body">Prompting is like giving someone turn-by-turn directions each time they drive somewhere — effective, but you're providing guidance every trip. Fine-tuning is more like actually training them until the route becomes second nature, so they no longer need directions at all. One is a repeated instruction, the other is a lasting behavior change.</div>
+      </div>
+
+      <div class="callout green">💡 <strong>Practical rule:</strong> If good prompting can achieve the behavior you want, you almost never need fine-tuning. It's the more expensive, more complex option — worth reaching for only when prompting genuinely can't get you there.</div>
+    `
+  },
+
+  // 4 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Prompting vs. fine-tuning check",
+    question: "A company wants their AI assistant to always respond in a specific brand voice. Someone suggests fine-tuning a model on hundreds of examples of that brand voice. What should be tried first?",
+    options: [
+      "Fine-tuning is the only way to achieve a consistent brand voice",
+      "Trying a well-written system prompt describing the brand voice with a few examples included first, since that's far cheaper and may fully solve the problem",
+      "Training an entirely new model from scratch",
+      "Brand voice cannot be controlled by AI at all"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 A detailed system prompt with a few strong examples often achieves consistent brand voice without any of the cost or complexity of fine-tuning. It's almost always worth exhausting the prompting approach first.",
+      wrong: "The answer is B. Prompting with clear instructions and examples is dramatically cheaper and faster than fine-tuning, and often achieves the same result. Fine-tuning is worth considering only once well-crafted prompting has genuinely hit its limits."
+    }
+  },
+
+  // 5 - WHAT FINE-TUNING ACTUALLY REQUIRES
+  {
+    type: 'lesson',
+    tag: 'Reality check',
+    emoji: '📚',
+    title: "What fine-tuning actually takes, realistically",
+    body: `
+      <p>When fine-tuning genuinely is the right call, here's what it actually involves — useful to know so you can evaluate whether a project or vendor claim is realistic:</p>
+
+      <div class="decision-card">
+        <div class="decision-title">📊 A real, quality dataset</div>
+        <div class="decision-desc">Typically hundreds to thousands of high-quality example input/output pairs that demonstrate exactly the behavior you want. Garbage or inconsistent examples produce a worse model, not a better one — data quality matters more than raw quantity.</div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-title">💰 Real compute cost</div>
+        <div class="decision-desc">Running additional training passes over a model costs real money and time, scaling with model size and dataset size. Far cheaper than training from scratch, but not free or instant.</div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-title">🔬 Evaluation, not just training</div>
+        <div class="decision-desc">After fine-tuning, you need a way to actually measure whether the new model performs better on your task than the original — skipping this step means you can't tell if the fine-tuning helped or quietly made things worse in some areas.</div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-title">🔁 Maintenance over time</div>
+        <div class="decision-desc">A fine-tuned model is a snapshot. If the base model gets updated, or your needs change, you may need to redo the fine-tuning process rather than it updating automatically.</div>
+      </div>
+
+      <div class="callout red">⚠️ <strong>Red flag to know:</strong> If someone claims they can "fine-tune you a custom AI" in an afternoon with no discussion of your data quality or evaluation plan, be skeptical — that's more likely a prompting/retrieval setup being marketed as fine-tuning.</div>
+    `
+  },
+
+  // 6 - QUIZ 3
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Fine-tuning reality check",
+    question: "A vendor promises to 'fine-tune a custom AI model' for a client in a single afternoon, with no mention of data collection or evaluation. What should this raise?",
+    options: [
+      "Nothing — fine-tuning is always this fast and simple",
+      "Suspicion — genuine fine-tuning requires a real dataset and evaluation process; this is more likely a prompting/retrieval setup mislabeled as fine-tuning",
+      "This is normal only for very small models",
+      "Fine-tuning doesn't require any data at all"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Real fine-tuning requires meaningful data preparation and evaluation — skipping straight to a finished 'fine-tuned model' in an afternoon, with no data or evaluation discussion, is a sign the term is likely being used loosely or inaccurately.",
+      wrong: "The answer is B. Legitimate fine-tuning takes real data collection, training time, and evaluation — a same-afternoon turnaround with no discussion of data is a strong signal the term is being used as marketing rather than describing real fine-tuning work."
+    }
+  },
+
+  // 7 - TRAINING FROM SCRATCH
+  {
+    type: 'lesson',
+    tag: 'The far end',
+    emoji: '🏗️',
+    title: "Training from scratch: why almost nobody actually does this",
+    body: `
+      <p>At the far end of the ladder is training an entirely new foundation model from raw data — no existing model to start from. This is what companies like Anthropic, OpenAI, and Google actually do, and the scale involved explains why virtually no one else attempts it.</p>
+
+      <p>Training a modern frontier model requires:</p>
+      <ul style="padding-left:1.25rem;color:var(--muted);font-size:0.85rem;line-height:1.8;margin:0.75rem 0">
+        <li>Massive, carefully curated datasets — often trillions of words of text</li>
+        <li>Enormous compute infrastructure — thousands of specialized processors running for weeks or months</li>
+        <li>Costs typically in the tens to hundreds of millions of dollars, sometimes more for the largest models</li>
+        <li>Deep research expertise in model architecture, training stability, and safety</li>
+      </ul>
+
+      <div class="callout blue">💡 <strong>Why this matters practically:</strong> When you hear "we built our own AI model," it's worth asking what that actually means. In the overwhelming majority of cases, it means building on top of an existing model — through prompting, retrieval, or at most fine-tuning — not training a new one from the ground up. That's not a lesser achievement, it's just accurately describing what actually happened.</div>
+    `
+  },
+
+  // 8 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Diagnose the claim",
+    instruction: "A company's marketing says: 'We built a proprietary AI model trained specifically on our industry's data.' In reality, they connected an existing AI model to their internal documents and wrote detailed instructions about their industry. In your own words, explain what's misleading about this description and what would be a more accurate way to describe it.",
+    placeholder: "Type your answer here...",
+    response: "Good instinct to question this. Here's the issue: the phrase 'built a proprietary AI model trained on our data' strongly implies either fine-tuning or training from scratch — actually modifying a model's internal weights using their industry data. What they actually did — connecting an existing model to internal documents (retrieval) plus writing good instructions (prompting) — is genuinely useful and can produce great results, but it's rungs 1-3 of the customization ladder, not model training at all. No weights were touched; the underlying model is unchanged. A more accurate description would be something like: 'We built an AI-powered tool using [Model Name], customized with our industry documents and expert-written instructions.' This isn't necessarily dishonest marketing — the line between 'built AI' and 'used AI well' gets blurred a lot — but understanding the difference helps you evaluate what you're actually paying for or comparing against competitors."
+  },
+
+  // 9 - HOW TO CHOOSE
+  {
+    type: 'lesson',
+    tag: 'Practical guide',
+    emoji: '🎯',
+    title: "A practical framework for choosing the right approach",
+    body: `
+      <p>Pulling this together into a decision process:</p>
+
+      <div class="decision-card">
+        <div class="decision-title">1️⃣ Start with prompting, always</div>
+        <div class="decision-desc">Write clear, detailed instructions with a few good examples. This solves the majority of customization needs on its own, at minimal cost.</div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-title">2️⃣ Add retrieval if you need specific knowledge</div>
+        <div class="decision-desc">If the AI needs to know your specific documents, policies, or data — connect that information rather than trying to cram it all into a prompt or, worse, assuming fine-tuning is required.</div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-title">3️⃣ Consider fine-tuning only for a persistent, specific behavior gap</div>
+        <div class="decision-desc">If prompting and retrieval genuinely can't achieve a specific, consistent behavior — a very particular output format at scale, for example — and you have quality training data, fine-tuning becomes worth the investment.</div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-title">4️⃣ Training from scratch: essentially never, for almost everyone</div>
+        <div class="decision-desc">Unless you're a major AI lab with massive resources, this isn't a realistic option — and it's very rarely actually necessary even for ambitious custom AI projects.</div>
+      </div>
+
+      <div class="callout green">💡 <strong>The mindset worth having:</strong> Climb the ladder only as far as you actually need to. Most impressive "custom AI" results come from thoughtful prompting and good data connections — not from the most technically complex option available.</div>
+    `
+  },
+
+  // 10 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "A team wants their AI tool to always answer customer questions using their company's exact, up-to-date return policy. What's the most sensible first approach?",
+    options: [
+      "Train an entirely new AI model from scratch on company data",
+      "Fine-tune a model on thousands of examples of the return policy being explained",
+      "Connect the AI to the actual, current return policy document so it references the real source directly (retrieval), combined with clear instructions",
+      "This isn't possible with current AI technology"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Exactly right. 🎯 Connecting the AI directly to the actual policy document ensures answers stay accurate and automatically update whenever the policy changes — no retraining needed. This is a textbook case where retrieval plus prompting beats fine-tuning, since the policy itself will likely be updated over time.",
+      wrong: "The answer is C. Retrieval — connecting the AI to the real, current policy document — combined with good instructions is the right fit here. It keeps answers grounded in the actual source and updates automatically when the policy changes, without any of the cost or rigidity of fine-tuning or training a new model."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🛠️'; title = "You can see through 'custom AI' claims."; sub = "You now understand the real ladder of AI customization — genuinely useful for evaluating vendors, tools, and your own AI projects."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of prompting vs. fine-tuning vs. training. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This topic has a lot of marketing noise around it. Go back through the lessons — the concepts build on each other and click more the second time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout blue">
+          <strong>What you now know:</strong><br><br>
+          🪜 <strong>The customization ladder</strong> — prompting → system prompts → retrieval → fine-tuning → training from scratch<br>
+          💬 <strong>Prompting vs. fine-tuning</strong> — instructions each time vs. permanently retrained behavior<br>
+          📚 <strong>Fine-tuning reality</strong> — needs real data, cost, and evaluation, not a same-day fix<br>
+          🏗️ <strong>Training from scratch</strong> — reserved for major AI labs with massive resources<br>
+          🎯 <strong>The framework</strong> — climb the ladder only as far as you actually need to
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          Start with prompting. Add retrieval for specific knowledge. Reach for fine-tuning only when both genuinely fall short — most "custom AI" needs never require more than that.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

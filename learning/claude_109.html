@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 109 — AI in the Workplace</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f1a12;
+  --card: #16241a;
+  --surface: #121e15;
+  --border: #24402a;
+  --green: #4ade80;
+  --green-dark: #16a34a;
+  --green-light: #142a1a;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --blue: #60a5fa;
+  --blue-light: #101f2e;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --violet: #c084fc;
+  --violet-light: #211a2e;
+  --text: #ecf5ee;
+  --muted: #85a68e;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0a130c; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--green); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--green-light); color: var(--green); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--blue-light); color: var(--blue); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+.callout.violet { background: var(--violet-light); border-left: 4px solid var(--violet); color: var(--violet); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+/* ADOPTION CURVE */
+.curve-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.curve-stage { display: flex; gap: 0.75rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.curve-stage:last-child { padding-bottom: 0; }
+.curve-pct { width: 52px; text-align: right; font-size: 0.85rem; font-weight: 800; color: var(--green); flex-shrink: 0; }
+.curve-content { flex: 1; }
+.curve-title { font-size: 0.83rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.curve-desc { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+
+/* FAILURE MODES */
+.fail-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.fail-icon { font-size: 1.3rem; flex-shrink: 0; }
+.fail-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.fail-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+/* RESISTANCE TYPES */
+.resist-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.resist-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+.resist-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; margin-bottom: 0.5rem; }
+.resist-response { font-size: 0.78rem; color: var(--green); line-height: 1.5; background: var(--green-light); border-radius: 8px; padding: 0.5rem 0.7rem; }
+
+/* GOOD VS BAD ROLLOUT */
+.rollout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+.rollout-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem; }
+.rollout-title { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+.rollout-title.good { color: var(--green); }
+.rollout-title.bad { color: var(--red); }
+.rollout-list { font-size: 0.75rem; color: var(--muted); line-height: 1.7; list-style: none; }
+.rollout-list li::before { content: '• '; color: var(--muted); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--green); background: var(--green-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--green); }
+.try-submit { margin-top: 0.5rem; background: var(--green-dark); color: #0a1a0c; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--green); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--green-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--green); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--green-dark); color: #0a1a0c; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--green); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--green-light); color: var(--green); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--green-dark); color: #0a1a0c; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .rollout-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏢 Claude 109 — AI in the Workplace</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Level 9',
+    emoji: '🏢',
+    title: "Buying AI tools is easy. Getting a team to actually use them well is the hard part.",
+    body: `
+      <p>Every previous module in this series focused on understanding AI itself. This one is different — it's about what happens when AI meets real teams, real workflows, and real human resistance to change.</p>
+      <p>This is genuinely one of the most practical modules if you're involved in bringing AI into any organization, however small.</p>
+      <div class="callout green">
+        📈 <strong>The adoption curve</strong> — how AI actually spreads through a team over time<br><br>
+        ❌ <strong>Common failure modes</strong> — the predictable ways AI rollouts stall or fail<br><br>
+        🙅 <strong>Understanding resistance</strong> — why people push back, and what actually helps<br><br>
+        ✅ <strong>What good rollouts look like</strong> — patterns from adoption that actually sticks<br><br>
+        🎯 <strong>Realistic use cases</strong> — separating genuine value from hype-driven pilots
+      </div>
+      <p>None of this requires technical expertise — it's fundamentally about change management, applied to AI specifically.</p>
+    `
+  },
+
+  // 1 - THE ADOPTION CURVE
+  {
+    type: 'lesson',
+    tag: 'The pattern',
+    emoji: '📈',
+    title: "AI adoption in a team almost always follows the same curve",
+    body: `
+      <p>Whether it's a five-person team or a thousand-person company, AI adoption tends to move through predictable stages:</p>
+
+      <div class="curve-wrap">
+        <div class="curve-stage">
+          <div class="curve-pct">~15%</div>
+          <div class="curve-content">
+            <div class="curve-title">Early enthusiasts</div>
+            <div class="curve-desc">A small group experiments on their own initiative, often before any official rollout. They find real value fast, but their workflow doesn't automatically transfer to others.</div>
+          </div>
+        </div>
+        <div class="curve-stage">
+          <div class="curve-pct">~35%</div>
+          <div class="curve-content">
+            <div class="curve-title">Cautious majority</div>
+            <div class="curve-desc">Will adopt if given clear guidance, real examples, and reassurance it won't backfire. This group needs structure, not just access to the tool.</div>
+          </div>
+        </div>
+        <div class="curve-stage">
+          <div class="curve-pct">~35%</div>
+          <div class="curve-content">
+            <div class="curve-title">Skeptical majority</div>
+            <div class="curve-desc">Needs to see clear, credible proof it actually helps before investing effort — often burned before by tools that overpromised.</div>
+          </div>
+        </div>
+        <div class="curve-stage">
+          <div class="curve-pct">~15%</div>
+          <div class="curve-content">
+            <div class="curve-title">Resistant holdouts</div>
+            <div class="curve-desc">May have genuine, valid concerns (job security, quality control, trust) that deserve real engagement — not dismissal as simply "resistant to change."</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout blue">💡 <strong>Key insight:</strong> A rollout that only works for the first 15% (the enthusiasts) and stalls there hasn't actually succeeded — it's just found the people who needed the least convincing. Real adoption means designing specifically for the cautious and skeptical majority.</div>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Adoption curve check",
+    question: "A company rolls out a new AI tool. Three months later, only the same small group of enthusiasts who were excited on day one are using it regularly. What does this suggest?",
+    options: [
+      "The rollout succeeded — the enthusiasts prove the tool works",
+      "The rollout has stalled at the earliest adopter stage and hasn't yet reached the larger cautious and skeptical majority who need more support",
+      "The rest of the team is simply lazy or unwilling to learn",
+      "This is a sign the AI tool itself is broken"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Enthusiast-only adoption after three months is a common stalling point, not a success state. It usually means the rollout provided access but not the structure, examples, or reassurance the larger cautious and skeptical groups actually need.",
+      wrong: "The answer is B. Only reaching the initial enthusiasts after months is a classic sign of a stalled rollout — the larger cautious and skeptical groups typically need more structure and proof before they'll adopt, and that's a rollout design problem, not a laziness problem."
+    }
+  },
+
+  // 3 - FAILURE MODES
+  {
+    type: 'lesson',
+    tag: 'Common pitfalls',
+    emoji: '❌',
+    title: "The predictable ways AI rollouts fail",
+    body: `
+      <p>Most failed AI adoptions fail for a handful of recurring, predictable reasons:</p>
+
+      <div class="fail-card">
+        <div class="fail-icon">🎯</div>
+        <div>
+          <div class="fail-name">No clear use case, just "use AI more"</div>
+          <div class="fail-desc">Handing people a powerful tool with no specific problem to solve leads to confusion, not adoption. People need a concrete "use this for X," not an abstract mandate.</div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-icon">😨</div>
+        <div>
+          <div class="fail-name">Unaddressed job security fears</div>
+          <div class="fail-desc">If people believe AI adoption threatens their role, they will rationally under-engage or even quietly resist — no amount of training fixes a trust problem underneath.</div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-icon">🐌</div>
+        <div>
+          <div class="fail-name">Underestimating the learning curve</div>
+          <div class="fail-desc">Even intuitive tools take real time to integrate into existing habits. Expecting instant fluency after a single training session sets adoption up to look like it failed when it just needed more time.</div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-icon">📉</div>
+        <div>
+          <div class="fail-name">No way to measure actual impact</div>
+          <div class="fail-desc">Without tracking real outcomes — time saved, quality improved, tasks completed — it's impossible to tell if the rollout is working, and leadership support tends to fade without visible proof.</div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-icon">🔧</div>
+        <div>
+          <div class="fail-name">Tool doesn't fit the actual workflow</div>
+          <div class="fail-desc">AI added on top of an already-clunky process just adds another step. The most successful adoptions replace friction, they don't add to it.</div>
+        </div>
+      </div>
+    `
+  },
+
+  // 4 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Failure modes check",
+    question: "Employees at a company are quietly avoiding a new AI tool, even though leadership keeps sending reminders to use it. Based on common failure patterns, what's a likely underlying cause worth investigating first?",
+    options: [
+      "The reminders probably just need to be sent more frequently",
+      "There may be an unaddressed concern — like job security fears or the tool not fitting their actual workflow — that reminders alone can't fix",
+      "Employees at this company are unusually resistant to all technology",
+      "The AI tool must be technically broken"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 Quiet avoidance despite reminders usually points to an underlying trust or fit issue — unaddressed fears or workflow mismatch — not a simple awareness problem. More reminders won't fix a root cause that hasn't been identified or addressed.",
+      wrong: "The answer is B. Persistent quiet avoidance despite repeated reminders is a signal of a deeper issue — often unaddressed job security concerns or the tool genuinely not fitting the real workflow — rather than something more reminders alone will fix."
+    }
+  },
+
+  // 5 - UNDERSTANDING RESISTANCE
+  {
+    type: 'lesson',
+    tag: 'Resistance',
+    emoji: '🙅',
+    title: "Resistance to AI usually isn't irrational — it's a signal",
+    body: `
+      <p>It's tempting to write off pushback as people being "resistant to change" in general. In practice, resistance usually falls into a few specific, legitimate categories worth actually addressing:</p>
+
+      <div class="resist-card">
+        <div class="resist-title">😰 Job security concerns</div>
+        <div class="resist-desc">Fear that AI adoption is a precursor to headcount reduction or role elimination.</div>
+        <div class="resist-response">✅ Helps: Honest, direct communication about intent — AI as augmentation for this role vs. any planned changes — rather than vague reassurance.</div>
+      </div>
+
+      <div class="resist-card">
+        <div class="resist-title">🎯 Quality and trust concerns</div>
+        <div class="resist-desc">Worry that AI output will be lower quality, and that they'll be blamed for errors it introduces.</div>
+        <div class="resist-response">✅ Helps: Clear guidance on when human review is still required, and psychological safety around catching AI mistakes without blame.</div>
+      </div>
+
+      <div class="resist-card">
+        <div class="resist-title">⏱️ "I don't have time to learn this"</div>
+        <div class="resist-desc">Valid when workloads are already at capacity — learning a new tool is itself an investment of scarce time.</div>
+        <div class="resist-response">✅ Helps: Protected time explicitly set aside for learning, not an expectation to absorb it on top of an already full plate.</div>
+      </div>
+
+      <div class="resist-card">
+        <div class="resist-title">🤷 "I don't see how this helps me specifically"</div>
+        <div class="resist-desc">Generic training that doesn't map to their actual daily tasks feels irrelevant, regardless of how powerful the tool is in the abstract.</div>
+        <div class="resist-response">✅ Helps: Role-specific examples showing the tool solving a problem they actually recognize from their own work.</div>
+      </div>
+
+      <div class="callout amber">💡 <strong>The mindset shift:</strong> Treat resistance as information about a gap in the rollout, not an obstacle to push through with more mandates. Every one of these concerns has a legitimate, addressable root cause.</div>
+    `
+  },
+
+  // 6 - QUIZ 3
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Resistance check",
+    question: "An employee says 'I don't have time to learn this new AI tool.' What's the most productive way to interpret this?",
+    options: [
+      "They are being lazy and should be required to use it regardless",
+      "This may be a legitimate signal that their workload doesn't currently have room for a learning investment, and protected time or support may be needed",
+      "This means the AI tool is a bad fit for the entire company",
+      "Time complaints should always be ignored during any rollout"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 'No time to learn this' is very often a legitimate capacity issue, not laziness — treating it as a signal that protected learning time or better support is needed leads to a much better outcome than dismissing it.",
+      wrong: "The answer is B. This complaint frequently reflects a genuine capacity constraint rather than resistance for its own sake — addressing it with protected time or support tends to work far better than mandates alone."
+    }
+  },
+
+  // 7 - GOOD VS BAD ROLLOUTS
+  {
+    type: 'lesson',
+    tag: 'What works',
+    emoji: '✅',
+    title: "What separates rollouts that stick from ones that fizzle",
+    body: `
+      <p>Comparing patterns from successful vs. unsuccessful AI adoption efforts:</p>
+
+      <div class="rollout-grid">
+        <div class="rollout-card">
+          <div class="rollout-title good">✅ Tends to work</div>
+          <ul class="rollout-list">
+            <li>Starts with one specific, painful problem</li>
+            <li>Uses real examples from actual team workflows</li>
+            <li>Involves the skeptics early, not just enthusiasts</li>
+            <li>Tracks and shares real outcomes, even small wins</li>
+            <li>Gives explicit permission to say "AI got this wrong"</li>
+            <li>Provides protected time to learn and experiment</li>
+          </ul>
+        </div>
+        <div class="rollout-card">
+          <div class="rollout-title bad">❌ Tends to fizzle</div>
+          <ul class="rollout-list">
+            <li>Vague mandate to "use AI more" with no target</li>
+            <li>Generic training disconnected from real tasks</li>
+            <li>Only reaches the people already excited about it</li>
+            <li>No measurement, so momentum quietly fades</li>
+            <li>Implicit pressure to never criticize the new tool</li>
+            <li>Treated as a side project on top of full workloads</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="callout green">💡 <strong>The through-line:</strong> Successful rollouts treat adoption as a genuine change-management project with real people's concerns in mind — not a software deployment where flipping on access is the finish line.</div>
+    `
+  },
+
+  // 8 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Diagnose the rollout",
+    instruction: "A mid-size company gives every employee access to an AI writing assistant, sends one email announcing it, and expects usage to grow organically. Three months later, usage is flat and mostly limited to a few early adopters. Using what you've learned, identify at least two specific things likely missing from this rollout, and what you'd suggest instead.",
+    placeholder: "Type your answer here...",
+    response: "Good diagnosis to work through. A few likely gaps: (1) No specific use case — a generic 'AI writing assistant' with no guidance on what to actually use it for leaves people unsure how it applies to their real work; a better approach would identify 2-3 concrete, common writing tasks (like drafting client emails or meeting summaries) and show exactly how the tool helps with those. (2) No role-specific examples or training — a single announcement email reaches the already-curious 15% but does nothing for the cautious or skeptical majority who need to see it work on something they recognize; short, role-specific demos or example outputs would help far more. (3) No measurement — without tracking anything (time saved, employee feedback, usage patterns), there's no way to know why adoption stalled or to make the case for continued investment; even simple tracking would reveal where the friction actually is. The general fix: treat this as a change-management rollout with a specific problem, real examples, and follow-up — not a one-time access announcement."
+  },
+
+  // 9 - REALISTIC USE CASES
+  {
+    type: 'lesson',
+    tag: 'Cutting through hype',
+    emoji: '🎯',
+    title: "Separating genuine value from hype-driven pilots",
+    body: `
+      <p>Not every AI use case is equally mature or equally valuable yet. Being realistic about this actually builds more credibility and trust than overselling.</p>
+
+      <div class="fail-card">
+        <div class="fail-icon">✅</div>
+        <div>
+          <div class="fail-name">Generally solid, proven value today</div>
+          <div class="fail-desc">Drafting and editing written content, summarizing long documents, brainstorming and ideation, answering questions about provided reference material, repetitive data formatting and cleanup.</div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-icon">⚠️</div>
+        <div>
+          <div class="fail-name">Promising but needs real human oversight</div>
+          <div class="fail-desc">Complex decision support, customer-facing automated responses, code generation for production systems, anything involving sensitive judgment calls.</div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-icon">🚫</div>
+        <div>
+          <div class="fail-name">Often overhyped relative to current reality</div>
+          <div class="fail-desc">"Fully autonomous" business processes with zero human oversight, replacing entire specialized roles outright, guaranteed accuracy on high-stakes decisions without verification.</div>
+        </div>
+      </div>
+
+      <div class="callout violet">💡 <strong>Why this matters for adoption:</strong> Setting realistic expectations up front — "this will help you draft faster, it won't replace your judgment" — builds more durable trust than overpromising and then quietly walking it back after disappointing results.</div>
+    `
+  },
+
+  // 10 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "A department head wants to announce that a new AI tool will 'fully automate' their team's customer support with no human review, to generate excitement for the rollout. Based on what you've learned, what's the risk here?",
+    options: [
+      "There's no risk — maximum excitement always leads to the best adoption",
+      "Overpromising full automation without human oversight sets unrealistic expectations, which can backfire into distrust when reality doesn't match, and skips a use case that likely still needs oversight",
+      "AI cannot be used for customer support under any circumstances",
+      "This is fine as long as the announcement email is well-written"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Full automation with zero human oversight sits in the 'often overhyped' category for most current use cases, especially customer-facing ones. Overpromising this creates a credibility gap once reality falls short — realistic framing builds more durable trust and adoption than initial hype.",
+      wrong: "The answer is B. Promising full automation without oversight oversells where the technology reliably is today for most customer-facing use cases, and creates a real risk of eroding trust once the gap between promise and reality becomes visible."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🏢'; title = "You understand real-world AI adoption."; sub = "You now understand what actually makes AI rollouts succeed or fail in real teams — a genuinely valuable skill whether you're leading adoption or just navigating it."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of adoption curves and resistance. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This is a nuanced, people-focused topic. Go back through the lessons — the concepts build on each other and click more the second time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout green">
+          <strong>What you now know:</strong><br><br>
+          📈 <strong>The adoption curve</strong> — enthusiasts, cautious majority, skeptical majority, resistant holdouts<br>
+          ❌ <strong>Common failure modes</strong> — vague mandates, unaddressed fears, no measurement, poor workflow fit<br>
+          🙅 <strong>Resistance as signal</strong> — usually a legitimate concern, not simple stubbornness<br>
+          ✅ <strong>What good rollouts do</strong> — specific problems, real examples, tracked outcomes, protected time<br>
+          🎯 <strong>Realistic use cases</strong> — proven value today vs. promising-but-needs-oversight vs. overhyped
+        </div>
+        <div class="callout blue">
+          <strong>The one rule that ties it all together:</strong><br>
+          AI adoption succeeds or fails based on change management, not the technology itself. Design for the skeptics, not just the enthusiasts.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
