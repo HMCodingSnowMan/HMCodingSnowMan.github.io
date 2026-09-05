@@ -17,6 +17,8 @@
   --tag-bg: #f0f0ee;
   --tag-text: #4a4a47;
   --accent-contrast: #ffffff;
+  --nav-bg: rgba(249,249,248,0.92);
+  --nav-bg-solid: #f9f9f8;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -30,6 +32,8 @@
     --tag-bg: #23242c;
     --tag-text: #b8b9c2;
     --accent-contrast: #14151a;
+    --nav-bg: rgba(20,21,26,0.92);
+    --nav-bg-solid: #14151a;
   }
 }
 
@@ -45,23 +49,31 @@ body {
 /* NAV */
 nav {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(249,249,248,0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
-  display: flex; align-items: center; gap: 1.5rem;
+  display: flex; align-items: center; gap: 1.25rem;
   height: 56px;
 }
 .nav-name {
   font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em;
   white-space: nowrap; flex-shrink: 0;
 }
+.nav-sections-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
 .nav-sections {
   display: flex;
   gap: 0.4rem;
   overflow-x: auto;
+  scroll-snap-type: x proximity;
   scrollbar-width: none;
-  flex: 1;
+  -webkit-overflow-scrolling: touch;
+  padding: 0.25rem 0;
 }
 .nav-sections::-webkit-scrollbar { display: none; }
 .nav-sections a {
@@ -69,21 +81,44 @@ nav {
   font-weight: 500;
   color: var(--muted);
   text-decoration: none;
-  padding: 0.4rem 0.8rem;
+  padding: 0.5rem 0.9rem;
   border-radius: 20px;
   white-space: nowrap;
   transition: all 0.15s;
   border: 1px solid transparent;
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
 .nav-sections a:hover {
   color: var(--text);
   background: var(--tag-bg);
   border-color: var(--border);
 }
+/* Fade hints showing more content is scrollable */
+.nav-sections-wrap::before,
+.nav-sections-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 16px;
+  pointer-events: none;
+  z-index: 1;
+}
+.nav-sections-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, var(--nav-bg-solid), transparent);
+  opacity: 0.6;
+}
+.nav-sections-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, var(--nav-bg-solid), transparent);
+  opacity: 0.6;
+}
 .nav-links {
   display: flex; gap: 1.25rem;
   flex-shrink: 0;
-  padding-left: 1rem;
+  margin-left: auto;
+  padding-left: 1.25rem;
   border-left: 1px solid var(--border);
 }
 .nav-links a {
@@ -95,6 +130,7 @@ nav {
 
 @media (max-width: 720px) {
   .nav-links { display: none; }
+  nav { padding: 0 1rem; gap: 0.75rem; }
 }
 
 /* HERO */
@@ -318,12 +354,14 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 
 <nav>
   <div class="nav-name">Hans Marasigan</div>
-  <div class="nav-sections">
-    <a href="#section-analysis">📊 Data Analysis</a>
-    <a href="#section-utility">🛠 Utility Apps</a>
-    <a href="#section-ai">🤖 AI Tools</a>
-    <a href="#section-learning">🎓 Learning Series</a>
-    <a href="#section-fun">🎮 Fun & Games</a>
+  <div class="nav-sections-wrap">
+    <div class="nav-sections">
+      <a href="#section-analysis">📊 Data Analysis</a>
+      <a href="#section-utility">🛠 Utility Apps</a>
+      <a href="#section-ai">🤖 AI Tools</a>
+      <a href="#section-learning">🎓 Learning Series</a>
+      <a href="#section-fun">🎮 Fun & Games</a>
+    </div>
   </div>
   <div class="nav-links">
     <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn</a>
