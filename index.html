@@ -80,6 +80,107 @@ nav {
 }
 .apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem; }
 
+/* CONTACT SECTION */
+.contact-section {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 3rem 2rem 4rem;
+}
+.contact-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2.5rem;
+}
+.contact-intro {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 0.6rem;
+}
+.contact-sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 1.75rem;
+  line-height: 1.6;
+}
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.form-field label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.form-field input,
+.form-field textarea,
+.form-field select {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+  border-color: var(--accent);
+}
+.form-field textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: 'Inter', sans-serif;
+}
+.form-honeypot { display: none; }
+.form-submit-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.4rem;
+}
+.form-submit-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem 1.75rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.form-submit-btn:hover { opacity: 0.85; }
+.form-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.form-status {
+  font-size: 0.82rem;
+  display: none;
+}
+.form-status.success { display: block; color: #1a7a3f; }
+.form-status.error { display: block; color: #c0392b; }
+
+@media (max-width: 560px) {
+  .form-row { grid-template-columns: 1fr; }
+  .contact-card { padding: 1.75rem; }
+}
+
 .app-card {
   background: var(--card);
   border: 1px solid var(--border);
@@ -164,7 +265,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   <div class="nav-links">
     <a href="#apps">Projects</a>
     <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn</a>
-    <a href="mailto:hansmarasigan@gmail.com">Contact</a>
+    <a href="#contact">Contact</a>
   </div>
 </nav>
 
@@ -390,9 +491,93 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 
 </section>
 
+<section class="contact-section" id="contact">
+  <div class="contact-card">
+    <div class="contact-intro">Want to work together?</div>
+    <div class="contact-sub">Whether it's a data analyst role, an AI consulting project, or just a question about one of these apps — send a message and I'll get back to you directly.</div>
+
+    <form class="contact-form" id="contact-form">
+      <div class="form-row">
+        <div class="form-field">
+          <label for="cf-name">Name</label>
+          <input type="text" id="cf-name" name="name" required placeholder="Your name">
+        </div>
+        <div class="form-field">
+          <label for="cf-email">Email</label>
+          <input type="email" id="cf-email" name="email" required placeholder="you@example.com">
+        </div>
+      </div>
+
+      <div class="form-field">
+        <label for="cf-reason">What's this about?</label>
+        <select id="cf-reason" name="reason">
+          <option value="Job opportunity">Job opportunity</option>
+          <option value="AI consulting inquiry">AI consulting inquiry</option>
+          <option value="Question about a project">Question about a project</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-field">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" required placeholder="What would you like to discuss?"></textarea>
+      </div>
+
+      <!-- honeypot field to catch simple bots -->
+      <div class="form-field form-honeypot">
+        <label for="cf-company">Company</label>
+        <input type="text" id="cf-company" name="_gotcha" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="form-submit-row">
+        <button type="submit" class="form-submit-btn" id="cf-submit">Send message</button>
+        <span class="form-status" id="cf-status"></span>
+      </div>
+    </form>
+  </div>
+</section>
+
 <footer>
   Built by <a href="https://linkedin.com/in/hmarasigan" target="_blank">Hans Marasigan</a> · Los Angeles, CA · <a href="mailto:hansmarasigan@gmail.com">hansmarasigan@gmail.com</a>
 </footer>
+
+<script>
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const submitBtn = document.getElementById('cf-submit');
+  const status = document.getElementById('cf-status');
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Sending...';
+  status.className = 'form-status';
+  status.textContent = '';
+
+  try {
+    const res = await fetch('https://formspree.io/f/xvkobpyd', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: new FormData(form)
+    });
+
+    if (res.ok) {
+      status.textContent = "Message sent — thanks! I'll get back to you soon.";
+      status.className = 'form-status success';
+      form.reset();
+      submitBtn.textContent = 'Send message';
+      submitBtn.disabled = false;
+    } else {
+      throw new Error('Submission failed');
+    }
+  } catch (err) {
+    status.textContent = "Something went wrong — feel free to email hansmarasigan@gmail.com directly.";
+    status.className = 'form-status error';
+    submitBtn.textContent = 'Send message';
+    submitBtn.disabled = false;
+  }
+});
+</script>
 
 </body>
 </html>
