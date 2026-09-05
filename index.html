@@ -372,6 +372,18 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 .bio-links { display: flex; gap: 1rem; flex-wrap: wrap; }
 .bio-links a { font-size: 0.8rem; font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
 
+.skills-row {
+  display: flex; flex-wrap: wrap; gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.skill-tag {
+  font-size: 0.76rem; font-weight: 500;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  background: var(--tag-bg);
+  color: var(--tag-text);
+}
+
 @media (max-width: 560px) {
   nav { padding: 0 1rem; }
   .hero { padding: 3rem 1rem 2rem; }
@@ -420,6 +432,18 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
     <div class="bio-text">
       <div class="bio-name">Hans Marasigan</div>
       <p>I'm a data analyst and AI workflow consultant based in Los Angeles. My background spans GIS, DevOps, and data analysis — I've spent years turning messy information into clear decisions and manual processes into automated ones. These apps are a reflection of how I work: I'd rather show you a working solution than talk through a concept. When I'm not in the data, you'll find me on the West Coast Swing dance floor.</p>
+      <div class="skills-row">
+        <span class="skill-tag">Python</span>
+        <span class="skill-tag">SQL</span>
+        <span class="skill-tag">Data Visualization</span>
+        <span class="skill-tag">Data Cleaning</span>
+        <span class="skill-tag">Prompt Engineering</span>
+        <span class="skill-tag">AI Workflow Design</span>
+        <span class="skill-tag">Tableau</span>
+        <span class="skill-tag">Excel</span>
+        <span class="skill-tag">JavaScript</span>
+        <span class="skill-tag">GIS</span>
+      </div>
       <div class="bio-links">
         <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn ↗</a>
         <a href="mailto:hansmarasigan@gmail.com">hansmarasigan@gmail.com</a>
