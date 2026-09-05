@@ -31,6 +31,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 
 header { background: #0a100c; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
 header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--orange); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
 .progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
 .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--orange); border-radius: 8px; transition: width 0.4s; }
@@ -126,6 +129,8 @@ header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color:
 .score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
 .score-badge { display: inline-block; background: var(--orange-light); color: var(--orange); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
 .restart-btn { background: var(--orange-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
 
 @media (max-width: 480px) {
   .lesson-card { padding: 1.25rem; }
@@ -136,7 +141,10 @@ header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color:
 <body>
 
 <header>
-  <h1>⌨️ Claude 112 — Claude Code</h1>
+  <div class="header-left">
+    <a class="header-hub-link" href="claude_learn.html">← Hub</a>
+<h1>⌨️ Claude 112 — Claude Code</h1>
+  </div>
   <div class="progress-wrap">
     <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
     <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
@@ -501,7 +509,7 @@ function renderScore() {
           Claude Code earns its place when a task genuinely needs to read, understand, and act on a real project — not for questions a plain conversation already answers well.
         </div>
       </div>
-      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="claude_learn.html">← Back to Learn Claude</a>
     </div>
   `;
   main.appendChild(card);

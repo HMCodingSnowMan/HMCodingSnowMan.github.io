@@ -30,6 +30,9 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 
 header { background: #0e0c1a; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
 header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--violet); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
 .progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
 .progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--violet); border-radius: 8px; transition: width 0.4s; }
@@ -133,7 +136,10 @@ header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color:
 <body>
 
 <header>
-  <h1>🤝 Claude 113 — Claude Cowork</h1>
+  <div class="header-left">
+    <a class="header-hub-link" href="claude_learn.html">← Hub</a>
+<h1>🤝 Claude 113 — Claude Cowork</h1>
+  </div>
   <div class="progress-wrap">
     <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
     <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
