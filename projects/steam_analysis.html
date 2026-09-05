@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Steam Game Sales & Trends Analysis — Hans Marasigan</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f9f9f8;
+  --card: #ffffff;
+  --border: #e8e8e6;
+  --text: #1a1a18;
+  --muted: #6b6b68;
+  --accent: #1a1a18;
+  --tag-bg: #f0f0ee;
+  --tag-text: #4a4a47;
+  --accent-contrast: #ffffff;
+  --finding-accent: #2c6e49;
+  --finding-bg: #eef6f0;
+  --note-bg: #fdf8ee;
+  --note-border: #e8dcc0;
+  --note-text: #6b5a2e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14151a;
+    --card: #1c1d24;
+    --border: #2c2d36;
+    --text: #eaeaec;
+    --muted: #9a9ba3;
+    --accent: #eaeaec;
+    --tag-bg: #23242c;
+    --tag-text: #b8b9c2;
+    --accent-contrast: #14151a;
+    --finding-accent: #4ade80;
+    --finding-bg: #16241a;
+    --note-bg: #241f14;
+    --note-border: #3a3020;
+    --note-text: #d4b26a;
+  }
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(249,249,248,0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.nav-name { font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+
+main {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 2rem 5rem;
+}
+
+/* HERO */
+.hero {
+  padding: 4rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+.hero-eyebrow {
+  font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em;
+  color: var(--muted); margin-bottom: 1rem;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(2rem, 4.5vw, 2.9rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+.hero-sub {
+  font-size: 1.05rem;
+  color: var(--muted);
+  max-width: 640px;
+  margin-bottom: 1.75rem;
+}
+.hero-meta {
+  display: flex; flex-wrap: wrap; gap: 1.5rem;
+  font-size: 0.85rem; color: var(--muted);
+}
+.hero-meta span { display: flex; align-items: center; gap: 0.4rem; }
+
+/* EXEC SUMMARY */
+.summary {
+  margin: 2.5rem 0;
+  padding: 1.75rem 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.summary-label {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 1rem;
+}
+.summary p { margin-bottom: 1rem; font-size: 0.96rem; }
+.summary p:last-child { margin-bottom: 0; }
+.summary p em { font-style: italic; color: var(--muted); }
+
+/* DASHBOARD EMBED */
+.dashboard-section {
+  margin: 3rem 0;
+}
+.section-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+.section-desc {
+  font-size: 0.92rem;
+  color: var(--muted);
+  margin-bottom: 1.5rem;
+  max-width: 640px;
+}
+.dashboard-frame {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  padding: 1rem;
+}
+.dashboard-nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.dashboard-nav-btn {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.dashboard-nav-btn:hover { border-color: var(--accent); color: var(--text); }
+.dashboard-nav-btn.active { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+.tableauPlaceholder { min-height: 600px; }
+
+.external-link-note {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 1rem;
+  text-align: center;
+}
+.external-link-note a { color: var(--text); }
+
+/* PROCESS TIMELINE */
+.process-section { margin: 3.5rem 0; }
+.process-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.process-step {
+  display: flex;
+  gap: 1.25rem;
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.process-step:last-child { border-bottom: none; }
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--tag-bg);
+  color: var(--text);
+  font-size: 0.85rem; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.step-content h3 {
+  font-size: 0.98rem; font-weight: 600; margin-bottom: 0.4rem;
+}
+.step-content p {
+  font-size: 0.9rem; color: var(--muted);
+}
+.step-content .step-note {
+  display: inline-block;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.8rem;
+  background: var(--note-bg);
+  border: 1px solid var(--note-border);
+  border-radius: 8px;
+  font-size: 0.83rem;
+  color: var(--note-text, #6b5a2e);
+}
+
+/* FINDINGS */
+.findings-section { margin: 3.5rem 0; }
+.findings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.finding-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--finding-accent);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+}
+.finding-num {
+  font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em;
+  color: var(--finding-accent); text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.finding-title {
+  font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;
+}
+.finding-body {
+  font-size: 0.9rem; color: var(--muted);
+}
+.finding-note {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  background: var(--note-bg);
+  border: 1px solid var(--note-border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--note-text, #6b5a2e);
+}
+
+/* PROCESS NOTE / CLOSING */
+.closing {
+  margin: 3.5rem 0 0;
+  padding: 1.75rem 2rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.closing p { font-size: 0.92rem; color: var(--muted); }
+
+.download-row {
+  display: flex; gap: 1rem; flex-wrap: wrap;
+  margin-top: 1.5rem;
+}
+.dl-btn {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.7rem 1.4rem;
+  border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+.dl-btn.primary { background: var(--accent); color: var(--accent-contrast); }
+.dl-btn.secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+.dl-btn:hover { opacity: 0.85; }
+
+.back-link {
+  margin-top: 3rem;
+  font-size: 0.85rem;
+}
+.back-link a { color: var(--muted); text-decoration: none; }
+.back-link a:hover { color: var(--text); }
+
+@media (max-width: 640px) {
+  main { padding: 0 1.25rem 3rem; }
+  .hero { padding: 3rem 0 2rem; }
+  .summary, .dashboard-frame, .closing { padding: 1.25rem; }
+  nav { padding: 0 1.25rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">Hans Marasigan</div>
+  <div class="nav-links">
+    <a href="../index.html">Portfolio</a>
+    <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn</a>
+    <a href="../index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<main>
+
+  <section class="hero">
+    <div class="hero-eyebrow">Data Analysis · Featured Project</div>
+    <h1>Steam Game Sales & Trends Analysis</h1>
+    <p class="hero-sub">Exploring how price, reviews, genre, and engagement relate to a game's commercial success — using 34,154 Steam titles released from 2023 onward.</p>
+    <div class="hero-meta">
+      <span>🗄 SQLite</span>
+      <span>📊 Tableau Public</span>
+      <span>🔟 10 correlations examined</span>
+    </div>
+  </section>
+
+  <section class="summary">
+    <div class="summary-label">Executive Summary</div>
+    <p><em>All relationships described below are correlational, not causal — the data shows what tends to appear together, not what directly causes what.</em></p>
+    <p>The central finding is that no single factor reliably predicts a game's commercial success. Price alone doesn't predict ownership — the highest-selling games in this dataset appear at multiple price points ($22, $40, $60), not just the cheapest end. Review scores alone don't predict ownership either — plenty of well-reviewed games have small audiences. But the two do interact in an important way: virtually no game with very high ownership has poor reviews, suggesting strong reviews function as a floor that enables massive success, without being a guarantee of it on their own.</p>
+    <p>The single cleanest relationship in the dataset is between average playtime and review sentiment: games that hold players' attention for thousands of hours are, almost without exception, rated 85% or higher positive. At the genre level, Action, Indie, and Adventure dominate total ownership by volume, while Sports, RPG, and Racing command the highest average prices — Indie in particular achieves outsized total reach despite a modest average price, reflecting a high-volume, lower-price strategy that outperforms higher-priced genres in aggregate.</p>
+    <p>Beyond the findings themselves, this project surfaced a genuine data quality issue worth highlighting: a pre-calculated review-percentage field in the source dataset was silently incorrect for roughly half of all games. This was caught by spot-checking individual titles against their raw review counts, not by trusting the field at face value — a reminder that ready-made columns in any dataset deserve verification before being relied upon.</p>
+  </section>
+
+  <section class="dashboard-section">
+    <h2 class="section-title">Explore the data</h2>
+    <p class="section-desc">The dashboards below are fully interactive — hover over any point for details, and use the tabs to move between dashboards and individual charts.</p>
+    <div class="dashboard-frame">
+      <div class='tableauPlaceholder' id='viz1788639310689' style='position: relative'>
+        <noscript>
+          <a href='#'>
+            <img alt='Pricing &amp; Genre' src='https://public.tableau.com/static/images/St/SteamGameSalesTrendsAnalysis/Dashboard1/1_rss.png' style='border: none' />
+          </a>
+        </noscript>
+        <object class='tableauViz' style='display:none;'>
+          <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+          <param name='embed_code_version' value='3' />
+          <param name='site_root' value='' />
+          <param name='name' value='SteamGameSalesTrendsAnalysis&#47;Dashboard1' />
+          <param name='tabs' value='no' />
+          <param name='toolbar' value='yes' />
+          <param name='static_image' value='https://public.tableau.com/static/images/St/SteamGameSalesTrendsAnalysis/Dashboard1/1.png' />
+          <param name='animate_transition' value='yes' />
+          <param name='display_static_image' value='yes' />
+          <param name='display_spinner' value='yes' />
+          <param name='display_overlay' value='yes' />
+          <param name='display_count' value='yes' />
+          <param name='language' value='en-US' />
+        </object>
+      </div>
+      <p class="external-link-note">Having trouble viewing the embed? <a href="https://public.tableau.com/app/profile/hans.marasigan/viz/SteamGameSalesTrendsAnalysis/Dashboard1" target="_blank">Open the dashboard directly on Tableau Public →</a></p>
+    </div>
+  </section>
+
+  <section class="process-section">
+    <h2 class="section-title">The process</h2>
+    <p class="section-desc">A quick walkthrough of how the raw dataset became the analysis above — including the detours.</p>
+    <div class="process-steps">
+
+      <div class="process-step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Import & initial cleanup</h3>
+          <p>The raw Kaggle dataset had 89,618 rows and 47 columns, many with no analytical value (image URLs, support links, long descriptions). Reduced to 24 relevant columns using SQL.</p>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>Filtering to 2023+</h3>
+          <p>Filtered to games released 2023 onward to keep the analysis current, reducing the dataset to 34,590 rows.</p>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Fixing the ownership field</h3>
+          <p>Steam's estimated_owners field came as a text range (e.g. "50000000 - 100000000"). Parsed into a clean numeric midpoint for actual analysis.</p>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3>Splitting multi-value fields</h3>
+          <p>Genres, categories, and tags were stored as Python-style list strings in a single cell. Split into proper junction tables using recursive SQL — 101K+ genre pairs, 131K+ category pairs, 392K+ tag pairs.</p>
+          <div class="step-note">🔀 Detour: the plan was to split these inside Tableau, but this version of Tableau Public didn't expose a Pivot option for text-file sources. Moved the splitting back into SQL instead of forcing a workaround.</div>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h3>Separating games from non-game software</h3>
+          <p>Genre exploration revealed 436 entries were actually software tools (Accounting, Video Production, etc.), not games. Split into a separate table to keep the main analysis accurate.</p>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <h3>Removing unrealistic price outliers</h3>
+          <p>Three entries priced at $200, $500, and $1000 were distorting the price-vs-ownership chart. Excluded prices above $100 as a documented judgment call, not a definitive rule.</p>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">7</div>
+        <div class="step-content">
+          <h3>Discovering and correcting a source data bug</h3>
+          <p>An unexpectedly low genre-level review average led to spot-checking individual titles. Found that the source dataset's pct_pos_total field silently defaulted to -1 for ~17,000 games — nearly half the dataset — even when real review data existed underneath.</p>
+          <div class="step-note">🐛 Verified against raw positive/negative counts, then built a corrected field (pct_positive_calc) computed directly from the reliable underlying numbers — average 80.1% across reviewed games.</div>
+        </div>
+      </div>
+
+      <div class="process-step">
+        <div class="step-num">8</div>
+        <div class="step-content">
+          <h3>Connecting tables in Tableau</h3>
+          <p>Tableau Public has no native SQLite connector, so each table was exported as CSV and connected via relationships on appid in a hub-and-spoke structure.</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="findings-section">
+    <h2 class="section-title">Key findings</h2>
+    <p class="section-desc">Ten correlations examined across pricing, reviews, genre, and engagement.</p>
+    <div class="findings-grid">
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 1</div>
+        <div class="finding-title">Average Price by Genre</div>
+        <div class="finding-body">Sports and RPG carry the highest average prices (~$8.50), followed by Racing (~$7) — consistent with longer, content-heavy, or licensed franchise experiences. Free to Play sits at essentially $0 as expected.</div>
+        <div class="finding-note">📌 Data note: Free to Play averages a small non-zero price (~$0.07), traced to 49 games carrying the tag alongside a real price — likely describing an associated feature like a free trial mode, not a labeling error.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 2</div>
+        <div class="finding-title">Metacritic Score vs. Estimated Owners</div>
+        <div class="finding-body">A large share of games — including some with 75M+ estimated owners — have no Metacritic score at all. Among scored games, only a weak upward trend exists between score and ownership. Metacritic coverage skews toward higher-profile titles.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 3</div>
+        <div class="finding-title">Player Review % vs. Estimated Owners</div>
+        <div class="finding-body">Using the corrected review field, the overall relationship stays weak — but every single high-ownership outlier (35M-75M+ owners) sits in the 50-97% positive range. Positive reviews may be a necessary but not sufficient condition for massive success.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 4</div>
+        <div class="finding-title">Price vs. Estimated Owners</div>
+        <div class="finding-body">After removing price outliers, the highest-ownership hits (~75M owners) appear at three distinct price points — $22, $40, and $60 — not clustered at the cheapest end. Price alone isn't a strong predictor of reaching a massive audience.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 5</div>
+        <div class="finding-title">Average Playtime vs. Review %</div>
+        <div class="finding-body">The cleanest relationship in the dataset. Games with 8,000-20,000+ average playtime hours sit almost universally in the 85-97% positive range — no exceptions among the highest-playtime titles.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 6</div>
+        <div class="finding-title">Achievements vs. Average Playtime</div>
+        <div class="finding-body">Counterintuitively, games with the most achievements (1,000+) show near-zero average playtime, while the highest-playtime games have relatively few achievements. Achievement count doesn't appear to drive long-term engagement.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 7</div>
+        <div class="finding-title">Total Estimated Ownership by Genre</div>
+        <div class="finding-body">Action dominates total ownership (~800M), with Indie and Adventure close behind (~700M each). Indie punches far above its price-point weight — high volume at a lower price outperforms pricier genres in aggregate.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 8</div>
+        <div class="finding-title">Average Review % by Genre</div>
+        <div class="finding-body">Most genres cluster in a realistic 75-85% positive range. Massively Multiplayer is the clear exception at ~65%, possibly reflecting live-service pain points like server stability or monetization complaints.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 9</div>
+        <div class="finding-title">Discount vs. Estimated Owners</div>
+        <div class="finding-body">The biggest commercial hits sit almost entirely at 0% discount. Discounting looks more like a tool for underperforming titles than something that drives games to massive scale.</div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-num">Finding 10</div>
+        <div class="finding-title">Peak Concurrent Users vs. Estimated Owners</div>
+        <div class="finding-body">Mostly tracks with ownership as expected, with one notable exception: a title with ~700K peak concurrent users but comparatively modest ownership — an unusually concentrated, highly active community.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="closing">
+    <p>This project intentionally documents the detours, not just the final result — the Tableau pivot limitation, the non-game software mixed into the data, and especially the source dataset's review-percentage bug are all examples of the normal, unglamorous problem-solving that real data analysis involves. Catching and correcting the review bug in particular came from a habit worth having with any dataset: spot-check pre-calculated fields against their raw values before trusting them, especially when a result looks surprising.</p>
+    <div class="download-row">
+      <a class="dl-btn primary" href="https://public.tableau.com/app/profile/hans.marasigan/viz/SteamGameSalesTrendsAnalysis/Dashboard1" target="_blank">View full dashboard on Tableau Public ↗</a>
+      <a class="dl-btn secondary" href="steam_analysis_process.docx" download>Download full write-up (.docx)</a>
+    </div>
+  </section>
+
+  <div class="back-link">
+    <a href="../index.html">← Back to portfolio</a>
+  </div>
+
+</main>
+
+<script type="text/javascript">
+var divElement = document.getElementById('viz1788639310689');
+var vizElement = divElement.getElementsByTagName('object')[0];
+if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';}
+else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';}
+else { vizElement.style.width='100%';vizElement.style.height='927px';}
+var scriptElement = document.createElement('script');
+scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+vizElement.parentNode.insertBefore(scriptElement, vizElement);
+</script>
+
+</body>
+</html>

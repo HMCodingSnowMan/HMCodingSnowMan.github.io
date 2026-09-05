@@ -16,7 +16,23 @@
   --accent: #1a1a18;
   --tag-bg: #f0f0ee;
   --tag-text: #4a4a47;
+  --accent-contrast: #ffffff;
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14151a;
+    --card: #1c1d24;
+    --border: #2c2d36;
+    --text: #eaeaec;
+    --muted: #9a9ba3;
+    --accent: #eaeaec;
+    --tag-bg: #23242c;
+    --tag-text: #b8b9c2;
+    --accent-contrast: #14151a;
+  }
+}
+
 html { scroll-behavior: smooth; }
 body {
   font-family: 'Inter', -apple-system, sans-serif;
@@ -33,44 +49,52 @@ nav {
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; align-items: center; gap: 1.5rem;
   height: 56px;
 }
-.nav-name { font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em; }
-.nav-links { display: flex; gap: 1.5rem; }
-.nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
-.nav-links a:hover { color: var(--text); }
-
-/* JUMP SUB-NAV */
-.subnav {
-  position: sticky;
-  top: 56px;
-  z-index: 40;
-  background: rgba(249,249,248,0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
-  padding: 0.6rem 2rem;
+.nav-name {
+  font-size: 0.9rem; font-weight: 600; letter-spacing: -0.01em;
+  white-space: nowrap; flex-shrink: 0;
+}
+.nav-sections {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   overflow-x: auto;
   scrollbar-width: none;
+  flex: 1;
 }
-.subnav::-webkit-scrollbar { display: none; }
-.subnav a {
+.nav-sections::-webkit-scrollbar { display: none; }
+.nav-sections a {
   font-size: 0.78rem;
   font-weight: 500;
   color: var(--muted);
   text-decoration: none;
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.8rem;
   border-radius: 20px;
   white-space: nowrap;
   transition: all 0.15s;
   border: 1px solid transparent;
 }
-.subnav a:hover {
+.nav-sections a:hover {
   color: var(--text);
   background: var(--tag-bg);
   border-color: var(--border);
+}
+.nav-links {
+  display: flex; gap: 1.25rem;
+  flex-shrink: 0;
+  padding-left: 1rem;
+  border-left: 1px solid var(--border);
+}
+.nav-links a {
+  font-size: 0.82rem; color: var(--muted);
+  text-decoration: none; transition: color 0.15s;
+  white-space: nowrap;
+}
+.nav-links a:hover { color: var(--text); }
+
+@media (max-width: 720px) {
+  .nav-links { display: none; }
 }
 
 /* HERO */
@@ -189,7 +213,7 @@ nav {
 }
 .form-submit-btn {
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-contrast);
   border: none;
   border-radius: 8px;
   padding: 0.75rem 1.75rem;
@@ -271,7 +295,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 }
 .bio-avatar {
   width: 48px; height: 48px; border-radius: 50%;
-  background: var(--text); color: white;
+  background: var(--text); color: var(--bg);
   font-size: 0.85rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; letter-spacing: 0.02em;
@@ -294,20 +318,18 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 
 <nav>
   <div class="nav-name">Hans Marasigan</div>
+  <div class="nav-sections">
+    <a href="#section-analysis">📊 Data Analysis</a>
+    <a href="#section-utility">🛠 Utility Apps</a>
+    <a href="#section-ai">🤖 AI Tools</a>
+    <a href="#section-learning">🎓 Learning Series</a>
+    <a href="#section-fun">🎮 Fun & Games</a>
+  </div>
   <div class="nav-links">
-    <a href="#apps">Projects</a>
     <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn</a>
     <a href="#contact">Contact</a>
   </div>
 </nav>
-
-<div class="subnav">
-  <a href="#section-utility">🛠 Utility Apps</a>
-  <a href="#section-ai">🤖 AI Tools</a>
-  <a href="#section-learning">🎓 Learning Series</a>
-  <a href="#section-fun">🎮 Fun & Games</a>
-  <a href="#contact">✉️ Contact</a>
-</div>
 
 <section class="hero">
   <div class="hero-eyebrow">Portfolio — Web Applications</div>
@@ -334,6 +356,26 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 <div class="divider"></div>
 
 <section class="apps-section" id="apps">
+
+  <!-- DATA ANALYSIS (FEATURED) -->
+  <div class="section-label" id="section-analysis">Data Analysis</div>
+  <div class="apps-grid" style="margin-bottom:2.5rem">
+
+    <a class="app-card" href="projects/steam_analysis.html" style="grid-column: 1 / -1;">
+      <div class="app-card-accent" style="background:#2c6e49"></div>
+      <div class="app-icon">📊</div>
+      <div class="app-name">Steam Game Sales & Trends Analysis</div>
+      <div class="app-desc">A full data analysis project exploring how price, reviews, genre, and engagement relate to a game's commercial success — 34,154 Steam titles, cleaned and modeled in SQL, visualized in Tableau. Includes a documented process, 10 correlations, and an honest account of a real data quality bug found and fixed along the way.</div>
+      <div class="app-tags">
+        <span class="tag">SQL</span>
+        <span class="tag">Tableau</span>
+        <span class="tag">Data Cleaning</span>
+        <span class="tag">10 findings</span>
+      </div>
+      <div class="app-launch">View project <span class="arrow">→</span></div>
+    </a>
+
+  </div>
 
   <!-- UTILITY APPS -->
   <div class="section-label" id="section-utility">Utility Apps</div>
@@ -392,7 +434,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
     </a>
 
     <a class="app-card" href="utility/qr_generator.html">
-      <div class="app-card-accent" style="background:#1c1c1a"></div>
+      <div class="app-card-accent" style="background:#8a8a86"></div>
       <div class="app-icon">⬛</div>
       <div class="app-name">QRMake</div>
       <div class="app-desc">Generate QR codes from any text — URLs, WiFi credentials, contact cards, plain text. Choose size and colors, then download as PNG or SVG. Quick templates for the most common formats.</div>
