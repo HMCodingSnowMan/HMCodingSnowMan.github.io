@@ -17,6 +17,7 @@
   --tag-bg: #f0f0ee;
   --tag-text: #4a4a47;
   --accent-contrast: #ffffff;
+  --nav-bg: rgba(249,249,248,0.92);
   --finding-accent: #2c6e49;
   --finding-bg: #eef6f0;
   --note-bg: #fdf8ee;
@@ -35,6 +36,7 @@
     --tag-bg: #23242c;
     --tag-text: #b8b9c2;
     --accent-contrast: #14151a;
+    --nav-bg: rgba(20,21,26,0.92);
     --finding-accent: #4ade80;
     --finding-bg: #16241a;
     --note-bg: #241f14;
@@ -54,7 +56,7 @@ body {
 
 nav {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(249,249,248,0.92);
+  background: var(--nav-bg);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
   padding: 0 2rem;

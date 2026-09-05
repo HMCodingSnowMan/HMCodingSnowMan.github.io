@@ -94,6 +94,27 @@ nav {
   background: var(--tag-bg);
   border-color: var(--border);
 }
+.nav-scroll-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  transition: all 0.15s;
+  padding: 0;
+}
+.nav-scroll-btn:hover {
+  color: var(--text);
+  border-color: var(--text);
+}
+.nav-scroll-btn svg { width: 14px; height: 14px; }
 /* Fade hints showing more content is scrollable */
 .nav-sections-wrap::before,
 .nav-sections-wrap::after {
@@ -130,7 +151,7 @@ nav {
 
 @media (max-width: 720px) {
   .nav-links { display: none; }
-  nav { padding: 0 1rem; gap: 0.75rem; }
+  nav { padding: 0 1rem; gap: 0.5rem; }
 }
 
 /* HERO */
@@ -354,8 +375,11 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 
 <nav>
   <div class="nav-name">Hans Marasigan</div>
+  <button class="nav-scroll-btn" id="nav-scroll-left" aria-label="Scroll categories left">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  </button>
   <div class="nav-sections-wrap">
-    <div class="nav-sections">
+    <div class="nav-sections" id="nav-sections">
       <a href="#section-analysis">📊 Data Analysis</a>
       <a href="#section-utility">🛠 Utility Apps</a>
       <a href="#section-ai">🤖 AI Tools</a>
@@ -363,6 +387,9 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
       <a href="#section-fun">🎮 Fun & Games</a>
     </div>
   </div>
+  <button class="nav-scroll-btn" id="nav-scroll-right" aria-label="Scroll categories right">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </button>
   <div class="nav-links">
     <a href="https://linkedin.com/in/hmarasigan" target="_blank">LinkedIn</a>
     <a href="#contact">Contact</a>
@@ -697,6 +724,20 @@ document.getElementById('contact-form').addEventListener('submit', async functio
     submitBtn.disabled = false;
   }
 });
+
+// Nav category pill scroll buttons
+const navSections = document.getElementById('nav-sections');
+const scrollLeftBtn = document.getElementById('nav-scroll-left');
+const scrollRightBtn = document.getElementById('nav-scroll-right');
+
+if (navSections && scrollLeftBtn && scrollRightBtn) {
+  scrollLeftBtn.addEventListener('click', () => {
+    navSections.scrollBy({ left: -120, behavior: 'smooth' });
+  });
+  scrollRightBtn.addEventListener('click', () => {
+    navSections.scrollBy({ left: 120, behavior: 'smooth' });
+  });
+}
 </script>
 
 </body>
