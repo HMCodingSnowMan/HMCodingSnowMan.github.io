@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 110 — Claude Desktop</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #101820;
+  --card: #17222c;
+  --surface: #131c25;
+  --border: #253442;
+  --blue: #4fa8e0;
+  --blue-dark: #2b7fb8;
+  --blue-light: #12293a;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --violet: #a78bfa;
+  --violet-light: #201a3a;
+  --text: #e8f1f8;
+  --muted: #7d97ab;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0b1218; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--blue); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--blue); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--blue-light); color: var(--blue); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--violet-light); color: var(--violet); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue); }
+.callout.violet { background: var(--violet-light); border-left: 4px solid var(--violet); color: var(--violet); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--blue); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.tab-grid { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+.tab-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; }
+.tab-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.5rem; }
+.tab-badge { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: var(--blue-light); color: var(--blue); padding: 0.15rem 0.5rem; border-radius: 8px; }
+.tab-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.compare-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.78rem; }
+.compare-table th { text-align: left; padding: 0.6rem 0.5rem; color: var(--blue); font-weight: 700; border-bottom: 2px solid var(--border); }
+.compare-table td { padding: 0.6rem 0.5rem; color: var(--muted); border-bottom: 1px solid var(--border); vertical-align: top; }
+.compare-table tr:last-child td { border-bottom: none; }
+.compare-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--blue); background: var(--blue-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--blue); }
+.try-submit { margin-top: 0.5rem; background: var(--blue-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--blue); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--blue-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--blue); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--blue-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--blue); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--blue-light); color: var(--blue); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--blue-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🖥️ Claude 110 — Claude Desktop</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  {
+    type: 'lesson',
+    tag: 'Beginner–Intermediate',
+    emoji: '🖥️',
+    title: "Claude Desktop: same Claude, a lot more reach",
+    body: `
+      <p>If you've only ever used Claude in a browser tab, you've been using one surface of a much bigger app. Claude Desktop is a downloadable application for macOS and Windows that gives Claude direct access to things the browser simply can't reach — your local files, your terminal, other apps on your screen.</p>
+      <p>This module covers:</p>
+      <div class="callout blue">
+        🗂️ <strong>The three modes</strong> — Chat, Cowork, and Code, and what each is actually for<br><br>
+        🌐 <strong>Desktop vs. the browser</strong> — what genuinely changes when you switch<br><br>
+        🔌 <strong>Local file and app access</strong> — why this is the core unlock<br><br>
+        🧩 <strong>Real use cases</strong> — concrete tasks each mode handles well<br><br>
+        🎯 <strong>When to actually switch</strong> — so you're not just downloading it for no reason
+      </div>
+      <p>None of this requires any technical background — Desktop is built for exactly the kind of everyday work you're probably already doing in the browser, just with fewer walls around it.</p>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The basics',
+    emoji: '🗂️',
+    title: "Three modes, three different jobs",
+    body: `
+      <p>Claude Desktop organizes everything into three tabs. They share the same underlying Claude, but each is tuned for a different kind of work.</p>
+      <div class="tab-grid">
+        <div class="tab-card">
+          <div class="tab-name">💬 Chat <span class="tab-badge">Familiar</span></div>
+          <div class="tab-desc">Works just like claude.ai in the browser — conversation, projects, memory, artifacts. No local file access. Good for questions, brainstorming, and generating text.</div>
+        </div>
+        <div class="tab-card">
+          <div class="tab-name">🤝 Cowork <span class="tab-badge">Autonomous</span></div>
+          <div class="tab-desc">An agent that runs multi-step tasks on your actual files — organizing folders, building a spreadsheet from a stack of invoices, drafting a document from scattered notes. You describe the outcome; Cowork handles the steps.</div>
+        </div>
+        <div class="tab-card">
+          <div class="tab-name">💻 Code <span class="tab-badge">Developer</span></div>
+          <div class="tab-desc">Agentic coding at the project level — reads your codebase, edits multiple files, runs commands, works with git. Built for people writing or maintaining software.</div>
+        </div>
+      </div>
+      <div class="callout violet">💡 <strong>Key distinction:</strong> Chat is for conversation. Cowork and Code are for actual execution — they take real action on your files rather than just describing what you could do.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Three modes check",
+    question: "You want Claude to go through a folder of 40 PDF invoices and build a summary spreadsheet automatically. Which mode is built for this?",
+    options: [
+      "Chat, since it can discuss what the invoices probably contain",
+      "Cowork, since it can process the actual files and produce a working spreadsheet without step-by-step guidance",
+      "Code, since spreadsheets involve data",
+      "None of the modes can access local files"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 This is a textbook Cowork task — it needs direct access to real files and the ability to execute a multi-step task (read each invoice, extract data, build a spreadsheet) without hand-holding at each step.",
+      wrong: "The answer is B. Cowork is specifically built for processing real local files through multi-step tasks — exactly this kind of 'give me the finished result' request. Chat can't touch local files, and Code is for software projects, not general file processing."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'What changes',
+    emoji: '🌐',
+    title: "What actually changes when you leave the browser",
+    body: `
+      <p>It's tempting to think of Desktop as "the browser app, but in a window." That undersells it. Here's what's genuinely different:</p>
+      <table class="compare-table">
+        <tr><th></th><th>Browser (claude.ai)</th><th>Desktop app</th></tr>
+        <tr><td>Local file access</td><td>None — you upload files manually</td><td>Direct — Claude reads and writes files on your computer</td></tr>
+        <tr><td>Multi-step autonomous tasks</td><td>Limited</td><td>Full Cowork support</td></tr>
+        <tr><td>Coding at project level</td><td>Not available</td><td>Built-in Code mode</td></tr>
+        <tr><td>Other app control</td><td>Not available</td><td>Available on supported systems, with per-action approval</td></tr>
+        <tr><td>Quick access</td><td>Requires opening a browser tab</td><td>Global keyboard shortcut from anywhere</td></tr>
+      </table>
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Browser Claude is a visitor. Desktop Claude has a key to the building.</div>
+        <div class="analogy-body">A visitor can talk to you about the building, look at things you show them, and give advice — but they can't open a filing cabinet on their own. Desktop hands Claude a key: it can open the drawer itself, read what's inside, and put something new in, all with your approval at each step.</div>
+      </div>
+      <div class="callout amber">💡 <strong>Worth knowing:</strong> More reach means more responsibility on your end too — actions on your local system typically ask for approval, and it's worth paying attention to what you're approving, especially for anything that changes or deletes real files.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Desktop vs. browser check",
+    question: "Why can't the browser version of Claude read a file directly from your computer's hard drive the way Desktop can?",
+    options: [
+      "The browser version is simply an older, less capable model",
+      "Browsers are sandboxed and don't have permission to access your local file system directly — the desktop app is a native application with that permission",
+      "This is a pricing restriction, not a technical one",
+      "There's no actual difference; this is a myth"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 Web browsers deliberately restrict what a webpage can access on your computer for security reasons — that's a browser-level protection, not something specific to Claude. A native desktop application isn't bound by that same sandbox, which is exactly why it can offer local file access.",
+      wrong: "The answer is B. This comes down to how browsers work generally — they sandbox webpages away from your local file system for security. A downloaded desktop application operates outside that sandbox, which is the real reason it can reach local files and the browser version cannot."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Real use cases',
+    emoji: '🧩',
+    title: "What people actually use each mode for",
+    body: `
+      <p>Concrete examples make this click faster than abstract descriptions:</p>
+      <div class="usecase-card">
+        <div class="usecase-icon">📁</div>
+        <div>
+          <div class="usecase-title">Cowork: organizing a messy downloads folder</div>
+          <div class="usecase-desc">"Sort this folder by file type and rename anything with a generic filename based on its content." Cowork opens each file, understands what it is, and reorganizes — something that would take you an hour manually.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📊</div>
+        <div>
+          <div class="usecase-title">Cowork: turning scattered notes into a report</div>
+          <div class="usecase-desc">Point it at a folder of meeting notes and ask for a single, formatted summary document — Cowork reads everything and produces one coherent output.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🐛</div>
+        <div>
+          <div class="usecase-title">Code: fixing a bug across multiple files</div>
+          <div class="usecase-desc">Describe a bug in plain language; Code traces it through the actual codebase, identifies the root cause, and proposes or makes the fix across however many files are involved.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">💬</div>
+        <div>
+          <div class="usecase-title">Chat: everyday questions and drafting</div>
+          <div class="usecase-desc">No local file work needed — just the same conversational Claude you'd use in a browser, but with the convenience of a dedicated app and global quick-access shortcut.</div>
+        </div>
+      </div>
+      <div class="callout green">💡 <strong>Pattern to notice:</strong> The more a task involves "go do this thing to my actual files/system" rather than "tell me about this," the more it's a Cowork or Code job rather than a Chat job.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Use cases check",
+    question: "A product manager wants to draft a quick outline for a blog post. Which mode fits best?",
+    options: [
+      "Cowork, since it's the most powerful mode",
+      "Code, since writing is a form of content creation",
+      "Chat — this is a conversational drafting task with no local file processing needed",
+      "This task isn't possible in Claude Desktop"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Exactly right. 🎯 A simple drafting task with no file manipulation involved is squarely a Chat job — reaching for Cowork or Code here would be using a more complex tool than the task requires.",
+      wrong: "The answer is C. This is a straightforward conversational task — no local files, no multi-step autonomous execution needed. Chat is the right, simplest fit; using Cowork or Code would be overkill."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Match the task to the mode",
+    instruction: "You have three tasks: (1) asking for feedback on a paragraph you wrote, (2) going through 200 photos on your desktop and organizing them into dated folders, (3) adding a new feature to an existing app's codebase. For each, explain which Claude Desktop mode fits and why.",
+    placeholder: "Type your answer here...",
+    response: "Good breakdown to work through. Here's a reasonable match: (1) Feedback on a paragraph is a conversational task with no file manipulation — that's Chat. (2) Organizing 200 photos into dated folders requires reading actual files on your computer and taking multi-step action (checking dates, creating folders, moving files) — that's a clear Cowork task. (3) Adding a feature to an existing codebase means understanding existing code across multiple files and making coordinated edits — that's Code. The general pattern: conversation and drafting stay in Chat, general file-based tasks go to Cowork, and anything specifically about a software codebase goes to Code."
+  },
+  {
+    type: 'lesson',
+    tag: 'Practical guide',
+    emoji: '🎯',
+    title: "When it's actually worth switching to Desktop",
+    body: `
+      <p>Desktop isn't strictly better for everything — it's better for specific kinds of work. Here's a practical way to decide:</p>
+      <div class="usecase-card">
+        <div class="usecase-icon">✅</div>
+        <div>
+          <div class="usecase-title">Switch to Desktop when...</div>
+          <div class="usecase-desc">You need Claude to work directly with files already on your computer, run a multi-step task without narrating every step yourself, work with code across a real project, or you find yourself constantly uploading the same kinds of files to the browser version.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🌐</div>
+        <div>
+          <div class="usecase-title">The browser is still fine when...</div>
+          <div class="usecase-desc">You're just having a conversation, need quick access from a device without the app installed, or you're doing lightweight work that doesn't touch your local file system at all.</div>
+        </div>
+      </div>
+      <div class="callout blue">💡 <strong>Bottom line:</strong> Desktop earns its place when the task is really about doing something to files, folders, or code that live on your machine — not just talking about them. If you've never once wished Claude could "just go check that file for me," you may not need it yet — but once you do wish that, Desktop is the answer.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "Someone says 'I just use Claude to answer quick questions throughout the day — nothing involving my files.' Should they bother switching to Claude Desktop?",
+    options: [
+      "Yes, Desktop is strictly better in every scenario, so they should always switch",
+      "Not necessarily — if their usage is purely conversational with no local file or multi-step task needs, the browser version already does everything they need",
+      "No, Desktop cannot handle simple conversational questions at all",
+      "They should switch only if they plan to write code"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 Desktop's advantages are specifically about local file access, autonomous multi-step execution, and coding — none of which matter for someone doing purely conversational work. The browser version is a perfectly complete tool for that use case.",
+      wrong: "The answer is B. Desktop's real advantages only kick in with local file access, Cowork-style task execution, or coding — for someone with purely conversational needs, the browser version already covers everything, and switching wouldn't add meaningful value."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🖥️'; title = "You know your way around Desktop."; sub = "You now understand exactly when the desktop app earns its place over the browser — a genuinely practical, everyday-useful distinction."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of the three modes and when to use Desktop. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Go back through the lessons — the distinctions between modes click more the second time through."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout blue">
+          <strong>What you now know:</strong><br><br>
+          🗂️ <strong>Three modes</strong> — Chat (conversation), Cowork (autonomous file tasks), Code (agentic coding)<br>
+          🌐 <strong>Desktop vs. browser</strong> — local file access, multi-step execution, and app control<br>
+          🧩 <strong>Real use cases</strong> — matching the mode to what the task actually requires<br>
+          🎯 <strong>When to switch</strong> — worth it once you need to touch real local files or run multi-step work
+        </div>
+        <div class="callout violet">
+          <strong>The one rule that ties it all together:</strong><br>
+          Chat talks. Cowork and Code act. Choose based on whether you need Claude to discuss something or actually do it to your files.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

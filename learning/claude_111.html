@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 111 — Claude Design</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #1a1420;
+  --card: #241c2c;
+  --surface: #1f1826;
+  --border: #382a44;
+  --pink: #ec4899;
+  --pink-dark: #db2777;
+  --pink-light: #2e1626;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #f3e8f5;
+  --muted: #a98bb0;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #150f1a; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--pink); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--pink); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--pink-light); color: var(--pink); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.pink { background: var(--pink-light); border-left: 4px solid var(--pink); color: var(--pink); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--pink); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.iterate-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.iterate-step { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.iterate-step:last-child { padding-bottom: 0; }
+.iterate-icon { width: 30px; height: 30px; border-radius: 50%; background: var(--pink); color: #2e1626; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.iterate-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.iterate-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.limit-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.limit-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.5rem; }
+.limit-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--pink); background: var(--pink-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--pink); }
+.try-submit { margin-top: 0.5rem; background: var(--pink-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--pink); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--pink-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--pink); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--pink-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--pink); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--pink-light); color: var(--pink); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--pink-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎨 Claude 111 — Claude Design</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  {
+    type: 'lesson',
+    tag: 'Intermediate',
+    emoji: '🎨',
+    title: "Claude Design: visual work without a design degree",
+    body: `
+      <p>Claude Design is Anthropic's product for creating visual work — prototypes, mockups, slide decks, one-pagers — through conversation rather than a traditional design tool. It's built for a specific gap: you can picture an idea, but you don't have the design background (or the time) to build it yourself.</p>
+      <p>This module covers:</p>
+      <div class="callout pink">
+        🎯 <strong>Who it's actually for</strong> — and who it isn't meant to replace<br><br>
+        🔁 <strong>The iteration loop</strong> — how you go from a rough idea to a polished result<br><br>
+        🧩 <strong>What it can produce</strong> — the range of real deliverables<br><br>
+        🔗 <strong>Handoff to Claude Code</strong> — turning a design into working software<br><br>
+        ⚠️ <strong>Honest limitations</strong> — where it's a strong fit and where it isn't
+      </div>
+      <p>Note: Claude Design is a newer product still labeled a research preview at the time of writing — some specifics may evolve, but the core workflow described here is well established.</p>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'Who it\\'s for',
+    emoji: '🎯',
+    title: "Built for the gap between idea and execution",
+    body: `
+      <p>Anthropic built Claude Design with five specific kinds of people in mind: designers, product managers, founders, marketers, and account executives. Notice that only one of those five — designers — typically has formal design training. That's the point.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Think of it as a sketch you can hand off, not a finished blueprint</div>
+        <div class="analogy-body">Someone without design training can describe what they want and get a real, visual first draft — something concrete to react to, share, and refine. It's the difference between saying "imagine a landing page with X" and actually having something on screen to point at during a meeting.</div>
+      </div>
+
+      <p>For designers specifically, the value is different: it's about exploration speed. Even an experienced designer usually has to ration how many directions they explore, since prototyping each one by hand takes real time. Claude Design lets a designer generate a wide range of directions quickly, then apply their judgment to pick and refine the best one.</p>
+
+      <div class="callout cyan">💡 <strong>Key framing:</strong> Claude Design isn't trying to make designers obsolete — it's trying to compress the distance between "I have an idea" and "I have something to look at," for both non-designers and designers alike.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Who it's for check",
+    question: "Why would an experienced professional designer still find value in Claude Design, given they already have the skills to design things by hand?",
+    options: [
+      "They wouldn't — it's only useful for people with no design skills",
+      "It lets them explore many more directions quickly than manually prototyping each one, since exploration time is usually the actual bottleneck",
+      "It replaces their design judgment entirely",
+      "Professional designers are not part of the intended audience at all"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Even skilled designers are limited by how much time they have to prototype different directions by hand. Claude Design speeds up that exploration phase, letting designers apply their judgment across more options rather than replacing that judgment.",
+      wrong: "The answer is B. The real value for an experienced designer is speed of exploration — being able to try more directions than time would normally allow — not a replacement for their skill or judgment."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'The workflow',
+    emoji: '🔁',
+    title: "How you actually go from idea to polished result",
+    body: `
+      <p>Claude Design follows a conversational refinement loop rather than a one-shot generation:</p>
+
+      <div class="iterate-wrap">
+        <div class="iterate-step">
+          <div class="iterate-icon">1</div>
+          <div>
+            <div class="iterate-title">Describe what you need</div>
+            <div class="iterate-desc">A prompt, an existing image or document, a codebase, or even elements pulled directly from your own live website using a web capture tool.</div>
+          </div>
+        </div>
+        <div class="iterate-step">
+          <div class="iterate-icon">2</div>
+          <div>
+            <div class="iterate-title">Claude builds a first version</div>
+            <div class="iterate-desc">A real, visual draft — not a text description of what it would look like.</div>
+          </div>
+        </div>
+        <div class="iterate-step">
+          <div class="iterate-icon">3</div>
+          <div>
+            <div class="iterate-title">Refine through multiple methods</div>
+            <div class="iterate-desc">Conversation, inline comments on specific elements, direct text edits, or custom sliders Claude generates for fine-tuning things like color, spacing, or layout live.</div>
+          </div>
+        </div>
+        <div class="iterate-step">
+          <div class="iterate-icon">4</div>
+          <div>
+            <div class="iterate-title">Apply your brand automatically</div>
+            <div class="iterate-desc">Once given access to your team's design system, Claude can apply it consistently across new projects — so output matches the rest of your company's visual identity without manual re-styling.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout amber">💡 <strong>Why this matters:</strong> The refinement step is what separates this from a simple image generator. You're not stuck with the first draft — the sliders and inline comments give you real, precise control without needing to know a traditional design tool.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Workflow check",
+    question: "What is the purpose of the custom sliders Claude generates during the refinement process?",
+    options: [
+      "They're decorative and don't affect the actual design",
+      "They give precise, live control over specific attributes like color, spacing, or layout without requiring traditional design software skills",
+      "They only work for pitch decks, not other design types",
+      "They replace the need to describe what you want in the first place"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 The sliders exist specifically to give fine, live control over visual details in a way that doesn't require knowing how to use a traditional design tool — a key part of what makes the whole workflow accessible to non-designers.",
+      wrong: "The answer is B. The sliders are a real refinement tool — they let you dial in specific visual details precisely, live, without needing traditional design software skills. They're part of the iteration loop, not a decorative gimmick."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Real outputs',
+    emoji: '🧩',
+    title: "What it can actually produce",
+    body: `
+      <p>The range of deliverables is genuinely broad — here are the main categories teams are using it for:</p>
+      <div class="usecase-card">
+        <div class="usecase-icon">🖱️</div>
+        <div>
+          <div class="usecase-title">Realistic, interactive prototypes</div>
+          <div class="usecase-desc">Static mockups turned into clickable prototypes for feedback or user testing — without needing a code review or pull request.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📐</div>
+        <div>
+          <div class="usecase-title">Product wireframes and mockups</div>
+          <div class="usecase-desc">A product manager sketches a feature flow, then hands it directly to Claude Code for implementation, or to a designer for further refinement.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔀</div>
+        <div>
+          <div class="usecase-title">Design explorations</div>
+          <div class="usecase-desc">Multiple distinct creative directions generated quickly, to compare and choose from rather than committing early to one idea.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📊</div>
+        <div>
+          <div class="usecase-title">Pitch decks and presentations</div>
+          <div class="usecase-desc">A rough outline becomes a complete, on-brand deck, exportable as PPTX or sent directly to Canva.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📣</div>
+        <div>
+          <div class="usecase-title">Marketing collateral</div>
+          <div class="usecase-desc">Landing pages, social assets, and campaign visuals a marketer can create directly, then loop in a designer to polish.</div>
+        </div>
+      </div>
+      <div class="callout green">💡 <strong>Export flexibility:</strong> Output isn't locked into one format — depending on the deliverable, it can be exported to Canva, PDF, PPTX, or as a standalone HTML file, so it fits into whatever workflow your team already uses.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Real outputs check",
+    question: "A designer wants to gather user feedback on a new screen design without going through a full code review process. What's the most direct fit within Claude Design's capabilities?",
+    options: [
+      "A pitch deck export",
+      "A realistic, interactive prototype that can be shared and tested without code review",
+      "Marketing collateral for social media",
+      "This isn't something Claude Design supports"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Turning a static mockup into a clickable, shareable prototype for feedback or testing — without needing a code review or pull request — is one of Claude Design's core, named use cases.",
+      wrong: "The answer is B. Realistic interactive prototypes are specifically built for exactly this scenario — testable, shareable designs without the overhead of a formal code review process."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Handoff',
+    emoji: '🔗',
+    title: "From design to working software",
+    body: `
+      <p>One of the more distinctive parts of Claude Design is how directly it connects to Claude Code. Once a design is ready to build, it can be handed off for actual implementation — closing the gap between "here's what it should look like" and "here's the working version."</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">A blueprint that comes with the construction crew already briefed</div>
+        <div class="analogy-body">Traditionally, a designer hands a static mockup to an engineer, who then has to interpret and rebuild it from scratch — a process where details get lost or reinterpreted. A design-to-code handoff aims to preserve more of the original intent directly, since the same underlying system produced both.</div>
+      </div>
+
+      <p>This matters most for product managers and founders who can sketch out a feature flow themselves, then move straight to implementation without needing a separate design step in between — or for teams who want prototypes to more closely reflect what the final built product will actually look like.</p>
+
+      <div class="callout pink">💡 <strong>Practical note:</strong> This handoff is a genuine workflow improvement, but it doesn't eliminate the value of a real design review — it shifts where that review happens, from "does this look right" earlier in the process to "does this work right" once it's real software.</div>
+    `
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Pick the right tool for the job",
+    instruction: "You're a founder with an idea for a new feature but no design background. You want to (1) get a rough visual to react to, (2) refine it until it feels right, and (3) eventually have it actually built. Walk through, in your own words, how Claude Design (and its handoff to Claude Code) would support all three steps.",
+    placeholder: "Type your answer here...",
+    response: "Nice way to trace the whole flow. Here's how it maps: (1) Getting a rough visual to react to is the core entry point — describe the feature in plain language, and Claude Design produces a real first-draft mockup or prototype, giving you something concrete rather than just words. (2) Refining it happens through the iteration loop — using conversation, inline comments on specific parts you want changed, or the custom sliders for fine adjustments like spacing or color, without needing any traditional design tool skills. (3) Once it feels right, the design can be handed off directly to Claude Code, which can use it as a reference to actually build the working feature — closing the loop from idea to a real, functioning result without needing a separate designer or developer to manually reinterpret a static image along the way. The overall value for someone in your position: it removes both the design-skill barrier and the handoff-interpretation gap that would normally sit between a founder's idea and a built feature."
+  },
+  {
+    type: 'lesson',
+    tag: 'Honest limitations',
+    emoji: '⚠️',
+    title: "Where Claude Design is a strong fit — and where it isn't",
+    body: `
+      <p>Being clear-eyed about limitations makes the tool more useful, not less. A few honest caveats worth knowing:</p>
+
+      <div class="limit-card">
+        <div class="limit-title">🎨 Output quality depends on setup</div>
+        <div class="limit-desc">Claude Design works best once an experienced designer has set up the organization's design system first. Without that groundwork, output can still be functional, but is more likely to look generic rather than distinctly on-brand.</div>
+      </div>
+
+      <div class="limit-card">
+        <div class="limit-title">🚫 Not a replacement for design review</div>
+        <div class="limit-desc">It's best understood as a design acceleration layer — a way to get to a reviewable direction faster — not a substitute for design judgment, systems maintenance, or a production-quality review process.</div>
+      </div>
+
+      <div class="limit-card">
+        <div class="limit-title">📋 Governance features are still developing</div>
+        <div class="limit-desc">As of its current documentation, Claude Design does not provide audit logs or usage tracking — worth knowing if your organization has strict governance requirements around who changed what and when.</div>
+      </div>
+
+      <div class="limit-card">
+        <div class="limit-title">🧮 Not the right fit for every kind of work</div>
+        <div class="limit-desc">Tasks that are mostly text strategy, mostly spreadsheet logic, or already deep inside a mature, established design-file workflow are generally a poor match — Claude Design shines specifically at visual drafting and alignment, not at everything adjacent to design work.</div>
+      </div>
+
+      <div class="callout red">⚠️ <strong>The honest bottom line:</strong> Claude Design is a strong fit when the bottleneck is alignment or getting to a first reviewable direction quickly — not when the bottleneck is craft perfection or governance-heavy production work.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "A large enterprise team with strict compliance requirements wants to use Claude Design but is concerned about tracking exactly who made which changes to a design over time, for audit purposes. What should they know?",
+    options: [
+      "This is a solved feature — Claude Design has full audit logging built in",
+      "As of current documentation, Claude Design does not provide audit logs or usage tracking, which is a real limitation worth factoring into a compliance-sensitive rollout",
+      "Audit logging is only available for pitch decks, not other design types",
+      "Enterprise teams cannot use Claude Design under any circumstances"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 This is a genuine, documented limitation — not having audit logs or usage tracking is exactly the kind of gap a compliance-focused team needs to know about and plan around before rolling the tool out broadly.",
+      wrong: "The answer is B. Being upfront about the lack of audit logs and usage tracking is important here — it's a real, current limitation that a compliance-sensitive team should factor into their evaluation, not something to assume is already covered."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🎨'; title = "You understand Claude Design end to end."; sub = "You now know exactly what it's for, how the iteration loop works, and where its honest limits are — genuinely useful for evaluating it for real work."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of the workflow and its limitations. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Go back through the lessons — the workflow and limitations click more the second time through."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout pink">
+          <strong>What you now know:</strong><br><br>
+          🎯 <strong>Who it's for</strong> — non-designers needing a first draft, and designers wanting faster exploration<br>
+          🔁 <strong>The iteration loop</strong> — describe, get a draft, refine via chat/comments/sliders, apply brand<br>
+          🧩 <strong>Real outputs</strong> — prototypes, wireframes, decks, marketing assets, design explorations<br>
+          🔗 <strong>Code handoff</strong> — designs can move directly into implementation via Claude Code<br>
+          ⚠️ <strong>Honest limits</strong> — needs good setup, no audit logs yet, not a review-process replacement
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          Claude Design accelerates getting to a reviewable first draft — it doesn't replace design judgment, systems work, or production-quality review.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

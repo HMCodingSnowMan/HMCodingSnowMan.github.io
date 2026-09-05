@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 112 — Claude Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d1410;
+  --card: #142018;
+  --surface: #101a13;
+  --border: #223327;
+  --orange: #fb923c;
+  --orange-dark: #ea580c;
+  --orange-light: #2e1f10;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #4ade80;
+  --green-dark: #16a34a;
+  --green-light: #0f2a1a;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --blue: #60a5fa;
+  --blue-light: #101f2e;
+  --text: #e8f5ec;
+  --muted: #7fa88c;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0a100c; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--orange); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--orange); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--orange-light); color: var(--orange); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--blue-light); color: var(--blue); }
+.lesson-tag.level-tag { background: var(--red-light); color: var(--red); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 0.1rem 0.4rem; font-family: 'Courier New', monospace; font-size: 0.85em; color: var(--orange); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.orange { background: var(--orange-light); border-left: 4px solid var(--orange); color: var(--orange); }
+.callout.blue { background: var(--blue-light); border-left: 4px solid var(--blue); color: var(--blue); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--orange); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.surface-grid { display: flex; flex-direction: column; gap: 0.6rem; margin: 1rem 0; }
+.surface-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; display: flex; gap: 0.75rem; align-items: flex-start; }
+.surface-icon { font-size: 1.3rem; flex-shrink: 0; }
+.surface-name { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.surface-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1rem; margin: 0.75rem 0; font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--green); overflow-x: auto; white-space: pre; }
+
+.workflow-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.workflow-step { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.workflow-step:last-child { padding-bottom: 0; }
+.workflow-num { width: 30px; height: 30px; border-radius: 50%; background: var(--orange); color: #2e1f10; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.workflow-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.workflow-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.trust-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.trust-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.trust-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.trust-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.trust-green .trust-level { color: var(--green); }
+.trust-amber .trust-level { color: var(--amber); }
+.trust-red .trust-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--orange); background: var(--orange-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--orange); }
+.try-submit { margin-top: 0.5rem; background: var(--orange-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--orange); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--orange-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--orange); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--orange-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--orange); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--orange-light); color: var(--orange); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--orange-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>⌨️ Claude 112 — Claude Code</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  {
+    type: 'lesson',
+    tag: 'Advanced',
+    emoji: '⌨️',
+    title: "Claude Code: an agent that actually works inside your codebase",
+    body: `
+      <p>This module builds directly on Module 5 (AI Agents & Tool Use) — if that one isn't fresh, it's worth a quick review, since everything here assumes you understand the agent loop and trust boundaries already.</p>
+      <p>Claude Code is an agentic coding tool: it reads your codebase, edits files, runs commands, and integrates with your development tools. It's aimed at developers, but also at technically-curious non-engineers who want to build or fix something real.</p>
+      <div class="callout orange">
+        🖥️ <strong>Where it runs</strong> — terminal, IDE, desktop app, and browser<br><br>
+        🔁 <strong>How a real task actually flows</strong> — from plain-language request to working code<br><br>
+        🔧 <strong>Git and MCP integration</strong> — connecting to your existing workflow and tools<br><br>
+        🛡️ <strong>Trust and approval in practice</strong> — applying what Module 5 covered, concretely<br><br>
+        🎯 <strong>When to reach for it</strong> — vs. a quick chat-based coding question
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'Where it runs',
+    emoji: '🖥️',
+    title: "One tool, several surfaces",
+    body: `
+      <p>Claude Code isn't tied to one interface — it's designed to fit into wherever you already work:</p>
+      <div class="surface-grid">
+        <div class="surface-card">
+          <div class="surface-icon">⌨️</div>
+          <div>
+            <div class="surface-name">Terminal</div>
+            <div class="surface-desc">The original and most common surface — run <code>claude</code> from your project directory and start describing what you need in plain language.</div>
+          </div>
+        </div>
+        <div class="surface-card">
+          <div class="surface-icon">🧩</div>
+          <div>
+            <div class="surface-name">IDE (VS Code, JetBrains)</div>
+            <div class="surface-desc">Works as an extension inside the editor you already use, so changes and context stay visible alongside your normal coding environment.</div>
+          </div>
+        </div>
+        <div class="surface-card">
+          <div class="surface-icon">🖥️</div>
+          <div>
+            <div class="surface-name">Desktop app</div>
+            <div class="surface-desc">Lives in the Code tab of Claude Desktop (see Module 10), with the same underlying capability as the terminal version.</div>
+          </div>
+        </div>
+        <div class="surface-card">
+          <div class="surface-icon">🌐</div>
+          <div>
+            <div class="surface-name">Browser / Web</div>
+            <div class="surface-desc">A web-accessible surface for cases where installing a local tool isn't practical or desired.</div>
+          </div>
+        </div>
+      </div>
+      <div class="callout blue">💡 <strong>Practical note:</strong> Most surfaces require a Claude subscription or an Anthropic Console account to use — it's worth confirming your specific plan supports the surface you want before diving in.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Surfaces check",
+    question: "A developer wants to use Claude Code without leaving their existing VS Code setup. What's the right surface for them?",
+    options: [
+      "Only the terminal version supports coding tasks",
+      "The IDE extension, which integrates directly into VS Code alongside their normal environment",
+      "They would need to switch entirely to the desktop app",
+      "Claude Code cannot be used inside an existing editor"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 Claude Code ships as an IDE extension specifically so developers can use it without abandoning their existing editor setup — the same capability, just embedded where they already work.",
+      wrong: "The answer is B. Claude Code's IDE extension is built exactly for this — staying inside VS Code (or JetBrains) rather than requiring a switch to a separate terminal or app."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'How it actually flows',
+    emoji: '🔁',
+    title: "From plain language to a working fix",
+    body: `
+      <p>Here's what a real Claude Code interaction typically looks like, tying directly back to the agent loop from Module 5:</p>
+      <div class="workflow-wrap">
+        <div class="workflow-step">
+          <div class="workflow-num">1</div>
+          <div>
+            <div class="workflow-title">Describe the goal in plain language</div>
+            <div class="workflow-desc">"Add a dark mode toggle to the settings page" or paste an error message and describe the symptom.</div>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-num">2</div>
+          <div>
+            <div class="workflow-title">Claude Code reads the relevant parts of your codebase</div>
+            <div class="workflow-desc">It doesn't need you to specify every file — it explores the project to find what's relevant, the way a new team member would when investigating an issue.</div>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-num">3</div>
+          <div>
+            <div class="workflow-title">It plans an approach, then writes the code</div>
+            <div class="workflow-desc">Changes may span multiple files — this isn't a single-line autocomplete, it's coordinated editing across a real project.</div>
+          </div>
+        </div>
+        <div class="workflow-step">
+          <div class="workflow-num">4</div>
+          <div>
+            <div class="workflow-title">It verifies the work</div>
+            <div class="workflow-desc">Running tests or checking that the change behaves as expected, rather than just handing you unverified code and moving on.</div>
+          </div>
+        </div>
+      </div>
+      <div class="code-block">$ claude
+> Add a dark mode toggle to the settings page</div>
+      <div class="callout amber">💡 <strong>This is the agent loop from Module 5, made concrete:</strong> think (understand the request and codebase) → act (write and edit code) → observe (run tests, check results) → decide (done, or loop back and adjust).</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Workflow check",
+    question: "You ask Claude Code to fix a bug by only describing the symptom, not naming any specific file. Why does this still work?",
+    options: [
+      "It doesn't work — you must specify the exact file and line number",
+      "Claude Code explores the codebase itself to trace the issue and identify the relevant files, similar to how a developer would investigate an unfamiliar bug",
+      "It only works for bugs that have already been documented elsewhere",
+      "This is a feature exclusive to the browser surface"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Claude Code is built to explore and understand your codebase on its own — describing symptoms rather than pinpointing exact locations is a normal, supported way to work with it, just like directing a colleague to investigate an issue.",
+      wrong: "The answer is B. Part of what makes Claude Code agentic rather than a simple autocomplete is its ability to explore your codebase and trace an issue to its root cause on its own, based on a plain-language description of the symptom."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Integrations',
+    emoji: '🔧',
+    title: "Working with git and your existing tools via MCP",
+    body: `
+      <p>Two integrations matter a lot for how Claude Code fits into a real workflow:</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Git integration</div>
+        <div class="analogy-title">It works directly with version control, not around it</div>
+        <div class="analogy-body">Claude Code can stage changes, write commit messages, create branches, and open pull requests — meaning it participates in your actual development process rather than producing code you then have to manually integrate yourself.</div>
+      </div>
+
+      <div class="code-block">$ claude "commit my changes with a descriptive message"</div>
+
+      <p>The second integration is <strong>MCP (Model Context Protocol)</strong> — an open standard for connecting AI tools to external systems. This is the same underlying concept from Module 5's discussion of connected apps, applied specifically to development work.</p>
+
+      <p>With MCP, Claude Code can read design docs in Google Drive, update tickets in a project tracker like Jira, pull data from Slack, or connect to custom internal tooling your team has built — extending what it can access well beyond just the code files in front of it.</p>
+
+      <div class="callout green">💡 <strong>Why this matters:</strong> Real development work rarely lives in code alone — it touches tickets, docs, and team communication. MCP is what lets Claude Code participate in that fuller picture instead of being isolated to just the files on disk.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Integrations check",
+    question: "A team wants Claude Code to be able to reference their project's tickets in Jira while working on a fix. What makes this possible?",
+    options: [
+      "Claude Code cannot connect to external tools like Jira under any circumstances",
+      "MCP (Model Context Protocol), which connects Claude Code to external systems like ticket trackers, beyond just the local codebase",
+      "This requires manually copying and pasting ticket content into every conversation",
+      "Only the git integration supports this kind of connection"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 MCP is specifically the standard that lets Claude Code reach outside the local codebase to systems like Jira, Google Drive, or Slack — exactly the kind of connected-tool access covered conceptually in Module 5.",
+      wrong: "The answer is B. MCP is the mechanism that extends Claude Code's reach to external tools like Jira, Google Drive, or Slack — it's a real, supported integration, not something requiring manual copy-pasting."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Apply the trust framework",
+    instruction: "Recall Module 5's trust levels (low/medium/high risk actions). Using that same framework, classify these three Claude Code actions and explain your reasoning: (1) reading through your codebase to understand its structure, (2) writing a fix for a bug in a local branch, (3) opening a pull request that merges directly into your production branch.",
+    placeholder: "Type your answer here...",
+    response: "Good application of the framework. Here's a reasonable classification: (1) Reading through the codebase is low-risk — it's read-only, nothing changes, and it's fully reversible in the sense that no state was altered at all. This can happen freely without special approval. (2) Writing a fix in a local branch is medium-risk — real changes are being made, but they're contained to a branch you control, easily reviewed, and easily discarded if wrong; this is usually shown to you before being considered final, but doesn't need the heaviest scrutiny. (3) Opening a pull request that merges directly into production is high-risk — it's a change to a live, real system that other people and processes depend on, and mistakes here have real consequences that are harder to reverse quickly. This is exactly the kind of action that should always pause for explicit human approval before happening, consistent with Module 5's principle that the closer an action gets to affecting the real world irreversibly, the more it should require a human decision first."
+  },
+  {
+    type: 'lesson',
+    tag: 'Practical guide',
+    emoji: '🎯',
+    title: "When to reach for Claude Code vs. a quick chat question",
+    body: `
+      <p>Not every coding question needs the full agentic tool. Here's a practical way to decide:</p>
+
+      <div class="trust-card trust-green">
+        <div class="trust-level">Quick chat is enough</div>
+        <div class="trust-title">Isolated questions and small snippets</div>
+        <div class="trust-desc">"What does this regex do?" or "write a function that reverses a string" — no need to touch your actual project files for this.</div>
+      </div>
+
+      <div class="trust-card trust-amber">
+        <div class="trust-title">Claude Code starts to make sense</div>
+        <div class="trust-desc">Fixing a bug that requires understanding how multiple files interact, adding a feature that touches several parts of a real codebase, or anything where "explore first, then act" is genuinely needed.</div>
+      </div>
+
+      <div class="trust-card trust-red">
+        <div class="trust-level">Definitely Claude Code</div>
+        <div class="trust-title">Full project-level work</div>
+        <div class="trust-desc">Refactoring across a codebase, working with git history and branches, or any task where the integration with your actual development tools and workflow matters.</div>
+      </div>
+
+      <div class="callout orange">💡 <strong>The deciding question:</strong> Does this task need Claude to actually see and act on your real project — reading real files, running real commands, working with real git history? If yes, that's Claude Code. If it's a self-contained question you could answer on a whiteboard, plain chat is simpler and faster.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "A developer asks 'what's the time complexity of binary search?' Should they open Claude Code for this?",
+    options: [
+      "Yes, always use the most powerful tool available for any coding-related question",
+      "No — this is a self-contained conceptual question with no need to read or act on any actual codebase, so a quick chat is simpler and sufficient",
+      "Claude Code is required for any question involving algorithms",
+      "This question cannot be answered by any version of Claude"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 A standalone conceptual question needs no codebase access, no file editing, and no multi-step exploration — reaching for Claude Code here would be unnecessary overhead for a question a plain chat answers just as well.",
+      wrong: "The answer is B. This is a self-contained conceptual question — it doesn't require reading, editing, or acting on any real project files, so plain chat is the simpler, sufficient tool here. Claude Code's value comes from real codebase interaction, which this question doesn't need."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '⌨️'; title = "You understand Claude Code end to end."; sub = "You now know where it runs, how it actually approaches a task, and when it's genuinely worth reaching for over a quick chat question."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of the workflow and integrations. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This module builds on Module 5's agent concepts — revisiting both together may help things click."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout orange">
+          <strong>What you now know:</strong><br><br>
+          🖥️ <strong>Where it runs</strong> — terminal, IDE extension, desktop app, browser<br>
+          🔁 <strong>The real workflow</strong> — describe, explore, edit across files, verify<br>
+          🔧 <strong>Integrations</strong> — git-native workflows plus MCP for external tools<br>
+          🛡️ <strong>Trust in practice</strong> — read-only is free, local changes need review, production merges need approval<br>
+          🎯 <strong>When to use it</strong> — real codebase interaction, not standalone conceptual questions
+        </div>
+        <div class="callout blue">
+          <strong>The one rule that ties it all together:</strong><br>
+          Claude Code earns its place when a task genuinely needs to read, understand, and act on a real project — not for questions a plain conversation already answers well.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
