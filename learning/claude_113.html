@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 113 — Claude Cowork</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #131020;
+  --card: #1c1830;
+  --surface: #171429;
+  --border: #2c2748;
+  --violet: #8b7bf0;
+  --violet-dark: #6c5ce7;
+  --violet-light: #211c3d;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #ece9f8;
+  --muted: #938bb5;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0e0c1a; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--violet); }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--violet); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--violet-light); color: var(--violet); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.violet { background: var(--violet-light); border-left: 4px solid var(--violet); color: var(--violet); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--violet); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.permission-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.permission-step { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.permission-step:last-child { padding-bottom: 0; }
+.permission-num { width: 30px; height: 30px; border-radius: 50%; background: var(--violet); color: #211c3d; font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.permission-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.permission-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--violet); background: var(--violet-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--violet); }
+.try-submit { margin-top: 0.5rem; background: var(--violet-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--violet); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--violet-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--violet); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--violet-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--violet); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--violet-light); color: var(--violet); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--violet-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🤝 Claude 113 — Claude Cowork</h1>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 11</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = [
+  {
+    type: 'lesson',
+    tag: 'Intermediate',
+    emoji: '🤝',
+    title: "Claude Cowork: agentic AI for people who don't touch a terminal",
+    body: `
+      <p>Claude Code (Module 12) brought agentic, multi-step AI capability to developers. Claude Cowork takes that same underlying idea and brings it to everyone else — knowledge workers who need real work done on their files and folders, without ever opening a command line.</p>
+      <p>This module covers:</p>
+      <div class="callout violet">
+        🎯 <strong>What Cowork actually is</strong> — and how it differs from Chat and from Code<br><br>
+        📁 <strong>The folder-permission model</strong> — how it gets access, and what that means<br><br>
+        🧩 <strong>Real use cases</strong> — the kind of work it's built to handle<br><br>
+        ⚠️ <strong>Honest risks</strong> — a real reported incident worth understanding<br><br>
+        🛡️ <strong>Using it responsibly</strong> — practical habits that keep you in control
+      </div>
+      <p>This one connects directly to Module 5's agent concepts and Module 10's Desktop overview — worth having both fresh if you haven't covered them yet.</p>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The basics',
+    emoji: '🎯',
+    title: "Cowork in one sentence: an AI coworker, not a chat window",
+    body: `
+      <p>Claude Cowork is an autonomous agent mode within Claude Desktop that plans, executes, and completes multi-step tasks on your local files with minimal supervision — built on the same underlying architecture as Claude Code, but designed for people who don't write code.</p>
+
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Chat answers questions. Cowork gets assigned work.</div>
+        <div class="analogy-body">Talking to Chat is like asking a knowledgeable colleague a question at their desk — they answer, you act on it. Working with Cowork is like handing a task to a capable assistant and walking away — they figure out the steps, do the work, and bring you the finished result.</div>
+      </div>
+
+      <p>The shift in mental model matters: instead of writing a prompt and getting a response, you're describing an outcome and delegating the execution. This is the same "think → act → observe → decide" agent loop from Module 5, just applied to everyday knowledge work like spreadsheets and documents instead of code.</p>
+
+      <div class="callout cyan">💡 <strong>Where it fits:</strong> Chat = conversation. Cowork = autonomous execution for general knowledge work. Code = autonomous execution specifically for software projects. Same underlying agentic capability, different audiences and file types.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "The basics check",
+    question: "What is the core difference in how you interact with Cowork compared to a normal Chat conversation?",
+    options: [
+      "There is no real difference — Cowork is just a rebranded chat window",
+      "With Cowork, you describe a desired outcome and it plans and executes the steps itself, rather than you steering each response turn by turn",
+      "Cowork only works if you already know how to code",
+      "Cowork can only answer questions, not take any action"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 The shift from 'prompt and respond' to 'describe an outcome and delegate execution' is the core distinction — Cowork plans and carries out multi-step work on its own, rather than waiting for you to direct every individual step.",
+      wrong: "The answer is B. Cowork's defining feature is autonomous multi-step execution toward a described outcome — a fundamentally different interaction pattern than the back-and-forth of a standard chat conversation."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'How access works',
+    emoji: '📁',
+    title: "The folder-permission model",
+    body: `
+      <p>Cowork doesn't get free rein over your entire computer. It operates through a folder-permission model: you explicitly grant it read, write, and create access to specific directories, and it works within that boundary.</p>
+
+      <div class="permission-wrap">
+        <div class="permission-step">
+          <div class="permission-num">1</div>
+          <div>
+            <div class="permission-title">You choose the folder</div>
+            <div class="permission-desc">Point Cowork at a specific directory — not your whole file system — where the relevant files for the task actually live.</div>
+          </div>
+        </div>
+        <div class="permission-step">
+          <div class="permission-num">2</div>
+          <div>
+            <div class="permission-title">You describe the task</div>
+            <div class="permission-desc">In plain language — "organize these invoices into a spreadsheet," "summarize these meeting notes into one document."</div>
+          </div>
+        </div>
+        <div class="permission-step">
+          <div class="permission-num">3</div>
+          <div>
+            <div class="permission-title">It plans and executes autonomously</div>
+            <div class="permission-desc">Within that granted folder, it reads files, creates new ones, and organizes content — without needing you to approve each individual action along the way.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout amber">💡 <strong>Why the scoping matters:</strong> Granting access to one project folder rather than your entire Documents directory limits the blast radius if something goes wrong — the same principle as giving someone a key to one room rather than the whole building.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Permission model check",
+    question: "Why would granting Cowork access to one specific project folder be a better practice than granting it access to your entire Documents directory?",
+    options: [
+      "It makes no practical difference either way",
+      "It limits how much could be affected if the task goes wrong or is misinterpreted, since access is scoped to only what's actually needed",
+      "Cowork technically cannot access more than one folder at a time regardless",
+      "Broader access always produces better results"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 Scoping access to just what's needed for the task limits the potential impact of a mistake or misunderstanding — the same reasoning behind giving any tool or person the minimum access required, not the maximum available.",
+      wrong: "The answer is B. Narrower, task-specific folder access limits how much could be affected if something goes wrong — a basic and important practice regardless of how capable or careful the tool generally is."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Real use cases',
+    emoji: '🧩',
+    title: "The kind of work Cowork is actually built for",
+    body: `
+      <p>Concrete examples make this land better than the abstract description:</p>
+      <div class="usecase-card">
+        <div class="usecase-icon">🧾</div>
+        <div>
+          <div class="usecase-title">Turning invoices into a spreadsheet</div>
+          <div class="usecase-desc">Point it at a folder of PDF invoices and ask for a formatted spreadsheet with the totals extracted — Cowork reads each file and builds the working output.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📝</div>
+        <div>
+          <div class="usecase-title">Consolidating scattered notes into one document</div>
+          <div class="usecase-desc">A folder of loose meeting notes becomes a single, organized summary document, without you manually piecing it together.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📊</div>
+        <div>
+          <div class="usecase-title">Pulling metrics into a formatted report</div>
+          <div class="usecase-desc">Gathering scattered figures into one coherent, presentable report — the kind of task that's simple in concept but tedious to assemble by hand.</div>
+        </div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🗂️</div>
+        <div>
+          <div class="usecase-title">Organizing a messy folder by content</div>
+          <div class="usecase-desc">Sorting files based on what's actually inside them, not just filenames — something that requires actually reading each file to do well.</div>
+        </div>
+      </div>
+      <div class="callout green">💡 <strong>The common thread:</strong> Every one of these tasks involves real files, multiple steps, and a defined outcome — exactly the shape of work that benefits from delegation rather than a single conversational answer.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Use cases check",
+    question: "A finance professional has 200 receipts as PDF files and wants a clean expense spreadsheet built from them. Why is this a strong fit for Cowork rather than a quick chat question?",
+    options: [
+      "It isn't a good fit — this should be done manually",
+      "It requires reading many real files and taking multiple coordinated actions to produce one finished deliverable — exactly the multi-step, file-based work Cowork is designed for",
+      "Chat could do this exact task equally well with no differences",
+      "This task requires knowledge of a programming language"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 This is a textbook Cowork task — real files, a genuinely multi-step process, and one clear, structured deliverable at the end. This is precisely the shape of work Cowork was built to take off someone's plate.",
+      wrong: "The answer is B. This task needs real file access and coordinated multi-step execution across 200 documents — well beyond what a single chat response can do, and exactly the kind of delegated, outcome-focused work Cowork is designed for."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Honest risks',
+    emoji: '⚠️',
+    title: "A real incident worth knowing about",
+    body: `
+      <p>Being clear-eyed about risk makes a tool more useful, not less. One documented example is worth understanding directly: early user reports described a case where Cowork consumed a large volume of files (reported as around 11GB) during testing, unintentionally.</p>
+
+      <div class="callout red">⚠️ <strong>Why this happened, most likely:</strong> Cowork operates with real read/write/create access within its granted folder and works autonomously — meaning a misunderstood instruction or an edge case in a task can result in real, unintended changes to real files, not just a wrong text answer you can simply disregard.</div>
+
+      <p>This connects directly to Module 5's trust-boundary framework: reading files is low-risk and reversible. But writing, overwriting, or deleting files is a different category — those actions have real, sometimes hard-to-reverse consequences, which is exactly why backup practices matter here in a way they don't for a purely conversational tool.</p>
+
+      <div class="risk-card risk-green">
+        <div class="risk-level">Low risk</div>
+        <div class="risk-title">Reading and analyzing files</div>
+        <div class="risk-desc">Reversible by nature — nothing is altered.</div>
+      </div>
+
+      <div class="risk-card risk-amber">
+        <div class="risk-level">Medium-to-high risk</div>
+        <div class="risk-title">Creating, modifying, or reorganizing files</div>
+        <div class="risk-desc">Real changes to real data. Worth having backups before granting broad access, especially for a new or unfamiliar task.</div>
+      </div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Honest risks check",
+    question: "Why does the reported 11GB file-consumption incident matter, even though it appears to be an isolated case?",
+    options: [
+      "It proves Cowork should never be used for anything",
+      "It's a concrete reminder that autonomous file-write access carries real, sometimes hard-to-reverse consequences, which is why backups and scoped permissions matter",
+      "It only affected Windows users, so Mac users don't need to worry",
+      "This kind of risk doesn't apply to any other AI agent tool"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Right. 🎯 One documented incident is a useful, concrete reminder of a real category of risk — autonomous tools with write access can make real, consequential changes to real files. That's exactly why backups and scoped folder access are genuinely practical precautions, not just theoretical advice.",
+      wrong: "The answer is B. The value of this example isn't that it happens often — it's that it illustrates a real risk category worth taking seriously: autonomous write access to real files can have real, sometimes hard-to-reverse consequences."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Design a safe first task",
+    instruction: "You want to try Cowork for the first time, on a folder of 50 old project files you don't fully remember the contents of. Using what you've learned about the folder-permission model and honest risks, describe how you'd set up this first task responsibly.",
+    placeholder: "Type your answer here...",
+    response: "Sensible way to think it through. A responsible first-time setup would include: (1) Back up the folder first — copy it somewhere else before granting any access, so a worst-case outcome is fully recoverable. (2) Grant access to a copy of the folder rather than the original, if practical, removing risk entirely for this first trial. (3) Start with a read-only or analysis-style task first — like 'summarize what's in these files' — before asking for anything that creates or modifies files, so you get a sense of how it interprets the folder before trusting it with write actions. (4) Keep the granted folder narrow and specific rather than a broader parent directory, limiting the potential impact if a task is misunderstood. (5) Review the results carefully before treating them as final, especially early on while still calibrating trust. The general principle: for autonomous tools with real write access, especially on unfamiliar content, start narrow, start with a backup, and build trust gradually rather than granting broad access on the first task."
+  },
+  {
+    type: 'lesson',
+    tag: 'Using it well',
+    emoji: '🛡️',
+    title: "Practical habits for staying in control",
+    body: `
+      <p>None of the risk above means avoiding Cowork — it means using it with the same reasonable caution you'd apply to any tool with real access to your files. A few concrete habits:</p>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">💾</div>
+        <div>
+          <div class="usecase-title">Back up before granting access to anything important</div>
+          <div class="usecase-desc">Especially for a new or unfamiliar type of task — a backup turns a potential disaster into a minor inconvenience.</div>
+        </div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🔍</div>
+        <div>
+          <div class="usecase-title">Scope folder access narrowly</div>
+          <div class="usecase-desc">Grant access to the specific project folder the task needs, not a broad parent directory "just in case."</div>
+        </div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🏢</div>
+        <div>
+          <div class="usecase-title">In a workplace setting, governance is a real responsibility</div>
+          <div class="usecase-desc">Anthropic itself has been clear that while some oversight tooling exists, organizations rolling out Cowork broadly are responsible for their own governance and controls — this isn't something to assume is fully handled for you.</div>
+        </div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">✅</div>
+        <div>
+          <div class="usecase-title">Review results before treating them as final</div>
+          <div class="usecase-desc">Especially early on, or for anything consequential — the same "verify before you fully trust" habit from Module 7's discussion of AI reliability.</div>
+        </div>
+      </div>
+
+      <div class="callout violet">💡 <strong>The mindset that ties it together:</strong> Cowork's power comes from autonomous, real-world file access — which is exactly why the same care that applies to any powerful tool with real consequences applies here too.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Putting it together",
+    question: "A company wants to roll out Cowork broadly across an entire department without setting up any specific governance, oversight, or usage guidelines, assuming Anthropic's tooling fully covers this. What's the issue?",
+    options: [
+      "There's no issue — this is exactly how a rollout should work",
+      "Anthropic has been explicit that governance and controls at the organizational level remain the responsibility of the company deploying the tool, not something fully handled automatically",
+      "Cowork cannot be deployed to more than one person at a time",
+      "This is only a concern for companies outside the United States"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 A broad rollout with no governance plan, assuming the tool handles this on its own, misses an explicit responsibility Anthropic has placed on the deploying organization. This connects directly to Module 9's lesson that successful AI adoption requires real change-management work, not just flipping on access.",
+      wrong: "The answer is B. Anthropic has been direct that organizational governance and controls for a broad Cowork rollout are the deploying company's responsibility — assuming this is automatically covered is a real gap, not a safe assumption."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your explanation</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🤝'; title = "You understand Cowork end to end."; sub = "You now know what it is, how the permission model works, and how to use it responsibly — a genuinely practical, real-world skill as agentic tools spread beyond developers."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core ideas of the permission model and honest risks. A second pass will lock in anything that didn't fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "This module connects closely to Modules 5, 9, and 12 — revisiting those alongside this one may help things click."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout violet">
+          <strong>What you now know:</strong><br><br>
+          🎯 <strong>What Cowork is</strong> — autonomous, multi-step execution for everyday knowledge work, no code required<br>
+          📁 <strong>The permission model</strong> — scoped folder access, not unlimited system access<br>
+          🧩 <strong>Real use cases</strong> — file-based, multi-step, outcome-focused tasks<br>
+          ⚠️ <strong>Honest risks</strong> — real write access means real, sometimes hard-to-reverse consequences<br>
+          🛡️ <strong>Using it well</strong> — backups, narrow scoping, and organizational governance as genuine responsibilities
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          Cowork's power and its risk come from the same place — real autonomous access to real files. Treat that access with the same care you'd give any capable coworker handling something important.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="claude_learn.html">← Back to Learn Claude</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
