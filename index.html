@@ -41,6 +41,38 @@ nav {
 .nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
 .nav-links a:hover { color: var(--text); }
 
+/* JUMP SUB-NAV */
+.subnav {
+  position: sticky;
+  top: 56px;
+  z-index: 40;
+  background: rgba(249,249,248,0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0.6rem 2rem;
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.subnav::-webkit-scrollbar { display: none; }
+.subnav a {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  padding: 0.35rem 0.8rem;
+  border-radius: 20px;
+  white-space: nowrap;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+.subnav a:hover {
+  color: var(--text);
+  background: var(--tag-bg);
+  border-color: var(--border);
+}
+
 /* HERO */
 .hero {
   max-width: 780px; margin: 0 auto;
@@ -269,6 +301,14 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   </div>
 </nav>
 
+<div class="subnav">
+  <a href="#section-utility">🛠 Utility Apps</a>
+  <a href="#section-ai">🤖 AI Tools</a>
+  <a href="#section-learning">🎓 Learning Series</a>
+  <a href="#section-fun">🎮 Fun & Games</a>
+  <a href="#contact">✉️ Contact</a>
+</div>
+
 <section class="hero">
   <div class="hero-eyebrow">Portfolio — Web Applications</div>
   <h1>Tools built to <em>actually</em> get used.</h1>
@@ -296,7 +336,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 <section class="apps-section" id="apps">
 
   <!-- UTILITY APPS -->
-  <div class="section-label">Utility Apps</div>
+  <div class="section-label" id="section-utility">Utility Apps</div>
   <div class="apps-grid" style="margin-bottom:2.5rem">
 
     <a class="app-card" href="utility/nutrition_tracker.html">
@@ -392,40 +432,8 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
 
   </div>
 
-  <!-- FUN & GAMES -->
-  <div class="section-label">Fun & Games</div>
-  <div class="apps-grid" style="margin-bottom:2.5rem">
-
-    <a class="app-card" href="games/habit_tracker.html">
-      <div class="app-card-accent" style="background:#7F77DD"></div>
-      <div class="app-icon">⚔️</div>
-      <div class="app-name">QuestLog</div>
-      <div class="app-desc">An RPG-style habit and task tracker. Complete tasks to earn XP, level up, and unlock gear. Three difficulty tiers, safe mode toggle, and a monthly calendar to track consistency.</div>
-      <div class="app-tags">
-        <span class="tag">Productivity</span>
-        <span class="tag">Gamification</span>
-        <span class="tag">Habit tracking</span>
-      </div>
-      <div class="app-launch">Launch app <span class="arrow">→</span></div>
-    </a>
-
-    <a class="app-card" href="games/card_incremental.html">
-      <div class="app-card-accent" style="background:#a855f7"></div>
-      <div class="app-icon">🃏</div>
-      <div class="app-name">Card Incremental</div>
-      <div class="app-desc">A browser-based incremental deck-building game. Draw cards, combine math operators, earn points, and buy new cards to grow your score. Features a dynamic store and deck management system.</div>
-      <div class="app-tags">
-        <span class="tag">Game</span>
-        <span class="tag">Incremental</span>
-        <span class="tag">Deck building</span>
-      </div>
-      <div class="app-launch">Launch app <span class="arrow">→</span></div>
-    </a>
-
-  </div>
-
   <!-- AI TOOLS -->
-  <div class="section-label">AI Tools</div>
+  <div class="section-label" id="section-ai">AI Tools</div>
   <div class="apps-grid" style="margin-bottom:2.5rem">
 
     <a class="app-card" href="ai-tools/line_analyzer.html">
@@ -470,7 +478,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   </div>
 
   <!-- LEARN CLAUDE -->
-  <div class="section-label">Learning Series</div>
+  <div class="section-label" id="section-learning">Learning Series</div>
   <div class="apps-grid">
 
     <a class="app-card" href="learning/claude_learn.html">
@@ -485,6 +493,38 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
         <span class="tag">9 modules</span>
       </div>
       <div class="app-launch">View series <span class="arrow">→</span></div>
+    </a>
+
+  </div>
+
+  <!-- FUN & GAMES -->
+  <div class="section-label" id="section-fun">Fun & Games</div>
+  <div class="apps-grid">
+
+    <a class="app-card" href="games/habit_tracker.html">
+      <div class="app-card-accent" style="background:#7F77DD"></div>
+      <div class="app-icon">⚔️</div>
+      <div class="app-name">QuestLog</div>
+      <div class="app-desc">An RPG-style habit and task tracker. Complete tasks to earn XP, level up, and unlock gear. Three difficulty tiers, safe mode toggle, and a monthly calendar to track consistency.</div>
+      <div class="app-tags">
+        <span class="tag">Productivity</span>
+        <span class="tag">Gamification</span>
+        <span class="tag">Habit tracking</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="games/card_incremental.html">
+      <div class="app-card-accent" style="background:#a855f7"></div>
+      <div class="app-icon">🃏</div>
+      <div class="app-name">Card Incremental</div>
+      <div class="app-desc">A browser-based incremental deck-building game. Draw cards, combine math operators, earn points, and buy new cards to grow your score. Features a dynamic store and deck management system.</div>
+      <div class="app-tags">
+        <span class="tag">Game</span>
+        <span class="tag">Incremental</span>
+        <span class="tag">Deck building</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
     </a>
 
   </div>
