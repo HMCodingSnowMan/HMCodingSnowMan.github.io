@@ -172,6 +172,31 @@ main {
 }
 .external-link-note a { color: var(--text); }
 
+/* STATIC DASHBOARD GALLERY (fallback) */
+.static-gallery {
+  margin-top: 2rem;
+}
+.static-gallery-label {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+  margin-bottom: 1rem;
+}
+.static-dash {
+  margin-bottom: 1.75rem;
+}
+.static-dash:last-child { margin-bottom: 0; }
+.static-dash h3 {
+  font-size: 0.92rem; font-weight: 600;
+  margin-bottom: 0.6rem;
+}
+.static-dash img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+
 /* PROCESS TIMELINE */
 .process-section { margin: 3.5rem 0; }
 .process-steps {
@@ -347,6 +372,25 @@ main {
         </object>
       </div>
       <p class="external-link-note">Having trouble viewing the embed? <a href="https://public.tableau.com/app/profile/hans.marasigan/viz/SteamGameSalesTrendsAnalysis/Dashboard1" target="_blank">Open the dashboard directly on Tableau Public →</a></p>
+
+      <div class="static-gallery">
+        <div class="static-gallery-label">Static preview (in case the embed above doesn't load)</div>
+
+        <div class="static-dash">
+          <h3>Pricing & Genre</h3>
+          <img src="images/dashboard1_pricing_genre.png" alt="Dashboard showing average price by genre, price vs owners scatter plot, and total ownership by genre bar chart" loading="lazy">
+        </div>
+
+        <div class="static-dash">
+          <h3>Reviews & Quality</h3>
+          <img src="images/dashboard2_reviews_quality.png" alt="Dashboard showing Metacritic score vs owners, review percentage vs owners, review percentage by genre, and playtime vs review percentage" loading="lazy">
+        </div>
+
+        <div class="static-dash">
+          <h3>Engagement & Discounts</h3>
+          <img src="images/dashboard3_engagement_discounts.png" alt="Dashboard showing achievements vs playtime, discount vs owners, and peak concurrent users vs owners" loading="lazy">
+        </div>
+      </div>
     </div>
   </section>
 
