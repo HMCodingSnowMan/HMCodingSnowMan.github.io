@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EvalBench — Prompt & Model Eval Harness</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0e0f14;
+    --surface: #14151c;
+    --surface2: #1a1b25;
+    --surface3: #20212e;
+    --border: #2a2b3d;
+    --accent: #6c63ff;
+    --accent-dim: #6c63ff18;
+    --accent-border: #6c63ff44;
+    --green: #3ecf8e;
+    --yellow: #f5c542;
+    --red: #f87171;
+    --text: #e8e9f0;
+    --text-dim: #6e7090;
+    --text-faint: #32334a;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    min-height: 100vh;
+  }
+
+  header {
+    padding: 20px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { font-size: 22px; }
+  .logo h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.03em; }
+  .logo h1 span { color: var(--accent); }
+  header p { font-size: 13px; color: var(--text-dim); }
+
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 24px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .notice {
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .notice code { font-family: var(--mono); color: var(--accent); }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface2);
+  }
+
+  .panel-title {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .panel-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+
+  input[type=text], textarea, select {
+    width: 100%;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13.5px;
+    padding: 10px 12px;
+    outline: none;
+    resize: vertical;
+  }
+  input[type=text]:focus, textarea:focus, select:focus { border-color: var(--accent-border); }
+  textarea { line-height: 1.55; }
+  ::placeholder { color: var(--text-faint); }
+
+  .btn {
+    font-family: var(--sans);
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface3);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  .btn:disabled { opacity: 0.4; cursor: default; }
+  .btn-accent { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-accent:hover:not(:disabled) { background: #5a52e0; color: #fff; }
+  .btn-ghost { background: transparent; border-color: transparent; padding: 4px 8px; }
+
+  /* Inputs list */
+  .item-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .item-row textarea { flex: 1; min-height: 56px; }
+  .item-index {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-faint);
+    padding: 10px 0 0 2px;
+    width: 20px;
+    flex-shrink: 0;
+  }
+
+  /* Variant card */
+  .variant-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface2);
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .variant-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .variant-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: 6px;
+    padding: 2px 8px;
+    flex-shrink: 0;
+  }
+  .variant-head input[type=text] { font-weight: 600; }
+  .variants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 12px;
+  }
+
+  .row-actions { display: flex; gap: 8px; }
+
+  /* Results */
+  .results-scroll { overflow-x: auto; }
+  table.results {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 640px;
+  }
+  table.results th, table.results td {
+    border: 1px solid var(--border);
+    padding: 10px;
+    vertical-align: top;
+    text-align: left;
+  }
+  table.results th {
+    background: var(--surface2);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    position: sticky;
+    top: 0;
+  }
+  .corner-cell { width: 160px; }
+  .input-cell {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    max-width: 220px;
+    white-space: pre-wrap;
+  }
+  .output-cell { min-width: 260px; }
+  .output-text {
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 220px;
+    overflow-y: auto;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .output-empty { color: var(--text-faint); font-style: italic; font-family: var(--sans); font-size: 12px; }
+  .cell-meta {
+    display: flex;
+    gap: 10px;
+    font-size: 10.5px;
+    color: var(--text-faint);
+    font-family: var(--mono);
+    margin-bottom: 8px;
+  }
+  .cell-error { color: var(--red); font-size: 12px; }
+
+  .stars { display: flex; gap: 3px; margin-bottom: 6px; }
+  .star {
+    cursor: pointer;
+    font-size: 15px;
+    color: var(--text-faint);
+    line-height: 1;
+    user-select: none;
+  }
+  .star.filled { color: var(--yellow); }
+  .score-label { font-size: 10.5px; color: var(--text-dim); margin-bottom: 2px; }
+
+  .judge-box {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed var(--border);
+  }
+  .judge-score {
+    font-family: var(--mono);
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .judge-reason { font-size: 11.5px; color: var(--text-dim); margin-top: 2px; line-height: 1.5; }
+
+  /* Summary */
+  table.summary { border-collapse: collapse; width: 100%; }
+  table.summary th, table.summary td {
+    border: 1px solid var(--border);
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 13px;
+  }
+  table.summary th { background: var(--surface2); color: var(--text-dim); font-size: 11px; text-transform: uppercase; }
+  .best-row { background: var(--accent-dim); }
+  .best-row td:first-child { color: var(--accent); font-weight: 700; }
+
+  .spinner {
+    display: inline-block;
+    width: 12px; height: 12px;
+    border: 2px solid var(--text-faint);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 720px) {
+    header { padding: 16px; }
+    header p { display: none; }
+    main { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-icon">⚖️</span>
+    <h1>Eval<span>Bench</span></h1>
+  </div>
+  <p>Compare prompts and models on the same inputs, side by side</p>
+</header>
+
+<main>
+
+  <div class="notice" id="mode-notice"></div>
+
+  <!-- Mode toggle -->
+  <div class="row-actions">
+    <button class="btn" id="mode-demo-btn" onclick="setMode('demo')">📼 Canned demo</button>
+    <button class="btn" id="mode-live-btn" onclick="setMode('live')">🔑 Live — bring your own key</button>
+  </div>
+
+  <!-- BYOK key (live mode only) -->
+  <div class="panel" id="byok-panel" hidden>
+    <div class="panel-header"><span class="panel-title">Your Anthropic API Key</span></div>
+    <div class="panel-body">
+      <input type="text" id="byok-key" placeholder="sk-ant-... — stays in this browser, sent straight to Anthropic, never touches this site's server"
+        oninput="state.apiKey = this.value; saveApiKey();">
+    </div>
+  </div>
+
+  <!-- Task -->
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">Task</span></div>
+    <div class="panel-body">
+      <input type="text" id="task-desc" placeholder="e.g. Summarize a support ticket into one sentence for a triage queue">
+    </div>
+  </div>
+
+  <!-- Test inputs -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Test Inputs</span>
+      <button class="btn" onclick="addInput()">+ Add input</button>
+    </div>
+    <div class="panel-body" id="inputs-list"></div>
+  </div>
+
+  <!-- Variants -->
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">Prompt Variants</span>
+      <button class="btn" onclick="addVariant()">+ Add variant</button>
+    </div>
+    <div class="panel-body">
+      <div class="variants-grid" id="variants-list"></div>
+    </div>
+  </div>
+
+  <!-- Run -->
+  <div class="row-actions">
+    <button class="btn btn-accent" id="run-btn" onclick="runAll()">Run all</button>
+    <button class="btn" id="judge-btn" onclick="judgeAll()">Judge all outputs</button>
+    <button class="btn" id="reset-demo-btn" onclick="loadDemo()" hidden>↺ Reset demo example</button>
+    <span id="run-status" style="font-size:12.5px;color:var(--text-dim);align-self:center;"></span>
+  </div>
+
+  <!-- Results -->
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">Results</span></div>
+    <div class="panel-body results-scroll">
+      <table class="results" id="results-table"></table>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="panel">
+    <div class="panel-header"><span class="panel-title">Summary</span></div>
+    <div class="panel-body">
+      <table class="summary" id="summary-table"></table>
+    </div>
+  </div>
+
+</main>
+
+<script>
+const MODELS = [
+  { id: 'claude-haiku-4-5', label: 'Haiku 4.5 (fast/cheap)' },
+  { id: 'claude-sonnet-5',  label: 'Sonnet 5' },
+  { id: 'claude-opus-5',    label: 'Opus 5 (strongest)' }
+];
+const JUDGE_MODEL = 'claude-sonnet-5';
+
+const state = {
+  mode: 'demo', // 'demo' | 'live'
+  task: '',
+  apiKey: '',
+  inputs: ['', ''],
+  variants: [
+    { label: 'A', model: 'claude-haiku-4-5', system: '' },
+    { label: 'B', model: 'claude-sonnet-5',  system: '' }
+  ],
+  // results[variantIdx][inputIdx] = { text, error, latencyMs, usage, loading, manualScore, judge: {score, reason, loading} }
+  results: []
+};
+
+// A pre-recorded example run so the tool is fully demonstrable with zero setup
+// and zero API cost for visitors. Real Claude outputs, captured once.
+const CANNED_DEMO = {
+  task: "Summarize a support ticket into one sentence for a triage queue, including the customer's core issue and urgency.",
+  inputs: [
+    "Ticket #4821: Customer says their exported CSV report has been missing the last column of data for the past three days. They need this fixed before end of week for a board meeting. They've already tried re-exporting five times with the same result. Account is on the Enterprise plan.",
+    "Ticket #4835: User can't log in — getting an 'invalid session' error repeatedly after the mobile app update. Says it worked fine yesterday. Not urgent, just annoying — they're using the desktop version as a workaround for now."
+  ],
+  variants: [
+    { model: 'claude-haiku-4-5', system: 'Summarize this support ticket in one sentence.' },
+    { model: 'claude-sonnet-5',  system: 'You are a support-ticket triage assistant. Summarize the ticket in exactly one sentence, stating the customer\'s core issue and an explicit urgency level (Low/Medium/High). Do not include the ticket number or your reasoning — output only the sentence.' }
+  ],
+  results: [
+    [
+      { text: "The customer's CSV export is missing the last column of data for three days and they need it fixed soon for a board meeting.",
+        usage: { input_tokens: 96, output_tokens: 34 }, latencyMs: 612, manualScore: 4,
+        judge: { score: 4, reason: "Captures the issue and deadline but doesn't state urgency as a clear level." } },
+      { text: "User is getting an 'invalid session' error when logging in after a mobile app update, though it's not too urgent since they can use desktop instead.",
+        usage: { input_tokens: 88, output_tokens: 30 }, latencyMs: 590, manualScore: 3,
+        judge: { score: 3, reason: "Correct but wordy and doesn't follow a consistent urgency format." } }
+    ],
+    [
+      { text: "CSV export missing last column of data for 3 days on an Enterprise account — Urgency: High (needed before Friday board meeting).",
+        usage: { input_tokens: 142, output_tokens: 28 }, latencyMs: 780, manualScore: 5,
+        judge: { score: 5, reason: "Concise, includes an explicit urgency label and the deadline as instructed." } },
+      { text: "Invalid session error on login after mobile app update — Urgency: Low (desktop workaround in use).",
+        usage: { input_tokens: 138, output_tokens: 22 }, latencyMs: 705, manualScore: 5,
+        judge: { score: 5, reason: "Matches the required format precisely and is appropriately terse." } }
+    ]
+  ]
+};
+
+function loadDemo() {
+  state.mode = 'demo';
+  state.task = CANNED_DEMO.task;
+  state.inputs = CANNED_DEMO.inputs.slice();
+  state.variants = CANNED_DEMO.variants.map(v => ({ ...v }));
+  state.results = CANNED_DEMO.results.map(row => row.map(cell => JSON.parse(JSON.stringify(cell))));
+  document.getElementById('task-desc').value = state.task;
+  renderInputs(); renderVariants(); renderResultsTable(); renderSummary();
+}
+
+function setMode(mode) {
+  state.mode = mode;
+  document.getElementById('mode-demo-btn').classList.toggle('btn-accent', mode === 'demo');
+  document.getElementById('mode-live-btn').classList.toggle('btn-accent', mode === 'live');
+  document.getElementById('byok-panel').hidden = mode !== 'live';
+  document.getElementById('reset-demo-btn').hidden = mode !== 'demo';
+  document.getElementById('run-btn').disabled = mode === 'demo';
+  document.getElementById('judge-btn').disabled = mode === 'demo';
+
+  const notice = document.getElementById('mode-notice');
+  if (mode === 'demo') {
+    notice.innerHTML = 'Showing a <b>pre-recorded example run</b> — real Claude outputs captured once, so you can see the whole tool with zero setup and zero cost. Switch to <b>Live</b> to run your own inputs with your own Anthropic API key.';
+  } else {
+    notice.innerHTML = 'Live mode calls the Anthropic Messages API <b>directly from your browser</b> using the key you paste below — it goes straight to <code>api.anthropic.com</code> and is never sent to or stored by this site. You pay for your own usage; nothing is billed to the site owner.';
+  }
+
+  if (mode === 'live') {
+    state.results = [];
+    renderResultsTable(); renderSummary();
+  }
+}
+
+function variantLabel(i) {
+  return String.fromCharCode(65 + i); // A, B, C...
+}
+
+// ── Inputs list ──────────────────────────────────────────────────────────
+function renderInputs() {
+  const wrap = document.getElementById('inputs-list');
+  wrap.innerHTML = '';
+  state.inputs.forEach((val, i) => {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+    row.innerHTML = `
+      <span class="item-index">${i + 1}</span>
+      <textarea placeholder="Paste a test input here (e.g. a sample support ticket)">${escapeHtml(val)}</textarea>
+      <button class="btn btn-ghost" title="Remove" onclick="removeInput(${i})">✕</button>
+    `;
+    row.querySelector('textarea').oninput = e => { state.inputs[i] = e.target.value; };
+    wrap.appendChild(row);
+  });
+}
+function addInput() { state.inputs.push(''); renderInputs(); renderResultsTable(); }
+function removeInput(i) {
+  state.inputs.splice(i, 1);
+  state.results.forEach(row => row.splice(i, 1));
+  renderInputs(); renderResultsTable();
+}
+
+// ── Variants list ────────────────────────────────────────────────────────
+function renderVariants() {
+  const wrap = document.getElementById('variants-list');
+  wrap.innerHTML = '';
+  state.variants.forEach((v, i) => {
+    v.label = variantLabel(i);
+    const card = document.createElement('div');
+    card.className = 'variant-card';
+    card.innerHTML = `
+      <div class="variant-head">
+        <span class="variant-badge">${v.label}</span>
+        <select></select>
+        <button class="btn btn-ghost" title="Remove" onclick="removeVariant(${i})">✕</button>
+      </div>
+      <textarea rows="3" placeholder="System prompt / instructions for this variant (optional)">${escapeHtml(v.system)}</textarea>
+    `;
+    const select = card.querySelector('select');
+    MODELS.forEach(m => {
+      const opt = document.createElement('option');
+      opt.value = m.id; opt.textContent = m.label;
+      if (m.id === v.model) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = e => { v.model = e.target.value; };
+    card.querySelector('textarea').oninput = e => { v.system = e.target.value; };
+    wrap.appendChild(card);
+  });
+}
+function addVariant() {
+  state.variants.push({ label: '', model: 'claude-haiku-4-5', system: '' });
+  renderVariants(); renderResultsTable();
+}
+function removeVariant(i) {
+  state.variants.splice(i, 1);
+  state.results.splice(i, 1);
+  renderVariants(); renderResultsTable();
+}
+
+function escapeHtml(s) {
+  return (s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function ensureResultsShape() {
+  state.variants.forEach((_, vi) => {
+    if (!state.results[vi]) state.results[vi] = [];
+    state.inputs.forEach((_, ii) => {
+      if (!state.results[vi][ii]) state.results[vi][ii] = {};
+    });
+  });
+}
+
+// ── Results table ────────────────────────────────────────────────────────
+function renderResultsTable() {
+  ensureResultsShape();
+  const table = document.getElementById('results-table');
+  let html = '<thead><tr><th class="corner-cell">Input</th>';
+  state.variants.forEach(v => { html += `<th>${v.label} — ${modelLabel(v.model)}</th>`; });
+  html += '</tr></thead><tbody>';
+
+  state.inputs.forEach((input, ii) => {
+    html += `<tr><td class="input-cell">${escapeHtml(truncate(input, 200)) || '<span class="output-empty">empty</span>'}</td>`;
+    state.variants.forEach((v, vi) => {
+      const cell = state.results[vi][ii] || {};
+      html += `<td class="output-cell" id="cell-${vi}-${ii}">${renderCell(cell, vi, ii)}</td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function modelLabel(id) {
+  return (MODELS.find(m => m.id === id) || {}).label || id;
+}
+function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '…' : s; }
+
+function renderCell(cell, vi, ii) {
+  if (cell.loading) {
+    return `<span class="spinner"></span> <span class="output-empty">running…</span>`;
+  }
+  if (cell.error) {
+    return `<div class="cell-error">⚠ ${escapeHtml(cell.error)}</div>`;
+  }
+  if (!cell.text) {
+    return `<span class="output-empty">Not run yet</span>`;
+  }
+
+  let meta = '';
+  if (cell.latencyMs != null) {
+    const tok = cell.usage ? `${cell.usage.input_tokens}→${cell.usage.output_tokens} tok` : '';
+    meta = `<div class="cell-meta"><span>${cell.latencyMs} ms</span><span>${tok}</span></div>`;
+  }
+
+  const score = cell.manualScore || 0;
+  let stars = '<div class="score-label">Your score</div><div class="stars">';
+  for (let s = 1; s <= 5; s++) {
+    stars += `<span class="star ${s <= score ? 'filled' : ''}" onclick="setScore(${vi},${ii},${s})">★</span>`;
+  }
+  stars += '</div>';
+
+  let judge = '';
+  if (cell.judge && cell.judge.loading) {
+    judge = `<div class="judge-box"><span class="spinner"></span> <span class="output-empty">judging…</span></div>`;
+  } else if (cell.judge && cell.judge.score != null) {
+    judge = `<div class="judge-box">
+      <span class="judge-score">Judge: ${cell.judge.score}/5</span>
+      <div class="judge-reason">${escapeHtml(cell.judge.reason || '')}</div>
+    </div>`;
+  }
+
+  return `
+    ${meta}
+    <div class="output-text">${escapeHtml(cell.text)}</div>
+    ${stars}
+    ${judge}
+  `;
+}
+
+function setScore(vi, ii, s) {
+  const cell = state.results[vi][ii];
+  cell.manualScore = cell.manualScore === s ? 0 : s; // click again to clear
+  document.getElementById(`cell-${vi}-${ii}`).innerHTML = renderCell(cell, vi, ii);
+  renderSummary();
+}
+
+// ── API calls ────────────────────────────────────────────────────────────
+// Live mode calls Anthropic directly from the browser with the visitor's own
+// key. `anthropic-dangerous-direct-browser-access` is the header Anthropic's
+// own SDKs set to allow this — see anthropic-sdk-typescript's buildHeaders().
+function saveApiKey() {
+  try { localStorage.setItem('evalbench-byok-key', state.apiKey); } catch (e) {}
+}
+function loadApiKey() {
+  try { return localStorage.getItem('evalbench-byok-key') || ''; } catch (e) { return ''; }
+}
+
+async function callLLM(model, system, user) {
+  if (!state.apiKey.trim()) throw new Error('Paste your Anthropic API key above first');
+
+  const body = { model, max_tokens: 1024, messages: [{ role: 'user', content: user }] };
+  if (system && system.trim()) body.system = system;
+
+  const start = Date.now();
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': state.apiKey.trim(),
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error?.message || 'Request failed');
+
+  const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n');
+  return { text, usage: data.usage, latencyMs: Date.now() - start };
+}
+
+async function runAll() {
+  ensureResultsShape();
+  const runBtn = document.getElementById('run-btn');
+  runBtn.disabled = true;
+  const status = document.getElementById('run-status');
+
+  const jobs = [];
+  state.variants.forEach((v, vi) => {
+    state.inputs.forEach((input, ii) => {
+      if (!input.trim()) return;
+      jobs.push({ vi, ii, v, input });
+    });
+  });
+
+  let done = 0;
+  status.textContent = `Running 0/${jobs.length}…`;
+
+  await Promise.all(jobs.map(async ({ vi, ii, v, input }) => {
+    const cell = state.results[vi][ii];
+    cell.loading = true; cell.error = null;
+    document.getElementById(`cell-${vi}-${ii}`).innerHTML = renderCell(cell, vi, ii);
+    try {
+      const data = await callLLM(v.model, v.system, input);
+      cell.text = data.text;
+      cell.usage = data.usage;
+      cell.latencyMs = data.latencyMs;
+    } catch (err) {
+      cell.error = err.message;
+    } finally {
+      cell.loading = false;
+      done++;
+      status.textContent = `Running ${done}/${jobs.length}…`;
+      document.getElementById(`cell-${vi}-${ii}`).innerHTML = renderCell(cell, vi, ii);
+    }
+  }));
+
+  status.textContent = `Done — ${jobs.length} run(s).`;
+  runBtn.disabled = false;
+  renderSummary();
+}
+
+function buildJudgePrompt(task, input, output) {
+  return `You are grading an AI assistant's response for a portfolio eval tool.
+
+Task the assistant was given: ${task || '(not specified)'}
+Input it received:
+"""
+${input}
+"""
+Its response:
+"""
+${output}
+"""
+
+Score the response from 1 (poor) to 5 (excellent) on correctness, relevance, and quality for the stated task.
+Reply with ONLY a JSON object, no other text: {"score": <integer 1-5>, "reason": "<one short sentence>"}`;
+}
+
+function parseJudgeReply(text) {
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('Judge did not return JSON');
+  const parsed = JSON.parse(match[0]);
+  if (typeof parsed.score !== 'number') throw new Error('Judge response missing score');
+  return { score: Math.max(1, Math.min(5, Math.round(parsed.score))), reason: parsed.reason || '' };
+}
+
+async function judgeAll() {
+  ensureResultsShape();
+  const jobs = [];
+  state.variants.forEach((v, vi) => {
+    state.inputs.forEach((input, ii) => {
+      const cell = state.results[vi][ii];
+      if (cell && cell.text && !cell.error) jobs.push({ vi, ii, input });
+    });
+  });
+  if (!jobs.length) { alert('Run the variants first, then judge the outputs.'); return; }
+
+  await Promise.all(jobs.map(async ({ vi, ii, input }) => {
+    const cell = state.results[vi][ii];
+    cell.judge = { loading: true };
+    document.getElementById(`cell-${vi}-${ii}`).innerHTML = renderCell(cell, vi, ii);
+    try {
+      const data = await callLLM(JUDGE_MODEL, 'You are a strict, concise grading assistant.', buildJudgePrompt(state.task, input, cell.text));
+      cell.judge = parseJudgeReply(data.text);
+    } catch (err) {
+      cell.judge = { score: null, reason: 'Judge failed: ' + err.message };
+    }
+    document.getElementById(`cell-${vi}-${ii}`).innerHTML = renderCell(cell, vi, ii);
+  }));
+
+  renderSummary();
+}
+
+// ── Summary ──────────────────────────────────────────────────────────────
+function avg(nums) { return nums.length ? nums.reduce((a, b) => a + b, 0) / nums.length : null; }
+
+function renderSummary() {
+  const table = document.getElementById('summary-table');
+  let html = '<thead><tr><th>Variant</th><th>Model</th><th>Avg your score</th><th>Avg judge score</th><th>Avg latency</th></tr></thead><tbody>';
+
+  const rows = state.variants.map((v, vi) => {
+    const cells = state.results[vi] || [];
+    const manual = avg(cells.filter(c => c && c.manualScore).map(c => c.manualScore));
+    const judge = avg(cells.filter(c => c && c.judge && c.judge.score != null).map(c => c.judge.score));
+    const latency = avg(cells.filter(c => c && c.latencyMs != null).map(c => c.latencyMs));
+    return { label: v.label, model: modelLabel(v.model), manual, judge, latency };
+  });
+
+  const bestScore = Math.max(...rows.map(r => r.judge ?? r.manual ?? -1));
+
+  rows.forEach(r => {
+    const rowScore = r.judge ?? r.manual ?? -1;
+    const isBest = rowScore === bestScore && rowScore > -1;
+    html += `<tr class="${isBest ? 'best-row' : ''}">
+      <td>${isBest ? '★ ' : ''}${r.label}</td>
+      <td>${r.model}</td>
+      <td>${r.manual != null ? r.manual.toFixed(1) : '—'}</td>
+      <td>${r.judge != null ? r.judge.toFixed(1) : '—'}</td>
+      <td>${r.latency != null ? Math.round(r.latency) + ' ms' : '—'}</td>
+    </tr>`;
+  });
+
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────
+state.apiKey = loadApiKey();
+document.getElementById('byok-key').value = state.apiKey;
+document.getElementById('task-desc').oninput = e => { state.task = e.target.value; };
+loadDemo();
+setMode('demo');
+</script>
+</body>
+</html>
