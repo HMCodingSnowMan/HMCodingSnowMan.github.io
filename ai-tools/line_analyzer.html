@@ -39,9 +39,17 @@ header h1 { font-size: 1rem; font-weight: 700; color: var(--accent-light); lette
 #main-canvas { display: none; max-width: 100%; border-radius: 14px; }
 
 /* STATUS */
-.status-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--muted); display: none; align-items: center; gap: 0.5rem; }
+.status-bar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); padding: 0.5rem 1rem; font-size: 0.75rem; color: var(--muted); display: none; flex-direction: column; gap: 0.4rem; }
+.status-row { display: flex; align-items: center; gap: 0.5rem; }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.progress-track { position: relative; width: 100%; height: 4px; border-radius: 4px; background: var(--card); overflow: hidden; }
+.progress-fill { position: absolute; top: 0; height: 100%; width: 40%; border-radius: 4px; background: var(--accent); animation: indeterminate 1.1s ease-in-out infinite; }
+@keyframes indeterminate {
+  0%   { left: -40%; width: 40%; }
+  50%  { left: 30%;  width: 55%; }
+  100% { left: 100%; width: 40%; }
+}
 
 /* SIDEBAR */
 .sidebar { display: flex; flex-direction: column; gap: 0.75rem; }
@@ -116,8 +124,11 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
     </div>
     <canvas id="main-canvas"></canvas>
     <div class="status-bar" id="status-bar">
-      <div class="status-dot"></div>
-      <span id="status-text">Analyzing pose...</span>
+      <div class="status-row">
+        <div class="status-dot"></div>
+        <span id="status-text">Analyzing pose...</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill"></div></div>
     </div>
     <input type="file" id="file-input" accept="image/*">
   </div>
@@ -205,6 +216,14 @@ const HIP_LINE = [11, 12];                   // left hip → right hip
 const LEG_LINE_L = [11, 13, 15];             // left hip→knee→ankle
 const LEG_LINE_R = [12, 14, 16];             // right hip→knee→ankle
 
+async function warmUpDetector() {
+  try {
+    const warm = document.createElement('canvas');
+    warm.width = 192; warm.height = 192;
+    await detector.estimatePoses(warm);
+  } catch(e) { /* best-effort warm-up; ignore failures */ }
+}
+
 async function loadModel() {
   try {
     document.getElementById('model-status').textContent = '⏳ Loading model...';
@@ -217,12 +236,14 @@ async function loadModel() {
         modelUrl: 'https://tfhub.dev/google/tfjs-model/movenet/singlepose/lightning/4'
       }
     );
+    await warmUpDetector();
     document.getElementById('model-status').textContent = '✓ Model ready';
     document.getElementById('model-status').className = 'model-status ready';
   } catch(e) {
     // fallback: try without modelUrl
     try {
       detector = await poseDetection.createDetector(poseDetection.SupportedModels.MoveNet);
+      await warmUpDetector();
       document.getElementById('model-status').textContent = '✓ Model ready';
       document.getElementById('model-status').className = 'model-status ready';
     } catch(e2) {
@@ -282,13 +303,40 @@ function drawImageOnly(img) {
   canvas.style.display = 'block';
 }
 
+const MAX_INFERENCE_DIM = 640; // long-edge cap fed to the detector; MoveNet resizes internally to ~192px anyway
+
+function getInferenceCanvas(img) {
+  const scale = Math.min(1, MAX_INFERENCE_DIM / Math.max(img.width, img.height));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.max(1, Math.round(img.width * scale));
+  canvas.height = Math.max(1, Math.round(img.height * scale));
+  canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+  return { canvas, scale };
+}
+
 async function analyzeImage() {
   if(!currentImage || !detector) return;
   document.getElementById('status-bar').style.display = 'flex';
   document.getElementById('status-text').textContent = 'Analyzing pose...';
   document.getElementById('btn-analyze').disabled = true;
+
+  // Yield two animation frames so the status bar/progress sweep actually
+  // paints before the WebGL shader-compile + inference work blocks the
+  // main thread.
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
   try {
-    const poses = await detector.estimatePoses(currentImage);
+    const { canvas: inferCanvas, scale } = getInferenceCanvas(currentImage);
+    const poses = await detector.estimatePoses(inferCanvas);
+    if(poses[0]) {
+      // Map keypoints from the downscaled inference canvas back into
+      // currentImage's native coordinate space, so redraw() (which scales
+      // from currentImage.width/height) needs no changes at all.
+      poses[0].keypoints.forEach(kp => {
+        kp.x /= scale;
+        kp.y /= scale;
+      });
+    }
     currentPoses = poses;
     redraw();
     document.getElementById('btn-save').disabled = false;
