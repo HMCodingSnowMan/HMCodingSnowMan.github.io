@@ -14,11 +14,25 @@
   --text: #1a1a18;
   --muted: #6b6b68;
   --tag-bg: #f0f0ee;
+  --nav-bg: rgba(250,250,249,0.92);
+  --shadow: rgba(0,0,0,0.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #14151a;
+    --card: #1c1d24;
+    --border: #2c2d36;
+    --text: #eaeaec;
+    --muted: #9a9ba3;
+    --tag-bg: #23242c;
+    --nav-bg: rgba(20,21,26,0.92);
+    --shadow: rgba(0,0,0,0.35);
+  }
 }
 html { scroll-behavior: smooth; }
 body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+nav { position: sticky; top: 0; z-index: 50; background: var(--nav-bg); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
 .nav-name { font-size: 0.9rem; font-weight: 700; }
 .nav-links { display: flex; gap: 1.5rem; }
 .nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
@@ -42,7 +56,7 @@ nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92);
 
 /* MODULE CARDS */
 .module-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; text-decoration: none; color: inherit; display: block; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; position: relative; overflow: hidden; }
-.module-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.07); transform: translateY(-2px); }
+.module-card:hover { box-shadow: 0 4px 24px var(--shadow); transform: translateY(-2px); }
 .module-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
 .module-number { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.2rem 0.6rem; border-radius: 20px; }
 .module-duration { font-size: 0.72rem; color: var(--muted); }
