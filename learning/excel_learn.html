@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Learn Excel — Data Analyst Skills Series</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafaf9;
+  --card: #ffffff;
+  --border: #e8e8e6;
+  --text: #1a1a18;
+  --muted: #6b6b68;
+  --tag-bg: #f0f0ee;
+}
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+nav { position: sticky; top: 0; z-index: 50; background: rgba(250,250,249,0.92); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 0 2rem; display: flex; align-items: center; justify-content: space-between; height: 56px; }
+.nav-name { font-size: 0.9rem; font-weight: 700; }
+.nav-links { display: flex; gap: 1.5rem; }
+.nav-links a { font-size: 0.82rem; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+.nav-links a:hover { color: var(--text); }
+
+.hero { max-width: 780px; margin: 0 auto; padding: 5rem 2rem 3rem; }
+.hero-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+.hero h1 { font-family: 'DM Serif Display', serif; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 1.12; letter-spacing: -0.02em; margin-bottom: 1.25rem; max-width: 580px; }
+.hero h1 em { font-style: italic; color: var(--muted); }
+.hero p { font-size: 1rem; color: var(--muted); max-width: 480px; line-height: 1.7; margin-bottom: 2rem; }
+
+.path-section { max-width: 780px; margin: 0 auto; padding: 0 2rem 6rem; }
+.section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+
+/* PATH CONNECTOR */
+.path { display: flex; flex-direction: column; gap: 0; }
+.path-item { display: flex; gap: 1.25rem; }
+.path-connector { display: flex; flex-direction: column; align-items: center; width: 48px; flex-shrink: 0; }
+.path-node { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; flex-shrink: 0; border: 3px solid; transition: transform 0.2s; }
+.path-line { width: 3px; flex: 1; min-height: 24px; border-radius: 2px; }
+
+/* MODULE CARDS */
+.module-card { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.25rem; text-decoration: none; color: inherit; display: block; transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s; position: relative; overflow: hidden; }
+.module-card:hover { box-shadow: 0 4px 24px rgba(0,0,0,0.07); transform: translateY(-2px); }
+.module-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+.module-number { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; padding: 0.2rem 0.6rem; border-radius: 20px; }
+.module-duration { font-size: 0.72rem; color: var(--muted); }
+.module-emoji { font-size: 1.75rem; margin-bottom: 0.5rem; display: block; }
+.module-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.01em; margin-bottom: 0.4rem; line-height: 1.3; }
+.module-audience { font-size: 0.78rem; font-weight: 600; margin-bottom: 0.5rem; }
+.module-desc { font-size: 0.83rem; color: var(--muted); line-height: 1.6; margin-bottom: 1rem; }
+.module-topics { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1.25rem; }
+.topic-tag { font-size: 0.7rem; font-weight: 500; background: var(--tag-bg); color: var(--muted); padding: 0.2rem 0.55rem; border-radius: 20px; }
+.module-cta { display: flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 700; border-top: 1px solid var(--border); padding-top: 1rem; transition: gap 0.15s; }
+.module-card:hover .module-cta { gap: 0.65rem; }
+
+/* MODULE COLOR THEMES — all dark-card, matching each module page's own accent */
+.mod-1 .module-card { border-color: #1f3326; background: #0f1a12; }
+.mod-1 .module-card:hover { border-color: #4ade80; box-shadow: 0 4px 24px rgba(74,222,128,0.15); }
+.mod-1 .module-card .module-title { color: #ecf5ee; }
+.mod-1 .module-card .module-desc { color: #85a68e; }
+.mod-1 .module-card .module-duration { color: #5f8268; }
+.mod-1 .module-card .module-audience { color: #5f8268; }
+.mod-1 .module-card .module-number { color: #5f8268; background: transparent; }
+.mod-1 .module-card .topic-tag { background: #142a1a; color: #4ade80; }
+.mod-1 .module-card { border-top: 3px solid #16a34a; }
+.mod-1 .path-node { background: #142a1a; border-color: #4ade80; color: #4ade80; }
+.mod-1 .path-line { background: linear-gradient(#4ade80, #60a5fa); }
+
+.mod-2 .module-card { border-color: #1e3050; background: #0a1220; }
+.mod-2 .module-card:hover { border-color: #60a5fa; box-shadow: 0 4px 24px rgba(96,165,250,0.15); }
+.mod-2 .module-card .module-title { color: #e8f0fa; }
+.mod-2 .module-card .module-desc { color: #7d94ba; }
+.mod-2 .module-card .module-duration { color: #5c7099; }
+.mod-2 .module-card .module-audience { color: #5c7099; }
+.mod-2 .module-card .module-number { color: #5c7099; background: transparent; }
+.mod-2 .module-card .topic-tag { background: #101f3d; color: #60a5fa; }
+.mod-2 .module-card { border-top: 3px solid #2563eb; }
+.mod-2 .path-node { background: #101f3d; border-color: #60a5fa; color: #60a5fa; }
+.mod-2 .path-line { background: linear-gradient(#60a5fa, #a78bfa); }
+
+.mod-3 .module-card { border-color: #2c2748; background: #0f0f1a; }
+.mod-3 .module-card:hover { border-color: #a78bfa; box-shadow: 0 4px 24px rgba(167,139,250,0.15); }
+.mod-3 .module-card .module-title { color: #e2e8f0; }
+.mod-3 .module-card .module-desc { color: #94a3b8; }
+.mod-3 .module-card .module-duration { color: #64748b; }
+.mod-3 .module-card .module-audience { color: #64748b; }
+.mod-3 .module-card .module-number { color: #64748b; background: transparent; }
+.mod-3 .module-card .topic-tag { background: #1e1a3a; color: #a78bfa; }
+.mod-3 .module-card { border-top: 3px solid #7c3aed; }
+.mod-3 .path-node { background: #1e1a3a; border-color: #a78bfa; color: #a78bfa; }
+.mod-3 .path-line { background: linear-gradient(#a78bfa, #2dd4bf); }
+
+.mod-4 .module-card { border-color: #134e4a; background: #0a1414; }
+.mod-4 .module-card:hover { border-color: #2dd4bf; box-shadow: 0 4px 24px rgba(45,212,191,0.15); }
+.mod-4 .module-card .module-title { color: #e2f2f0; }
+.mod-4 .module-card .module-desc { color: #7fa8a3; }
+.mod-4 .module-card .module-duration { color: #5c8a85; }
+.mod-4 .module-card .module-audience { color: #5c8a85; }
+.mod-4 .module-card .module-number { color: #5c8a85; background: transparent; }
+.mod-4 .module-card .topic-tag { background: #0f2a28; color: #2dd4bf; }
+.mod-4 .module-card { border-top: 3px solid #0d9488; }
+.mod-4 .path-node { background: #0f2a28; border-color: #2dd4bf; color: #2dd4bf; }
+.mod-4 .path-line { background: linear-gradient(#2dd4bf, #fb923c); }
+
+.mod-5 .module-card { border-color: #40281a; background: #140f0a; }
+.mod-5 .module-card:hover { border-color: #fb923c; box-shadow: 0 4px 24px rgba(251,146,60,0.15); }
+.mod-5 .module-card .module-title { color: #f5ece2; }
+.mod-5 .module-card .module-desc { color: #ba9a80; }
+.mod-5 .module-card .module-duration { color: #8c7259; }
+.mod-5 .module-card .module-audience { color: #8c7259; }
+.mod-5 .module-card .module-number { color: #8c7259; background: transparent; }
+.mod-5 .module-card .topic-tag { background: #2e1f10; color: #fb923c; }
+.mod-5 .module-card { border-top: 3px solid #ea580c; }
+.mod-5 .path-node { background: #2e1f10; border-color: #fb923c; color: #fb923c; }
+.mod-5 .path-line { background: linear-gradient(#fb923c, #818cf8); }
+
+.mod-6 .module-card { border-color: #2c2748; background: #10101f; }
+.mod-6 .module-card:hover { border-color: #818cf8; box-shadow: 0 4px 24px rgba(129,140,248,0.15); }
+.mod-6 .module-card .module-title { color: #e8e8f8; }
+.mod-6 .module-card .module-desc { color: #8b8bb5; }
+.mod-6 .module-card .module-duration { color: #64648f; }
+.mod-6 .module-card .module-audience { color: #64648f; }
+.mod-6 .module-card .module-number { color: #64648f; background: transparent; }
+.mod-6 .module-card .topic-tag { background: #1e1c3d; color: #818cf8; }
+.mod-6 .module-card { border-top: 3px solid #4f46e5; }
+.mod-6 .path-node { background: #1e1c3d; border-color: #818cf8; color: #818cf8; }
+.mod-6 .path-line { background: linear-gradient(#818cf8, #ec4899); }
+
+.mod-7 .module-card { border-color: #402838; background: #1a0f16; }
+.mod-7 .module-card:hover { border-color: #ec4899; box-shadow: 0 4px 24px rgba(236,72,153,0.15); }
+.mod-7 .module-card .module-title { color: #f5e8ef; }
+.mod-7 .module-card .module-desc { color: #b08897; }
+.mod-7 .module-card .module-duration { color: #855e6c; }
+.mod-7 .module-card .module-audience { color: #855e6c; }
+.mod-7 .module-card .module-number { color: #855e6c; background: transparent; }
+.mod-7 .module-card .topic-tag { background: #2e1626; color: #ec4899; }
+.mod-7 .module-card { border-top: 3px solid #db2777; }
+.mod-7 .path-node { background: #2e1626; border-color: #ec4899; color: #ec4899; }
+.mod-7 .path-line { background: linear-gradient(#ec4899, #f87171); }
+
+.mod-8 .module-card { border-color: #402828; background: #1a0f0f; }
+.mod-8 .module-card:hover { border-color: #f87171; box-shadow: 0 4px 24px rgba(248,113,113,0.15); }
+.mod-8 .module-card .module-title { color: #f5e8e8; }
+.mod-8 .module-card .module-desc { color: #b08888; }
+.mod-8 .module-card .module-duration { color: #8a6666; }
+.mod-8 .module-card .module-audience { color: #8a6666; }
+.mod-8 .module-card .module-number { color: #8a6666; background: transparent; }
+.mod-8 .module-card .topic-tag { background: #2e1616; color: #f87171; }
+.mod-8 .module-card { border-top: 3px solid #dc2626; }
+.mod-8 .path-node { background: #2e1616; border-color: #f87171; color: #f87171; }
+
+/* FAQ */
+.faq-section { max-width: 780px; margin: 0 auto; padding: 0 2rem 5rem; }
+.faq-item { border-bottom: 1px solid var(--border); padding: 1.25rem 0; }
+.faq-q { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.5rem; }
+.faq-a { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+.faq-a a { color: var(--muted); }
+
+footer { border-top: 1px solid var(--border); padding: 2rem; text-align: center; font-size: 0.8rem; color: var(--muted); }
+footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+
+@media (max-width: 560px) {
+  nav { padding: 0 1rem; }
+  .hero { padding: 3rem 1rem 2rem; }
+  .path-section, .faq-section { padding-left: 1rem; padding-right: 1rem; }
+  .path-connector { width: 36px; }
+  .path-node { width: 36px; height: 36px; font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-name">📊 Learn Excel</div>
+  <div class="nav-links">
+    <a href="#modules">Modules</a>
+    <a href="#faq">FAQ</a>
+    <a href="../index.html">← Portfolio</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-eyebrow">Data Analyst Skills Series · 8 Modules</div>
+  <h1>Learn Excel — <em>the skills that get you hired.</em></h1>
+  <p>Eight interactive modules built specifically for data and analyst job-seekers — from fundamentals through interview prep. Each one is hands-on: real formulas, real quizzes, real reasoning, not just a feature tour.</p>
+</section>
+
+<section class="path-section" id="modules">
+  <div class="section-label">The learning path</div>
+
+  <div class="path">
+
+    <!-- MODULE 1 -->
+    <div class="path-item mod-1">
+      <div class="path-connector">
+        <div class="path-node">1</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_101.html">
+        <div class="module-top">
+          <span class="module-number">Module 1 · Beginner</span>
+          <span class="module-duration">~12 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">📊</span>
+        <div class="module-title">Excel 101 — Fundamentals for Analysts</div>
+        <div class="module-audience">For: Anyone starting from scratch or shaky on the basics</div>
+        <div class="module-desc">Cell references (relative vs. absolute), formula mechanics and common errors, formatting for readability, and the keyboard habits that signal daily use, not casual familiarity.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Cell references</span>
+          <span class="topic-tag">Formula basics</span>
+          <span class="topic-tag">Formatting</span>
+          <span class="topic-tag">Keyboard efficiency</span>
+        </div>
+        <div class="module-cta">Start Module 1 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 2 -->
+    <div class="path-item mod-2">
+      <div class="path-connector">
+        <div class="path-node">2</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_102.html">
+        <div class="module-top">
+          <span class="module-number">Module 2 · Beginner</span>
+          <span class="module-duration">~12 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">🧮</span>
+        <div class="module-title">Excel 102 — Core Functions & Logic</div>
+        <div class="module-audience">For: Anyone ready to move past basic arithmetic</div>
+        <div class="module-desc">SUM/AVERAGE/COUNT and their quiet differences, IF logic and the cleaner IFS alternative, SUMIFS/COUNTIFS for real reporting, and using IFERROR deliberately instead of as a blanket fix.</div>
+        <div class="module-topics">
+          <span class="topic-tag">IF logic</span>
+          <span class="topic-tag">SUMIFS / COUNTIFS</span>
+          <span class="topic-tag">Text functions</span>
+          <span class="topic-tag">Error handling</span>
+        </div>
+        <div class="module-cta">Start Module 2 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 3 -->
+    <div class="path-item mod-3">
+      <div class="path-connector">
+        <div class="path-node">3</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_103.html">
+        <div class="module-top">
+          <span class="module-number">Module 3 · Intermediate</span>
+          <span class="module-duration">~12 min · 8 lessons</span>
+        </div>
+        <span class="module-emoji">🔍</span>
+        <div class="module-title">Excel 103 — Lookups Done Right</div>
+        <div class="module-audience">For: Anyone who's hit VLOOKUP's limits, or is about to</div>
+        <div class="module-desc">VLOOKUP's real limitations, how INDEX/MATCH fixes both of them, XLOOKUP as the modern default, and how to talk through the choice out loud in an interview.</div>
+        <div class="module-topics">
+          <span class="topic-tag">VLOOKUP limits</span>
+          <span class="topic-tag">INDEX/MATCH</span>
+          <span class="topic-tag">XLOOKUP</span>
+          <span class="topic-tag">Interview framing</span>
+        </div>
+        <div class="module-cta">Start Module 3 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 4 -->
+    <div class="path-item mod-4">
+      <div class="path-connector">
+        <div class="path-node">4</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_104.html">
+        <div class="module-top">
+          <span class="module-number">Module 4 · Intermediate</span>
+          <span class="module-duration">~14 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">📈</span>
+        <div class="module-title">Excel 104 — PivotTables & PivotCharts</div>
+        <div class="module-audience">For: Anyone ready to summarize thousands of rows in seconds</div>
+        <div class="module-desc">Why PivotTables beat hand-built formulas, the four zones (Rows/Columns/Values/Filters), grouping dates and numbers, and connecting slicers across linked PivotCharts.</div>
+        <div class="module-topics">
+          <span class="topic-tag">PivotTable basics</span>
+          <span class="topic-tag">Grouping</span>
+          <span class="topic-tag">Calculated fields</span>
+          <span class="topic-tag">Slicers</span>
+        </div>
+        <div class="module-cta">Start Module 4 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 5 -->
+    <div class="path-item mod-5">
+      <div class="path-connector">
+        <div class="path-node">5</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_105.html">
+        <div class="module-top">
+          <span class="module-number">Module 5 · Intermediate</span>
+          <span class="module-duration">~13 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">🧹</span>
+        <div class="module-title">Excel 105 — Data Cleaning</div>
+        <div class="module-audience">For: Anyone who's opened a "clean" dataset that wasn't</div>
+        <div class="module-desc">Why real data is messy, Text-to-Columns and Flash Fill, removing duplicates and preventing bad entries with validation, and the specific headaches of CSV and system exports.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Text-to-Columns</span>
+          <span class="topic-tag">Duplicates</span>
+          <span class="topic-tag">Data validation</span>
+          <span class="topic-tag">Export quirks</span>
+        </div>
+        <div class="module-cta">Start Module 5 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 6 -->
+    <div class="path-item mod-6">
+      <div class="path-connector">
+        <div class="path-node">6</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_106.html">
+        <div class="module-top">
+          <span class="module-number">Module 6 · Advanced</span>
+          <span class="module-duration">~13 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">🔌</span>
+        <div class="module-title">Excel 106 — Power Query</div>
+        <div class="module-audience">For: Anyone tired of cleaning the same export every week</div>
+        <div class="module-desc">Turning one-time manual cleaning into a repeatable, refreshable pipeline — Get Data, Transform, Merge and Append, and why you rarely need to write the M language by hand.</div>
+        <div class="module-topics">
+          <span class="topic-tag">ETL basics</span>
+          <span class="topic-tag">Applied Steps</span>
+          <span class="topic-tag">Merge & Append</span>
+          <span class="topic-tag">M language</span>
+        </div>
+        <div class="module-cta">Start Module 6 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 7 -->
+    <div class="path-item mod-7">
+      <div class="path-connector">
+        <div class="path-node">7</div>
+        <div class="path-line"></div>
+      </div>
+      <a class="module-card" href="excel_107.html">
+        <div class="module-top">
+          <span class="module-number">Module 7 · Advanced</span>
+          <span class="module-duration">~14 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">📉</span>
+        <div class="module-title">Excel 107 — Dashboards & Visualization</div>
+        <div class="module-audience">For: Anyone whose analysis deserves to actually get read</div>
+        <div class="module-desc">Audience-first design principles, conditional formatting for at-a-glance insight, choosing the right chart for the question (and the honest case against pie charts), and connected slicers.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Design principles</span>
+          <span class="topic-tag">Conditional formatting</span>
+          <span class="topic-tag">Chart selection</span>
+          <span class="topic-tag">Interactivity</span>
+        </div>
+        <div class="module-cta">Start Module 7 <span>→</span></div>
+      </a>
+    </div>
+
+    <!-- MODULE 8 -->
+    <div class="path-item mod-8">
+      <div class="path-connector">
+        <div class="path-node">8</div>
+      </div>
+      <a class="module-card" href="excel_108.html">
+        <div class="module-top">
+          <span class="module-number">Module 8 · Advanced</span>
+          <span class="module-duration">~13 min · 9 lessons</span>
+        </div>
+        <span class="module-emoji">🎯</span>
+        <div class="module-title">Excel 108 — Excel Interview Prep</div>
+        <div class="module-audience">For: Anyone with an Excel-heavy interview on the calendar</div>
+        <div class="module-desc">What interviewers actually test for, the recurring patterns behind case-style questions, thinking out loud through formula logic, and how to discuss skill gaps honestly without undercutting yourself.</div>
+        <div class="module-topics">
+          <span class="topic-tag">Problem framing</span>
+          <span class="topic-tag">Case questions</span>
+          <span class="topic-tag">Verbal reasoning</span>
+          <span class="topic-tag">Honest gaps</span>
+        </div>
+        <div class="module-cta">Start Module 8 <span>→</span></div>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<section class="faq-section" id="faq">
+  <div class="section-label">FAQ</div>
+
+  <div class="faq-item">
+    <div class="faq-q">Do I have to start at Module 1?</div>
+    <div class="faq-a">Nope. If you already know your way around formulas and formatting, jump straight to Lookups or PivotTables. Modules 1–2 are for anyone shaky on the basics — skip them if you're not.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">How long does each module take?</div>
+    <div class="faq-a">Around 12–14 minutes depending on how long you spend on the try-it exercises. Designed to be done in one sitting.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Is this actually interview-relevant, or just theory?</div>
+    <div class="faq-a">Every module is built around what shows up in real analyst job postings and screening questions — VLOOKUP vs. INDEX/MATCH, SUMIFS syntax, PivotTable construction, and messy real-world data. Module 8 is dedicated entirely to applying it all under interview conditions.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Is there a quiz at the end?</div>
+    <div class="faq-a">Each module has 3 quizzes built in throughout, plus one hands-on try-it exercise — not just a quiz at the very end. Feedback explains the reasoning behind each answer, not just whether you got it right.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q">Who made this?</div>
+    <div class="faq-a">This learning series was designed and built by Hans Marasigan — data analyst and AI workflow consultant based in Los Angeles. <a href="../index.html">View the full portfolio →</a></div>
+  </div>
+</section>
+
+<footer>
+  Built by <a href="../index.html">Hans Marasigan</a> · Los Angeles, CA · <a href="mailto:hansmarasigan@gmail.com">hansmarasigan@gmail.com</a>
+</footer>
+
+</body>
+</html>

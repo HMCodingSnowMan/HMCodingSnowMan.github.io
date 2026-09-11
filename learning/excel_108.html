@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 108 — Excel Interview Prep</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #1a0f0f;
+  --card: #291616;
+  --surface: #211313;
+  --border: #402828;
+  --accent: #f87171;
+  --accent-dark: #dc2626;
+  --accent-light: #2e1616;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #f5e8e8;
+  --muted: #b08888;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #140b0b; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-light); color: var(--accent); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+.lesson-body th { color: var(--text); font-weight: 700; }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.4rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.accent { background: var(--accent-light); border-left: 4px solid var(--accent); color: var(--accent); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.step-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.step-item { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.step-item:last-child { padding-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-light); font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--accent); }
+.try-submit { margin-top: 0.5rem; background: var(--accent-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--accent); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--accent-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--accent); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="excel_learn.html">← Hub</a>
+<h1>🎯 Excel 108 — Excel Interview Prep</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 9</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = 
+[
+  {
+    type: 'lesson',
+    tag: 'Advanced',
+    emoji: '🎯',
+    title: "Excel Interview Prep: what interviewers are actually testing for",
+    body: `
+      <p>This closing module isn't new Excel content — it's about applying everything from Modules 101–107 under interview conditions, where how you think out loud matters as much as the right answer.</p>
+      <p>This module covers:</p>
+      <div class="callout accent">
+        🧠 <strong>What's really being tested</strong> — problem framing, not memorization<br><br>
+        💼 <strong>Common case-style questions</strong> — the patterns behind them<br><br>
+        🗣️ <strong>Talking through formulas out loud</strong> — verbal, whiteboard-style questions<br><br>
+        🤝 <strong>Honest gap-handling</strong> — how to discuss what you don't know yet
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The real test',
+    emoji: '🧠',
+    title: "Interviewers aren't testing memorization — they're testing problem framing",
+    body: `
+      <p>Nobody actually cares whether you can recite VLOOKUP's exact syntax from memory. What they're watching for is whether you can take an ambiguous, real-world-shaped question and break it into a clear approach before touching a single formula.</p>
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">The formula is the destination. The interview is watching how you navigate.</div>
+        <div class="analogy-body">Two candidates might both eventually land on SUMIFS as the right answer. The one who says "I'd need total sales, filtered by region and by month, so I'm looking at a multi-condition sum" before writing anything reads as far more experienced than one who jumps straight to typing.</div>
+      </div>
+      <div class="callout green">✅ <strong>The habit that helps most:</strong> Before answering, restate the question in your own words and name what data you'd need. This single habit does more for how you're perceived than any specific function knowledge.</div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'Common questions',
+    emoji: '💼',
+    title: "The recurring patterns behind case-style questions",
+    body: `
+      <p>Most Excel interview questions are variations on a small number of real recurring problems:</p>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔍</div>
+        <div><div class="usecase-title">"How would you find duplicate customers?"</div><div class="usecase-desc">Tests whether you know Remove Duplicates, COUNTIF for flagging, and — critically — whether you think to ask what "duplicate" means here (exact match? same email but different name spelling?).</div></div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🧹</div>
+        <div><div class="usecase-title">"This dataset is messy — how would you clean it?"</div><div class="usecase-desc">Tests Module 105 knowledge directly — spotting text/number mismatches, trailing spaces, inconsistent categories — and whether you'd reach for Power Query if the cleaning needs to repeat.</div></div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📊</div>
+        <div><div class="usecase-title">"How would you summarize this by category?"</div><div class="usecase-desc">Almost always a PivotTable question in disguise — jumping to SUMIFS instead when a PivotTable clearly fits better can actually read as a weaker answer.</div></div>
+      </div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Question patterns check",
+    question: "An interviewer asks: 'How would you find duplicate customer records in this dataset?' Before answering with a specific technique, what's the strongest first move?",
+    options: [
+      "Immediately say 'Remove Duplicates' and move on",
+      "Ask or clarify what counts as a 'duplicate' here — an exact match across all fields, or something looser like the same email with a different name spelling",
+      "Say this is impossible to determine without writing code",
+      "Assume it means the same thing it always means and proceed without clarifying"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 'Duplicate' is genuinely ambiguous in real data — exact match, same ID with different formatting, same person with a typo'd email. Clarifying this first, before naming a technique, is exactly the problem-framing instinct interviewers are listening for.",
+      wrong: "The answer is B. Jumping straight to a technique skips the more important step: real-world 'duplicate' definitions vary, and asking a clarifying question here signals the kind of judgment that matters more than knowing Remove Duplicates exists."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Thinking out loud',
+    emoji: '🗣️',
+    title: "Verbal and whiteboard-style formula questions",
+    body: `
+      <p>Some interviews ask you to explain a formula's logic verbally or on a whiteboard, without a working spreadsheet in front of you. The skill here is narrating your reasoning clearly, not producing perfect syntax from memory.</p>
+      <div class="step-wrap">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div><div class="step-title">Name the goal in plain language first</div><div class="step-desc">"I need to find this employee's department by matching their ID" — before any function names come up at all.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div><div class="step-title">Name the approach and why</div><div class="step-desc">"I'd use INDEX/MATCH rather than VLOOKUP here, since the Department column sits to the left of the ID column" — this is the Module 103 reasoning made verbal.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div><div class="step-title">It's fine to not remember exact syntax</div><div class="step-desc">Saying "INDEX takes the return range, then MATCH finds the position — I'd have to double check the exact argument order" is a completely acceptable, honest answer that still demonstrates real understanding.</div></div>
+        </div>
+      </div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Verbal reasoning check",
+    question: "In a whiteboard interview, you're asked to explain how you'd calculate profit margin by category, but you briefly forget the exact SUMIFS argument order. What's the strongest response?",
+    options: [
+      "Freeze up and say you don't know the answer at all",
+      "Explain the logic clearly — sum revenue and cost by category, then calculate margin — and note you'd double-check the exact argument order in practice",
+      "Make up syntax that sounds plausible and hope it's not checked",
+      "Change the subject to a different function you remember better"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Interviewers are far more interested in whether your logic is sound than whether you have every argument order memorized. Clearly explaining the approach while honestly flagging a syntax detail you'd verify is a strong, credible answer — not a weak one.",
+      wrong: "The answer is B. Demonstrating clear logical reasoning while being honest about a minor syntax gap reads as far more competent than either freezing up or guessing confidently at something incorrect."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Practice the answer",
+    instruction: "Interview question: 'You're given a sales spreadsheet with a Region column that has some rows as \"West\" and others as \"west \" with a trailing space, causing your PivotTable to show them as two separate categories. How would you explain fixing this, out loud?'",
+    placeholder: "Write out how you'd talk through your answer...",
+    response: "A strong verbal answer names the diagnosis first: trailing/inconsistent whitespace is a classic Module 105 cleaning issue, and it's exactly why the PivotTable is treating 'West' and 'west ' as different categories even though they should be the same. Then the fix: apply TRIM to the Region column to remove extra whitespace, and standardize the casing with PROPER or UPPER if inconsistent capitalization is also present, before rebuilding or refreshing the PivotTable. Naming the diagnosis clearly before jumping to the fix is exactly the kind of reasoning interviewers want to hear."
+  },
+  {
+    type: 'lesson',
+    tag: 'Honesty',
+    emoji: '🤝',
+    title: "Discussing skill gaps honestly — and why it works better than it feels like it should",
+    body: `
+      <p>Every analyst has gaps. Maybe it's VBA, maybe it's Power BI, maybe it's a specific advanced function you've never had reason to use. How you talk about that gap matters more than the gap itself.</p>
+      <div class="callout amber">💡 <strong>The pattern that reads well:</strong> "I haven't used [X] directly, but it's conceptually close to [Y], which I do know well, so I'd expect to pick it up quickly" — naming the gap plainly, then bridging it to something real you already know.</div>
+      <div class="risk-card risk-red">
+        <div class="risk-level">🚨 What reads badly</div>
+        <div class="risk-title">Overclaiming or fabricating experience</div>
+        <div class="risk-desc">Claiming fluency in a tool you've never touched is discoverable within minutes of any real follow-up question, and the credibility damage extends to everything else you said in the interview.</div>
+      </div>
+      <div class="risk-card risk-green">
+        <div class="risk-level">✅ What reads well</div>
+        <div class="risk-title">Honest framing with a bridge to real experience</div>
+        <div class="risk-desc">Interviewers generally read direct honesty about a gap, paired with a credible plan to close it, as a stronger signal than someone who claims to know everything.</div>
+      </div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Final check ✏️',
+    emoji: '🎯',
+    title: "Interview prep wrap-up",
+    question: "An interviewer asks if you have experience with Power Pivot's DAX formulas, and you've never used them. What's the strongest way to respond?",
+    options: [
+      "Claim familiarity with DAX even though you haven't used it, hoping it doesn't come up again",
+      "Say plainly you haven't used DAX directly, and connect it to related skills you do have — like SUMIFS logic or PivotTable experience — that would help you pick it up",
+      "Say Excel skills don't matter much for this and change the subject",
+      "Refuse to answer the question at all"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 This mirrors the honest-gap-framing pattern from Lesson 7: naming the gap directly, without deflection, and immediately bridging it to genuinely related experience you do have. It's both truthful and reassuring to an interviewer, which is a stronger combination than overclaiming or avoiding the question.",
+      wrong: "The answer is B. Overclaiming risks getting caught in a follow-up question and damaging trust in everything else you said. The strongest response names the gap honestly and bridges it to real, related experience — showing you can learn it, not that you already have."
+    }
+  }
+]
+;
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🎯'; title = "You're ready to walk into an Excel interview."; sub = "Problem framing, thinking out loud, and honest gap-handling — combined with everything from Modules 101 through 107, that's a genuinely complete, interview-ready foundation."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core interview instincts down. A second pass on verbalizing formula logic will round it out."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Interview framing clicks with practice more than memorization. Revisiting Lessons 1 and 5 — maybe out loud, to yourself — will help a lot."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout accent">
+          <strong>What you now know:</strong><br><br>
+          
+          🧠 <strong>What's tested</strong> — problem framing over memorized syntax<br>
+          💼 <strong>Common patterns</strong> — duplicates, cleaning, summarization questions<br>
+          🗣️ <strong>Thinking out loud</strong> — name the goal, name the approach, it's fine to double-check syntax<br>
+          🤝 <strong>Honest gaps</strong> — name it plainly, bridge it to real experience
+    
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          An interviewer forgets the exact formula you wrote within the hour. They remember whether you could clearly explain your thinking and were honest about what you didn't know. Optimize for that, not for reciting syntax perfectly.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="excel_learn.html">← Back to Learn Excel</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

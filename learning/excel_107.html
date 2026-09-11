@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 107 — Dashboards & Visualization</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #1a0f16;
+  --card: #291626;
+  --surface: #211320;
+  --border: #402838;
+  --accent: #ec4899;
+  --accent-dark: #db2777;
+  --accent-light: #2e1626;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #f5e8ef;
+  --muted: #b08897;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #140b11; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-light); color: var(--accent); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+.lesson-body th { color: var(--text); font-weight: 700; }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.4rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.accent { background: var(--accent-light); border-left: 4px solid var(--accent); color: var(--accent); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.step-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.step-item { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.step-item:last-child { padding-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-light); font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--accent); }
+.try-submit { margin-top: 0.5rem; background: var(--accent-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--accent); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--accent-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--accent); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="excel_learn.html">← Hub</a>
+<h1>📉 Excel 107 — Dashboards & Visualization</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 9</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = 
+[
+  {
+    type: 'lesson',
+    tag: 'Advanced',
+    emoji: '📉',
+    title: "Dashboards & Visualization: making data readable at a glance",
+    body: `
+      <p>A correct analysis nobody understands in ten seconds doesn't get acted on. This module is about the design decisions that separate a dashboard someone actually uses from one that gets opened once and forgotten.</p>
+      <p>This module covers:</p>
+      <div class="callout accent">
+        🎯 <strong>Design principles</strong> — audience-first, one page, one story<br><br>
+        🎨 <strong>Conditional formatting</strong> — data bars, icon sets, heatmaps for at-a-glance reading<br><br>
+        📊 <strong>Choosing the right chart</strong> — and the honest case against pie charts<br><br>
+        🎛️ <strong>Slicers & timelines</strong> — interactivity without a single line of VBA
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'Design principles',
+    emoji: '🎯',
+    title: "Audience-first: one page, one story",
+    body: `
+      <p>Before building anything, the real question is: who's looking at this, and what decision are they trying to make? A dashboard for a VP skimming between meetings needs to look completely different from a detailed workbook for another analyst.</p>
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">A dashboard is a headline, not a full article.</div>
+        <div class="analogy-body">A newspaper headline tells you the one thing you need to know in three seconds; the full article is there if you want to dig deeper. A good dashboard works the same way — the biggest, most important number should be immediately obvious, with detail available but not competing for attention.</div>
+      </div>
+      <div class="callout red">⚠️ <strong>Chartjunk:</strong> 3D effects, unnecessary gridlines, excessive color, and decorative clip art all compete with the actual data for attention. If a visual element doesn't help someone understand the number faster, it's working against you.</div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'At-a-glance formatting',
+    emoji: '🎨',
+    title: "Conditional formatting: data bars, icon sets, and heatmaps",
+    body: `
+      <p>Conditional formatting turns a column of numbers into something a reader can scan visually instead of reading one at a time. Home → Conditional Formatting offers three main patterns:</p>
+      <table>
+        <tr><th>Type</th><th>Best for</th></tr>
+        <tr><td><strong>Data bars</strong></td><td>Showing relative magnitude within a column, like a mini bar chart inside the cells</td></tr>
+        <tr><td><strong>Color scales (heatmaps)</strong></td><td>Spotting highs and lows across a whole grid at once, like a table of monthly sales by region</td></tr>
+        <tr><td><strong>Icon sets</strong></td><td>Flagging status at a glance — a red/yellow/green traffic light for performance against target</td></tr>
+      </table>
+      <div class="callout green">✅ <strong>Restraint matters:</strong> Applying conditional formatting to every column at once produces visual noise, not clarity. Reserve it for the two or three metrics that actually need to jump out.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Formatting check",
+    question: "You have a table of monthly sales figures for 12 regions and want someone to instantly spot the strongest and weakest regions each month, across the whole grid. Which conditional formatting type fits best?",
+    options: [
+      "Icon sets, since traffic-light colors are always the most informative choice",
+      "A color scale (heatmap), since it shows relative highs and lows continuously across an entire grid at a glance",
+      "Data bars, since they work best for two-dimensional grids",
+      "No formatting is needed if the numbers are already sorted"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 A color scale is built specifically for scanning an entire grid at once and spotting relative highs and lows through color intensity — which is exactly the 'strongest and weakest across the whole table' use case described here.",
+      wrong: "The answer is B. Color scales excel at whole-grid pattern recognition. Data bars work better within a single column, and icon sets are best for discrete status categories rather than continuous relative comparison across a full table."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Chart selection',
+    emoji: '📊',
+    title: "Choosing the right chart — and the honest case against pie charts",
+    body: `
+      <p>The chart type should match the question being asked, not personal preference or what looks impressive.</p>
+      <table>
+        <tr><th>Question</th><th>Chart</th></tr>
+        <tr><td>How did this change over time?</td><td>Line chart</td></tr>
+        <tr><td>How do these categories compare?</td><td>Bar chart</td></tr>
+        <tr><td>Is there a relationship between two variables?</td><td>Scatter plot</td></tr>
+        <tr><td>What share does each category hold?</td><td>Bar chart (usually), rarely a pie chart</td></tr>
+      </table>
+      <div class="callout amber">💡 <strong>The honest case against pie charts:</strong> Human eyes are genuinely bad at comparing angles and areas precisely — a bar chart showing the same category shares is almost always easier to read accurately, especially once there are more than three or four slices. Pie charts aren't forbidden, but a bar chart is usually the better default.</div>
+      <p>Dynamic charts built on named ranges or Excel Tables automatically expand as new data is added — no need to manually update the chart's source range every month.</p>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Chart choice check",
+    question: "You want to show monthly revenue trending over the past two years. What's the most appropriate chart type?",
+    options: [
+      "A pie chart, since it shows the full picture",
+      "A line chart, since it clearly shows change over a continuous time period",
+      "A scatter plot, since it works for any two-variable comparison",
+      "It doesn't matter which chart type you pick"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Line charts are built for showing trends over a continuous sequence like time — the connected line makes the direction and rate of change immediately visible in a way a pie chart or scatter plot wouldn't for this kind of question.",
+      wrong: "The answer is B. Line charts are the standard choice for time-based trends because the connecting line itself communicates direction and rate of change — a pie chart doesn't handle time at all, and a scatter plot is better suited to relationships between two independent variables."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Pick the chart",
+    instruction: "You want to show whether there's a relationship between marketing spend and units sold across 40 different product campaigns. What chart type would you choose, and why?",
+    placeholder: "Name the chart type and explain your reasoning...",
+    response: "A scatter plot is the right choice here. It's specifically built to reveal whether two numeric variables — marketing spend and units sold — move together, and each of the 40 campaigns would appear as one point, letting a viewer visually judge whether higher spend tends to correlate with higher sales, or whether the relationship is weak or nonexistent. A line or bar chart wouldn't reveal this kind of relationship between two independent variables nearly as clearly."
+  },
+  {
+    type: 'lesson',
+    tag: 'Interactivity',
+    emoji: '🎛️',
+    title: "Slicers and timelines: interactivity without a single line of code",
+    body: `
+      <p>Slicers (covered briefly in Module 104) aren't just for PivotTables — they can also filter regular Excel Tables directly. A <strong>Timeline</strong> is a specialized slicer built specifically for date fields, with a draggable range instead of a button list.</p>
+      <div class="step-wrap">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div><div class="step-title">Add slicers for the 2-3 dimensions people actually filter by</div><div class="step-desc">Region, Product Category, Sales Rep — whatever the real recurring questions are. More than that starts cluttering the page.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div><div class="step-title">Connect slicers across multiple visuals</div><div class="step-desc">One slicer can filter several PivotTables, PivotCharts, and Tables at once via Report Connections — this is what makes the page feel like one cohesive dashboard rather than several disconnected pieces.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div><div class="step-title">Lock the layout before sharing</div><div class="step-desc">Protect the sheet (leaving slicers and input cells unlocked) so recipients can filter and explore without accidentally deleting a formula or chart.</div></div>
+        </div>
+      </div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Final check ✏️',
+    emoji: '🎯',
+    title: "Dashboards wrap-up",
+    question: "A dashboard you built has 8 different slicers scattered around the page, and users say they don't know where to start. What's the most likely design mistake?",
+    options: [
+      "There's no way to have too many slicers on a dashboard",
+      "Too many filter options were added instead of focusing on the 2-3 dimensions people actually filter by most often, creating clutter instead of clarity",
+      "The slicers should have been replaced with pie charts instead",
+      "The dashboard needs more conditional formatting to fix this"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 This is a direct violation of the 'one page, one story, audience-first' principle from Lesson 1. Piling on every possible filter option overwhelms the viewer instead of guiding them — a smaller, deliberate set of slicers for the dimensions people genuinely use keeps the dashboard usable.",
+      wrong: "The answer is B. The core issue is too many competing filter options, not a lack of slicers or formatting. Good dashboard design means choosing the 2-3 filters that map to real recurring questions, not offering every possible dimension at once."
+    }
+  }
+]
+;
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '📉'; title = "You can build a dashboard people actually use."; sub = "Audience-first design, restrained formatting, the right chart for the question, and connected slicers — this is what separates a dashboard from a spreadsheet someone opens once."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core design instincts down. A second pass on chart selection will round it out."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Design judgment builds with practice looking at real examples. Revisiting Lessons 1 and 4 will help the reasoning click."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout accent">
+          <strong>What you now know:</strong><br><br>
+          
+          🎯 <strong>Design principles</strong> — audience-first, one page, one story, no chartjunk<br>
+          🎨 <strong>Conditional formatting</strong> — data bars, heatmaps, icon sets, used with restraint<br>
+          📊 <strong>Chart selection</strong> — match the chart to the question, not personal preference<br>
+          🎛️ <strong>Slicers & timelines</strong> — connected, focused interactivity
+    
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          Every design choice in a dashboard should answer one question: does this help the viewer understand faster, or does it just look impressive? When those two things conflict, understanding wins every time.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="excel_learn.html">← Back to Learn Excel</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

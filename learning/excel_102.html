@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 102 — Core Functions & Logic</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a1220;
+  --card: #101c30;
+  --surface: #0d1728;
+  --border: #1e3050;
+  --accent: #60a5fa;
+  --accent-dark: #2563eb;
+  --accent-light: #101f3d;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #e8f0fa;
+  --muted: #7d94ba;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #080e18; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-light); color: var(--accent); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+.lesson-body th { color: var(--text); font-weight: 700; }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.4rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.accent { background: var(--accent-light); border-left: 4px solid var(--accent); color: var(--accent); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.step-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.step-item { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.step-item:last-child { padding-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-light); font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--accent); }
+.try-submit { margin-top: 0.5rem; background: var(--accent-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--accent); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--accent-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--accent); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="excel_learn.html">← Hub</a>
+<h1>🧮 Excel 102 — Core Functions & Logic</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 9</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = 
+[
+  {
+    type: 'lesson',
+    tag: 'Beginner',
+    emoji: '🧮',
+    title: "Core Functions & Logic: the formulas analysts write every day",
+    body: `
+      <p>If Module 101 was about navigating a sheet, this one is about making it think. A handful of functions cover the majority of what shows up in real analyst work and in screening questions.</p>
+      <p>This module covers:</p>
+      <div class="callout accent">
+        🔢 <strong>Aggregate basics</strong> — SUM, AVERAGE, COUNT, COUNTA and when to use which<br><br>
+        🔀 <strong>IF logic</strong> — single, nested, and the cleaner IFS alternative<br><br>
+        🎯 <strong>Conditional aggregation</strong> — SUMIFS/COUNTIFS, the workhorse of real reporting<br><br>
+        🧵 <strong>Text functions & error handling</strong> — cleaning strings and wrapping formulas so they fail gracefully
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'Aggregates',
+    emoji: '🔢',
+    title: "SUM, AVERAGE, COUNT, and COUNTA — knowing which one to reach for",
+    body: `
+      <p>These four functions look similar but answer different questions, and mixing them up is a common early mistake.</p>
+      <table>
+        <tr><th>Function</th><th>Answers</th></tr>
+        <tr><td><code>SUM(range)</code></td><td>What's the total?</td></tr>
+        <tr><td><code>AVERAGE(range)</code></td><td>What's the typical value?</td></tr>
+        <tr><td><code>COUNT(range)</code></td><td>How many cells contain numbers?</td></tr>
+        <tr><td><code>COUNTA(range)</code></td><td>How many cells are non-empty (numbers or text)?</td></tr>
+      </table>
+      <div class="callout amber">💡 <strong>The COUNT vs COUNTA trap:</strong> If you're counting how many orders exist and the Order ID column has text-based IDs like "ORD-4471", <code>COUNT</code> will return 0 because it only counts numeric cells. <code>COUNTA</code> is the one you want.</div>
+      <p>AVERAGE also has a quiet gotcha: it ignores blank cells, but not zeros. A cell that's genuinely empty and a cell with 0 in it produce different averages — worth checking which one your data actually has before trusting the result.</p>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'IF logic',
+    emoji: '🔀',
+    title: "IF, nested IF, and when IFS is the cleaner choice",
+    body: `
+      <p>The basic shape is <code>=IF(condition, value_if_true, value_if_false)</code>. Once you need more than two outcomes, people traditionally nest IFs inside each other:</p>
+      <p><code>=IF(A2>=90,"A",IF(A2>=80,"B",IF(A2>=70,"C","F")))</code></p>
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Nested IFs are a chain of doors. IFS is a hallway with labeled rooms.</div>
+        <div class="analogy-body">Each nested IF only opens if the previous one said "no" — miss a parenthesis anywhere in that chain and the whole formula breaks. IFS lets you list condition-result pairs directly, without the parenthesis-counting risk: =IFS(A2>=90,"A",A2>=80,"B",A2>=70,"C",TRUE,"F")</div>
+      </div>
+      <div class="callout cyan">💡 <strong>Interview signal:</strong> Mentioning IFS as a readability improvement over deeply nested IFs shows you've actually hit the pain of debugging a five-level-deep nested formula before.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "IF logic check",
+    question: "You're building a formula with four possible grade outcomes (A/B/C/F) based on a score. What's the main practical downside of nesting three IF functions inside each other, compared to using IFS?",
+    options: [
+      "Nested IFs are actually faster to calculate than IFS",
+      "Nested IFs get harder to read and easier to break (mismatched parentheses) as more conditions are added",
+      "IFS doesn't exist in most versions of Excel, so nested IF is the only real option",
+      "There's no real difference between the two approaches"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Nested IFs work fine for two or three conditions, but every added condition means another layer of parentheses to track. IFS lists condition-result pairs in a flat, readable sequence, which scales much better as logic grows.",
+      wrong: "The answer is B. The core tradeoff is readability and error risk — as conditions stack up, nested IFs become a fragile chain of parentheses, while IFS stays flat and easy to scan even with several conditions."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Conditional aggregation',
+    emoji: '🎯',
+    title: "SUMIFS and COUNTIFS — the real workhorses of reporting",
+    body: `
+      <p>Most real analyst questions aren't "what's the total?" — they're "what's the total <em>for this region, in this month, above this threshold</em>?" That's exactly what SUMIFS and COUNTIFS are built for.</p>
+      <p><code>=SUMIFS(sum_range, criteria_range1, criteria1, criteria_range2, criteria2, ...)</code></p>
+      <div class="usecase-card">
+        <div class="usecase-icon">📦</div>
+        <div><div class="usecase-title">Single condition</div><div class="usecase-desc">=SUMIFS(Sales, Region, "West") — total sales where Region equals "West"</div></div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">📦</div>
+        <div><div class="usecase-title">Multiple conditions</div><div class="usecase-desc">=SUMIFS(Sales, Region, "West", Month, "March") — total sales in the West during March, both conditions must be true</div></div>
+      </div>
+      <div class="callout green">✅ <strong>Note the naming order:</strong> SUM comes first (SUMIFS), matching where the result comes from — this trips up people used to the older, single-condition SUMIF, which puts the sum range last instead.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "SUMIFS check",
+    question: "You need the total revenue for orders where Region = \"East\" AND Status = \"Completed\". Which formula structure is correct?",
+    options: [
+      "=SUMIFS(Revenue, Region, \"East\") — Status doesn't need to be included",
+      "=SUMIFS(Revenue, Region, \"East\", Status, \"Completed\") — both conditions passed as range/criteria pairs",
+      "=SUMIF(Revenue, Region, \"East\", Status, \"Completed\")",
+      "=SUM(Revenue, Region=\"East\", Status=\"Completed\")"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 SUMIFS takes the sum range first, then as many range/criteria pairs as you need. Both conditions must be true for a row to be included — that's the whole point of the 'S' in SUMIFS versus the single-condition SUMIF.",
+      wrong: "The answer is B. SUMIFS needs the sum range first, followed by paired arguments: the range to check, then the value to match, repeated for each condition. Leaving out a condition (option A) would ignore the Status filter entirely, and SUMIF (option C) only supports one condition."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Text & errors',
+    emoji: '🧵',
+    title: "Cleaning text and handling errors gracefully",
+    body: `
+      <p>Real data is rarely clean. Text functions and error handling are how you deal with that reality instead of getting blocked by it.</p>
+      <table>
+        <tr><th>Function</th><th>Use</th></tr>
+        <tr><td><code>TRIM(text)</code></td><td>Removes extra spaces — fixes the #1 cause of "why doesn't this match?" bugs</td></tr>
+        <tr><td><code>LEFT/RIGHT/MID</code></td><td>Pull a substring — e.g. extracting a product code's prefix</td></tr>
+        <tr><td><code>CONCAT / TEXTJOIN</code></td><td>Combine text from multiple cells, TEXTJOIN also lets you add a delimiter</td></tr>
+        <tr><td><code>IFERROR(formula, fallback)</code></td><td>Show something sensible instead of #N/A or #DIV/0! when a formula fails</td></tr>
+      </table>
+      <div class="callout red">⚠️ <strong>Don't overuse IFERROR:</strong> Wrapping every formula in IFERROR(formula,"") can hide real bugs by silently replacing errors with blanks. Use it deliberately — for expected edge cases like a lookup that legitimately won't always find a match — not as a blanket fix for formulas you haven't debugged.</div>
+    `
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Design the formula",
+    instruction: "You have a Sales table with columns Region, Product, and Amount. You need the total Amount where Region is \"Midwest\" and Product is \"Widget\". Write the formula, and name which cells or ranges you'd reference.",
+    placeholder: "Write the SUMIFS formula and describe the ranges...",
+    response: "A solid answer: =SUMIFS(Amount, Region, \"Midwest\", Product, \"Widget\") — where Amount, Region, and Product are the full column ranges (e.g. D:D, A:A, B:B, or better, named table columns). The sum range comes first, then each condition is a range-then-criteria pair. If you used named ranges or an Excel Table, referencing Table1[Amount] instead of D:D would also be a strong, more maintainable answer."
+  },
+  {
+    type: 'quiz',
+    tag: 'Final check ✏️',
+    emoji: '🎯',
+    title: "Functions & logic wrap-up",
+    question: "You wrap a VLOOKUP in IFERROR so that unmatched rows show \"Not found\" instead of #N/A. Later, half the results start showing \"Not found\" even though you know the data exists. What's the risk you may have run into?",
+    options: [
+      "IFERROR is broken and needs to be replaced",
+      "The IFERROR is masking a real problem (like mismatched text or a wrong column reference) rather than just handling expected missing matches",
+      "You need to add more decimal places to the lookup value",
+      "This is normal and nothing to investigate further"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 This is the exact risk of overusing IFERROR — it silences the #N/A that would have told you something was actually wrong (extra spaces, a text/number mismatch, a shifted column) and replaces it with a friendly-looking message that hides the bug.",
+      wrong: "The answer is B. IFERROR doesn't fix a lookup problem — it just hides the error message. If \"Not found\" results start appearing that shouldn't, the IFERROR is very likely masking a real underlying issue that needs to be debugged, not ignored."
+    }
+  }
+]
+;
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🧮'; title = "Functions and logic are second nature now."; sub = "SUMIFS, IF logic, and graceful error handling are the backbone of daily analyst formulas — lookups are next, and they build directly on this."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core logic down. A second pass on SUMIFS' argument order will make the harder module ahead easier."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Conditional aggregation takes practice to feel natural. Revisiting Lessons 4 and 5 before moving to lookups will help a lot."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout accent">
+          <strong>What you now know:</strong><br><br>
+          
+          🔢 <strong>Aggregates</strong> — SUM/AVERAGE/COUNT/COUNTA and their quiet differences<br>
+          🔀 <strong>IF logic</strong> — nested IF vs. the cleaner IFS<br>
+          🎯 <strong>SUMIFS/COUNTIFS</strong> — multi-condition reporting, the real daily workhorse<br>
+          🧵 <strong>Text & errors</strong> — TRIM, TEXTJOIN, and using IFERROR deliberately, not as a blanket fix
+    
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          A formula's job isn't just to produce a number — it's to produce the right number even when the data is messy. Every function in this module exists to handle some version of 'real data isn't clean.'
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="excel_learn.html">← Back to Learn Excel</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 103 — Lookups Done Right</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0f0f1a;
+  --card: #171729;
+  --surface: #131324;
+  --border: #2c2748;
+  --accent: #a78bfa;
+  --accent-dark: #7c3aed;
+  --accent-light: #1e1a3a;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0c0c14; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-light); color: var(--accent); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+.lesson-body th { color: var(--text); font-weight: 700; }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.4rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.accent { background: var(--accent-light); border-left: 4px solid var(--accent); color: var(--accent); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.step-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.step-item { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.step-item:last-child { padding-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-light); font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--accent); }
+.try-submit { margin-top: 0.5rem; background: var(--accent-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--accent); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--accent-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--accent); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="excel_learn.html">← Hub</a>
+<h1>🔍 Excel 103 — Lookups Done Right</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 8</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = 
+[
+  {
+    type: 'lesson',
+    tag: 'Intermediate',
+    emoji: '🔍',
+    title: "Lookups Done Right: VLOOKUP, INDEX/MATCH, and XLOOKUP",
+    body: `
+      <p>Lookup functions are the single most-tested skill in analyst interviews, because they reveal whether someone has actually built real spreadsheets or just watched a tutorial once. This module compares all three approaches honestly, including where each one breaks.</p>
+      <p>This module covers:</p>
+      <div class="callout accent">
+        📋 <strong>VLOOKUP</strong> — the classic, and its real limitations<br><br>
+        🧩 <strong>INDEX/MATCH</strong> — the combination that fixes VLOOKUP's biggest weaknesses<br><br>
+        ⚡ <strong>XLOOKUP</strong> — the modern default, if your Excel version supports it<br><br>
+        🎤 <strong>Interview framing</strong> — how to talk about these functions out loud, not just use them
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The classic',
+    emoji: '📋',
+    title: "VLOOKUP — what it does, and where it breaks",
+    body: `
+      <p><code>=VLOOKUP(lookup_value, table_array, col_index_num, [range_lookup])</code> searches for a value in the leftmost column of a range, then returns a value from a specified column to its right.</p>
+      <div class="risk-card risk-amber">
+        <div class="risk-level">⚠️ Limitation 1</div>
+        <div class="risk-title">Must look rightward</div>
+        <div class="risk-desc">VLOOKUP can only return values from columns to the right of the lookup column. If the value you need sits to the left, VLOOKUP simply can't reach it.</div>
+      </div>
+      <div class="risk-card risk-amber">
+        <div class="risk-level">⚠️ Limitation 2</div>
+        <div class="risk-title">Breaks when columns are inserted</div>
+        <div class="risk-desc">col_index_num is a fixed number (3, 4, etc). Insert a new column into the table and every VLOOKUP referencing it now points at the wrong data — silently, with no error.</div>
+      </div>
+      <div class="risk-card risk-red">
+        <div class="risk-level">🚨 Limitation 3</div>
+        <div class="risk-title">The 4th argument default is dangerous</div>
+        <div class="risk-desc">Leave [range_lookup] blank or set it TRUE and VLOOKUP does an approximate match — silently returning a "close enough" wrong answer instead of an error. Always type FALSE for exact matches unless you specifically need approximation.</div>
+      </div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "VLOOKUP limitations check",
+    question: "A colleague's VLOOKUP formula was working fine, then someone inserted a new column into the middle of the lookup table, and now it's returning wrong values with no error message. What's the most likely cause?",
+    options: [
+      "VLOOKUP is broken and the file needs to be rebuilt from scratch",
+      "The col_index_num is a fixed number, and inserting a column shifted what data lives in that numbered position",
+      "VLOOKUP automatically stops working after a certain number of edits",
+      "The lookup_value must have changed on its own"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 VLOOKUP's col_index_num doesn't automatically track column names — it's just a position number. Insert a column before it and every formula referencing that number now points at different data, with no warning at all.",
+      wrong: "The answer is B. This is VLOOKUP's most notorious real-world failure mode: the column index is a hardcoded number, not a smart reference, so any structural change to the table (like an inserted column) silently breaks every formula depending on it."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'The fix',
+    emoji: '🧩',
+    title: "INDEX/MATCH — solving both of VLOOKUP's real problems",
+    body: `
+      <p>INDEX/MATCH is two functions working together. MATCH finds the <em>position</em> of a value; INDEX returns the value at a given position. Combined: <code>=INDEX(return_range, MATCH(lookup_value, lookup_range, 0))</code></p>
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">MATCH finds the row number. INDEX grabs what's there.</div>
+        <div class="analogy-body">Think of MATCH as flipping through a book's index to find "page 42," and INDEX as the act of turning to page 42 and reading it. Because they're independent, the return range doesn't need any spatial relationship to the lookup range at all — it can be to the left, right, or a totally different sheet.</div>
+      </div>
+      <div class="callout green">✅ <strong>Why this fixes VLOOKUP's problems:</strong> The return range and lookup range are specified independently, so looking leftward is trivial. And since neither uses a hardcoded column position, inserting columns anywhere doesn't break the formula.</div>
+      <p>The tradeoff: it's two functions instead of one, which reads as more complex at first — but it's exactly this resilience that makes it the traditional "I know what I'm doing" answer in interviews.</p>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "INDEX/MATCH check",
+    question: "You need to look up an Employee ID and return their Department, but the Department column sits to the LEFT of the Employee ID column in your data. Why does this rule out VLOOKUP but not INDEX/MATCH?",
+    options: [
+      "VLOOKUP can only search downward, never sideways",
+      "VLOOKUP can only return values to the right of its lookup column, while INDEX/MATCH treats the lookup and return ranges as independent",
+      "INDEX/MATCH is a newer function so it automatically handles every case VLOOKUP can't",
+      "There's actually no difference — both would fail equally"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 VLOOKUP is structurally limited to searching its own leftmost column and returning something to the right of it. INDEX/MATCH has no such constraint — the range you search and the range you return from are two separate arguments, so 'left of' or 'right of' simply doesn't apply.",
+      wrong: "The answer is B. The core structural difference is that VLOOKUP requires the return column to be to the right of the lookup column, while INDEX and MATCH work on two entirely independent ranges — letting you return a value from anywhere relative to what you searched."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'The modern default',
+    emoji: '⚡',
+    title: "XLOOKUP — what replaced both, where available",
+    body: `
+      <p>XLOOKUP (available in Excel 365 and Excel 2021+) was built to solve VLOOKUP's problems directly, in a single function: <code>=XLOOKUP(lookup_value, lookup_array, return_array, [if_not_found])</code></p>
+      <table>
+        <tr><th>Feature</th><th>VLOOKUP</th><th>INDEX/MATCH</th><th>XLOOKUP</th></tr>
+        <tr><td>Exact match by default</td><td>❌ (approximate unless set)</td><td>✅ (with 0 as 3rd arg)</td><td>✅</td></tr>
+        <tr><td>Can look leftward</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Survives inserted columns</td><td>❌</td><td>✅</td><td>✅</td></tr>
+        <tr><td>Built-in error handling</td><td>❌ (needs IFERROR)</td><td>❌ (needs IFERROR)</td><td>✅ (if_not_found arg)</td></tr>
+      </table>
+      <div class="callout cyan">💡 <strong>Why interviewers still ask about VLOOKUP and INDEX/MATCH:</strong> Not every workplace has upgraded to a version of Excel with XLOOKUP, and a lot of legacy spreadsheets still use the older functions. Knowing all three — and why XLOOKUP is generally preferred when available — shows you understand the tradeoffs, not just the newest tool.</div>
+    `
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Choose your lookup",
+    instruction: "You're working in a company that's still on an older version of Excel without XLOOKUP. You need to look up a product's Supplier Name, and the Supplier Name column sits to the left of the Product ID column in the source data. Which function would you use, and why?",
+    placeholder: "Name the function and explain your reasoning...",
+    response: "INDEX/MATCH is the right call here — for two independent reasons. First, since XLOOKUP isn't available in this environment, it's off the table entirely. Second, even if it were available, the fact that Supplier Name sits to the left of Product ID rules out VLOOKUP on its own, since VLOOKUP can only return values to the right of its lookup column. INDEX/MATCH has no such directional constraint, making it the correct choice for both reasons at once."
+  },
+  {
+    type: 'quiz',
+    tag: 'Final check ✏️',
+    emoji: '🎯',
+    title: "Lookups wrap-up",
+    question: "In an interview, you're asked to explain out loud why you'd choose INDEX/MATCH over VLOOKUP for a specific dataset. What's the strongest way to answer?",
+    options: [
+      "Say VLOOKUP is outdated and should never be used",
+      "Explain the specific structural reason for this dataset — like needing to look leftward, or wanting resilience against future inserted columns — rather than a generic preference",
+      "Say you always use whichever one is faster to type",
+      "Avoid the question and say lookups aren't something you focus on"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Interviewers are testing whether you understand *why* the functions differ, not just which one is trendier. Grounding your answer in the actual structural reason — direction of lookup, resilience to column changes — shows real hands-on experience rather than memorized talking points.",
+      wrong: "The answer is B. The strongest interview answers are specific: naming the actual structural reason (leftward lookup, resilience to inserted columns) rather than a blanket statement like 'VLOOKUP is outdated.' That specificity is what signals real experience over memorized advice."
+    }
+  }
+]
+;
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🔍'; title = "You can pick the right lookup for any dataset."; sub = "VLOOKUP, INDEX/MATCH, and XLOOKUP — and more importantly, when each one is the right call. That reasoning is exactly what interviewers are listening for."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core tradeoffs down. A second pass on why VLOOKUP can't look leftward will make the reasoning fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Lookups take repetition, especially the directional limits of VLOOKUP. Revisiting Lessons 2 and 3 before your next practice problem will help a lot."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout accent">
+          <strong>What you now know:</strong><br><br>
+          
+          📋 <strong>VLOOKUP</strong> — simple, but breaks on inserted columns and can't look left<br>
+          🧩 <strong>INDEX/MATCH</strong> — two independent functions, fixes both weaknesses<br>
+          ⚡ <strong>XLOOKUP</strong> — the modern single-function answer, where available<br>
+          🎤 <strong>Interview framing</strong> — explain the structural reason, not just the function name
+    
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          Every lookup function answers the same question — 'find this, return that' — but they disagree on how fragile that answer is when your data changes shape. Choose based on how much the data will move, not just what's fastest to type today.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="excel_learn.html">← Back to Learn Excel</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

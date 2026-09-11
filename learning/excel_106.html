@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 106 — Power Query</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #10101f;
+  --card: #191933;
+  --surface: #14142a;
+  --border: #2c2748;
+  --accent: #818cf8;
+  --accent-dark: #4f46e5;
+  --accent-light: #1e1c3d;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #e8e8f8;
+  --muted: #8b8bb5;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #0c0c18; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-light); color: var(--accent); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+.lesson-body th { color: var(--text); font-weight: 700; }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.4rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.accent { background: var(--accent-light); border-left: 4px solid var(--accent); color: var(--accent); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.step-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.step-item { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.step-item:last-child { padding-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-light); font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--accent); }
+.try-submit { margin-top: 0.5rem; background: var(--accent-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--accent); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--accent-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--accent); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="excel_learn.html">← Hub</a>
+<h1>🔌 Excel 106 — Power Query</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 9</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = 
+[
+  {
+    type: 'lesson',
+    tag: 'Advanced',
+    emoji: '🔌',
+    title: "Power Query: turning manual cleanup into a repeatable pipeline",
+    body: `
+      <p>Everything in Module 105 works, but it's manual — do it once, and you'll have to do it again next week when new data comes in. Power Query records your cleaning steps and lets you replay them automatically on refreshed data, turning cleanup into a real, repeatable pipeline.</p>
+      <p>This module covers:</p>
+      <div class="callout accent">
+        🔁 <strong>Why Power Query beats manual cleaning</strong> — repeatability is the entire point<br><br>
+        🏗️ <strong>The basic workflow</strong> — Get Data, Transform, Close & Load<br><br>
+        🔗 <strong>Merge & Append</strong> — joining and stacking tables like a database would<br><br>
+        🧾 <strong>The M language</strong> — and why you rarely need to write it by hand
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The concept',
+    emoji: '🔁',
+    title: "Why Power Query beats manually cleaning data every time",
+    body: `
+      <p>Power Query is Excel's built-in ETL (Extract, Transform, Load) tool. Every cleaning action you take — removing a column, splitting text, filtering rows — gets recorded as a named step in the <strong>Applied Steps</strong> pane.</p>
+      <div class="analogy-block">
+        <div class="analogy-label">Analogy</div>
+        <div class="analogy-title">Manual cleaning is doing dishes by hand. Power Query is programming the dishwasher once.</div>
+        <div class="analogy-body">Clean a dataset by hand and you've solved today's problem. Build the same cleaning as a Power Query, and next week's refreshed export runs through the exact same steps automatically — split, filtered, deduplicated — the moment you hit Refresh.</div>
+      </div>
+      <div class="callout green">✅ <strong>The real payoff:</strong> Once built, a Power Query pipeline turns "spend two hours cleaning this every Monday" into "click Refresh, wait ten seconds."</div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The workflow',
+    emoji: '🏗️',
+    title: "Get Data → Transform → Close & Load",
+    body: `
+      <p>Every Power Query project follows the same basic shape:</p>
+      <div class="step-wrap">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div><div class="step-title">Get Data</div><div class="step-desc">Data → Get Data pulls from a file, a database, a folder of files, or a web page — opening the Power Query Editor.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div><div class="step-title">Transform</div><div class="step-desc">Inside the editor, apply steps: remove columns, filter rows, change data types, split columns — each one is recorded, in order, in the Applied Steps pane on the right.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div><div class="step-title">Close & Load</div><div class="step-desc">Sends the transformed result into your worksheet as a table, or straight into a PivotTable/data model. Change the source file and hit Refresh, and every recorded step reruns automatically.</div></div>
+        </div>
+      </div>
+      <div class="callout cyan">💡 <strong>The Applied Steps pane is your safety net:</strong> Made a mistake three steps back? Click that step in the list to jump back to it, fix it, and every step after automatically recalculates — no need to redo the whole process from scratch.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Workflow check",
+    question: "You're four steps into a Power Query transformation and realize step 2 (a column rename) was wrong. What's the correct way to fix it?",
+    options: [
+      "Start the entire query over from scratch",
+      "Click step 2 in the Applied Steps pane, fix it there, and the later steps automatically recalculate",
+      "Manually redo steps 3 and 4 by hand in the worksheet",
+      "It's not possible to fix an earlier step once later steps have been added"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 The Applied Steps pane keeps every transformation as an editable, named step. Clicking an earlier step lets you fix it directly, and everything downstream automatically reruns against the correction — no need to rebuild anything.",
+      wrong: "The answer is B. This is one of Power Query's biggest advantages over manual cleaning: any step in the sequence remains editable, and fixing it ripples forward automatically through all the steps that came after it."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Combining tables',
+    emoji: '🔗',
+    title: "Merge and Append — joining and stacking, the database way",
+    body: `
+      <p>Two operations cover most real-world "combine these tables" needs, and they solve different problems.</p>
+      <table>
+        <tr><th>Operation</th><th>Think of it as</th><th>Use when</th></tr>
+        <tr><td><strong>Merge</strong></td><td>A SQL-style JOIN</td><td>You need to pull matching columns from a second table based on a shared key (like adding Customer Name to an Orders table using Customer ID)</td></tr>
+        <tr><td><strong>Append</strong></td><td>A SQL-style UNION</td><td>You have several tables with the same columns — like monthly exports — and want to stack them into one long table</td></tr>
+      </table>
+      <div class="callout amber">💡 <strong>If you've used a lookup function for this before:</strong> Merge accomplishes what a VLOOKUP or INDEX/MATCH does, but at the table level, and it stays connected — refresh the source, and the merge re-runs automatically instead of needing every formula recalculated.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Merge vs. Append check",
+    question: "You receive a separate spreadsheet export for each month of the year, all with the identical column layout, and want one combined table for the full year. Which Power Query operation fits?",
+    options: [
+      "Merge, since you're combining data from multiple sources",
+      "Append, since you're stacking tables with the same structure on top of each other rather than matching them on a key",
+      "Neither — this can only be done manually by copy-pasting",
+      "Merge and Append do the exact same thing, so either works"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Append is for stacking tables with matching columns into one longer table — exactly the monthly-exports scenario. Merge is for joining two tables on a shared key, which isn't what's needed when the tables already share the same structure.",
+      wrong: "The answer is B. Merge and Append solve different problems: Merge joins on a shared key (like a SQL JOIN), while Append stacks tables with the same columns into one (like a SQL UNION) — which is exactly what combining twelve monthly exports calls for."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Choose the transform",
+    instruction: "You have an Orders table with a Customer ID column, and a separate Customers table with Customer ID, Name, and Region. You need a single table showing every order along with the customer's Name and Region. Which Power Query operation would you use, and what would you match on?",
+    placeholder: "Name the operation and describe the key you'd join on...",
+    response: "Merge is the right operation here, joining the Orders table and the Customers table on the shared Customer ID column. This pulls Name and Region into the Orders table for every matching row, similar to what a VLOOKUP or INDEX/MATCH would do — but as a query step that automatically reruns whenever either source table is refreshed, rather than a formula that needs to be re-copied down every time new orders are added."
+  },
+  {
+    type: 'lesson',
+    tag: 'Under the hood',
+    emoji: '🧾',
+    title: "The M language, and why you rarely need to write it by hand",
+    body: `
+      <p>Every click in the Power Query Editor generates code behind the scenes, in a language called M. You can view it anytime via <strong>View → Advanced Editor</strong>.</p>
+      <div class="callout cyan">💡 <strong>The honest truth for most analysts:</strong> You will rarely need to write M by hand. Nearly everything — filtering, splitting, merging, appending, changing types — is available through the point-and-click interface, which generates correct M automatically.</div>
+      <p>Where M becomes genuinely useful is for edge cases the UI doesn't cover directly — like a custom column with conditional logic more complex than the built-in dialog supports, or parameterizing a query so the same pipeline can run against different file paths. Knowing it exists, and that you can always peek at the generated code to learn from it, matters more at first than being able to write it from scratch.</p>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Final check ✏️',
+    emoji: '🎯',
+    title: "Power Query wrap-up",
+    question: "A colleague says they avoided learning Power Query because they 'don't know how to code.' What's the most accurate response?",
+    options: [
+      "They're right — Power Query requires writing the M language from scratch to do anything useful",
+      "Nearly all common transformations are available through the point-and-click interface, which generates the underlying M code automatically — coding it by hand is rarely necessary",
+      "Power Query is only useful for people who already know SQL",
+      "Power Query and coding are unrelated, so the concern doesn't apply either way"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 The whole design of Power Query is a click-based interface that generates M code behind the scenes. Most real-world transformations — including merges and appends — never require looking at, let alone writing, the underlying code.",
+      wrong: "The answer is B. This is a common misconception that keeps people from a genuinely high-leverage tool. The Power Query Editor handles the vast majority of transformations through clicks alone; hand-writing M is an advanced, optional skill, not a prerequisite."
+    }
+  }
+]
+;
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🔌'; title = "You can turn manual cleanup into a real pipeline."; sub = "Get Data, Transform, Merge, Append, and knowing when the M language matters — this is the skill that turns "clean it every week by hand" into "click Refresh.""; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core workflow down. A second pass on Merge vs. Append will make the distinction fully click."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Power Query clicks faster with a real dataset in front of you. Revisiting Lessons 2 and 4 while following along in Excel will help a lot."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout accent">
+          <strong>What you now know:</strong><br><br>
+          
+          🔁 <strong>The concept</strong> — repeatable, refreshable cleaning instead of one-time manual work<br>
+          🏗️ <strong>The workflow</strong> — Get Data, Transform (Applied Steps), Close & Load<br>
+          🔗 <strong>Merge & Append</strong> — table-level JOIN and UNION equivalents<br>
+          🧾 <strong>The M language</strong> — generated automatically; rarely needs to be hand-written
+    
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          The value of Power Query isn't any single transformation — it's that the whole sequence is recorded, editable, and rerunnable. Build the pipeline once, and every future refresh does the work you used to redo by hand.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="excel_learn.html">← Back to Learn Excel</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Excel 105 — Data Cleaning</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #140f0a;
+  --card: #201810;
+  --surface: #1a130d;
+  --border: #40281a;
+  --accent: #fb923c;
+  --accent-dark: #ea580c;
+  --accent-light: #2e1f10;
+  --amber: #fbbf24;
+  --amber-light: #2e2410;
+  --green: #34d399;
+  --green-light: #0a2a1f;
+  --red: #f87171;
+  --red-light: #2a0f0f;
+  --cyan: #22d3ee;
+  --cyan-light: #0a2530;
+  --text: #f5ece2;
+  --muted: #ba9a80;
+}
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+header { background: #100c08; border-bottom: 1px solid var(--border); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; }
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: var(--border); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--accent); border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; color: var(--muted); white-space: nowrap; }
+
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+.lesson-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 2rem; margin-bottom: 1rem; display: none; animation: slideIn 0.3s ease; }
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag { display: inline-block; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: var(--accent-light); color: var(--accent); padding: 0.25rem 0.65rem; border-radius: 20px; margin-bottom: 0.875rem; }
+.lesson-tag.quiz-tag { background: var(--amber-light); color: var(--amber); }
+.lesson-tag.tip-tag { background: var(--cyan-light); color: var(--cyan); }
+.lesson-tag.level-tag { background: var(--green-light); color: var(--green); }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; color: var(--text); }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+.lesson-body table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.82rem; }
+.lesson-body th, .lesson-body td { text-align: left; padding: 0.5rem 0.65rem; border-bottom: 1px solid var(--border); }
+.lesson-body th { color: var(--text); font-weight: 700; }
+.lesson-body code { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 0.1rem 0.4rem; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.85em; color: var(--accent); }
+
+.callout { border-radius: 12px; padding: 0.875rem 1rem; margin: 1rem 0; font-size: 0.875rem; line-height: 1.6; }
+.callout.accent { background: var(--accent-light); border-left: 4px solid var(--accent); color: var(--accent); }
+.callout.cyan { background: var(--cyan-light); border-left: 4px solid var(--cyan); color: var(--cyan); }
+.callout.amber { background: var(--amber-light); border-left: 4px solid var(--amber); color: var(--amber); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: var(--green); }
+.callout.red { background: var(--red-light); border-left: 4px solid var(--red); color: var(--red); }
+
+.analogy-block { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.analogy-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; }
+.analogy-title { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.analogy-body { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
+
+.usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin: 0.6rem 0; display: flex; gap: 0.75rem; align-items: flex-start; }
+.usecase-icon { font-size: 1.3rem; flex-shrink: 0; }
+.usecase-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.2rem; }
+.usecase-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.step-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin: 1rem 0; }
+.step-item { display: flex; gap: 0.875rem; align-items: flex-start; padding-bottom: 0.875rem; }
+.step-item:last-child { padding-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--accent-light); font-weight: 800; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.step-title { font-size: 0.85rem; font-weight: 700; color: var(--text); margin-bottom: 0.15rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+.risk-card { border-radius: 12px; padding: 1rem; margin: 0.6rem 0; border: 1px solid var(--border); background: var(--surface); }
+.risk-level { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.4rem; }
+.risk-title { font-size: 0.875rem; font-weight: 700; color: var(--text); margin-bottom: 0.4rem; }
+.risk-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.5; }
+.risk-green .risk-level { color: var(--green); }
+.risk-amber .risk-level { color: var(--amber); }
+.risk-red .risk-level { color: var(--red); }
+
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option { background: var(--surface); border: 2px solid var(--border); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem; color: var(--text); }
+.quiz-option:hover { border-color: var(--accent); background: var(--accent-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: var(--green); pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: var(--red); pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.4; }
+.option-letter { width: 26px; height: 26px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.quiz-option.correct .option-letter { background: var(--green); color: #0a2a1f; }
+.quiz-option.wrong .option-letter { background: var(--red); color: #2a0f0f; }
+
+.quiz-feedback { margin-top: 1rem; padding: 0.875rem 1rem; border-radius: 12px; font-size: 0.875rem; line-height: 1.6; display: none; }
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: var(--green); }
+.quiz-feedback.wrong { background: var(--red-light); color: var(--red); }
+
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--surface); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--accent); }
+.try-submit { margin-top: 0.5rem; background: var(--accent-dark); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 700; cursor: pointer; }
+.try-submit:hover { background: var(--accent); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--accent-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--accent); }
+.try-response.show { display: block; }
+
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 1.75rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+.btn-next:hover { background: var(--accent); }
+.btn-back { background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.25rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--accent-light); color: var(--accent); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--accent-dark); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="excel_learn.html">← Hub</a>
+<h1>🧹 Excel 105 — Data Cleaning</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 9</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizAnswered = {};
+
+const lessons = 
+[
+  {
+    type: 'lesson',
+    tag: 'Intermediate',
+    emoji: '🧹',
+    title: "Data Cleaning: the unglamorous skill that eats most of an analyst's time",
+    body: `
+      <p>Ask any working analyst what they actually spend most of their time on, and the honest answer is rarely dashboards — it's wrestling messy data into a usable shape before any analysis can even begin.</p>
+      <p>This module covers:</p>
+      <div class="callout accent">
+        🗑️ <strong>Why real data is messy</strong> — the recurring patterns behind most "dirty" spreadsheets<br><br>
+        ✂️ <strong>Text-to-Columns & Flash Fill</strong> — splitting and reshaping text fast<br><br>
+        🔁 <strong>Duplicates & validation</strong> — removing mess, and preventing future mess<br><br>
+        📥 <strong>Messy exports</strong> — the specific headaches CSV and system exports create
+      </div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'The problem',
+    emoji: '🗑️',
+    title: "Why real-world data is never clean",
+    body: `
+      <p>Data rarely arrives the way you need it. A handful of recurring issues account for most of the mess:</p>
+      <div class="usecase-card">
+        <div class="usecase-icon">␣</div>
+        <div><div class="usecase-title">Extra spaces</div><div class="usecase-desc">"California " with a trailing space won't match "California" in a lookup or filter — invisible to the eye, but breaks exact matching.</div></div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔠</div>
+        <div><div class="usecase-title">Inconsistent case & spelling</div><div class="usecase-desc">"CA", "ca", "California", and "Calif." might all mean the same region to a human, but Excel treats them as four different values.</div></div>
+      </div>
+      <div class="usecase-card">
+        <div class="usecase-icon">🔀</div>
+        <div><div class="usecase-title">Mixed data types</div><div class="usecase-desc">A "Quantity" column with a mix of numbers and text like "N/A" or "TBD" breaks SUM and AVERAGE without any error message.</div></div>
+      </div>
+      <div class="callout amber">💡 <strong>Habit:</strong> Before analyzing any new dataset, scan for these patterns first. Ten minutes of cleaning up front saves hours of chasing a wrong total later.</div>
+    `
+  },
+  {
+    type: 'lesson',
+    tag: 'Splitting & reshaping',
+    emoji: '✂️',
+    title: "Text-to-Columns and Flash Fill",
+    body: `
+      <p>Two tools handle most text-reshaping needs, and knowing which to reach for saves real time.</p>
+      <div class="step-wrap">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div><div class="step-title">Text-to-Columns</div><div class="step-desc">Data → Text to Columns splits one column into several based on a delimiter (comma, space) or fixed width — perfect for a "First Last" name column you need split into two.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div><div class="step-title">Flash Fill</div><div class="step-desc">Type the desired result for the first row or two, then Data → Flash Fill (or Ctrl+E) — Excel detects the pattern and fills the rest. Works for splitting, combining, or reformatting text without any formula at all.</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div><div class="step-title">TRIM and CLEAN</div><div class="step-desc">=TRIM(text) removes extra spaces (except single spaces between words); =CLEAN(text) strips non-printable characters that often sneak in from copy-pasted or exported data.</div></div>
+        </div>
+      </div>
+      <div class="callout cyan">💡 <strong>Flash Fill vs. formulas:</strong> Flash Fill is fast but static — it doesn't update if the source data changes. For a one-time cleanup, that's fine. For a report that refreshes regularly, a formula like TRIM or a Power Query step (Module 106) is the more durable choice.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Cleaning tools check",
+    question: "You have a report that refreshes with new data every week, and one column needs consistent whitespace trimming every time. Why might a formula like TRIM be a better long-term choice than a one-time Flash Fill?",
+    options: [
+      "TRIM and Flash Fill do exactly the same thing, so it doesn't matter",
+      "Flash Fill produces a static, one-time result that won't reapply automatically when new data comes in each week",
+      "Flash Fill is always slower than typing a formula manually",
+      "TRIM can only be used on numbers, not text"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Flash Fill is a one-time pattern-fill — it doesn't recalculate when the underlying data changes. For a recurring weekly report, a TRIM formula (or a Power Query step) reapplies automatically every time, making it the more durable choice.",
+      wrong: "The answer is B. The key distinction is that Flash Fill produces a static result, while a formula recalculates live. For anything that refreshes on a schedule, that difference matters a lot — a formula-based or Power Query approach keeps working without manual repetition."
+    }
+  },
+  {
+    type: 'lesson',
+    tag: 'Duplicates & validation',
+    emoji: '🔁',
+    title: "Removing duplicates and preventing future mess",
+    body: `
+      <p>Duplicate rows quietly inflate totals and skew averages. <strong>Data → Remove Duplicates</strong> lets you choose which columns must match for a row to count as a duplicate — sometimes you want an exact full-row match, sometimes just a duplicate Customer ID regardless of other fields.</p>
+      <div class="callout red">⚠️ <strong>Before removing anything:</strong> Always work on a copy, or at minimum sort and review what will be deleted first. Remove Duplicates deletes rows outright with no built-in undo-friendly log of what was removed.</div>
+      <p>Prevention beats cleanup. <strong>Data → Data Validation</strong> lets you restrict a cell to a dropdown list, a number range, or a specific date range — stopping bad data from being entered in the first place, rather than cleaning it up after the fact.</p>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Prevention check",
+    question: "A shared spreadsheet keeps getting inconsistent region names typed in by different people ('CA', 'Calif', 'California'). What's the best long-term fix?",
+    options: [
+      "Manually correct it every time someone types it wrong",
+      "Add Data Validation with a dropdown list of the approved region names, so people can only select from valid options",
+      "Delete the Region column entirely",
+      "Ask everyone to be more careful, with no other changes"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly right. 🎯 Data Validation with a dropdown list prevents the inconsistency from ever being entered in the first place, rather than relying on cleanup after the fact or hoping people remember the correct spelling every time.",
+      wrong: "The answer is B. Manual correction and reminders don't scale, and deleting the column removes needed data. A dropdown-restricted Data Validation rule solves the problem at the source, which is almost always the more durable fix than downstream cleanup."
+    }
+  },
+  {
+    type: 'tryit',
+    tag: 'Try it 💪',
+    emoji: '✍️',
+    title: "Diagnose the mess",
+    instruction: "You're handed a spreadsheet exported from a legacy system. A 'Full Name' column has values like 'Smith, John' that you need split into separate First Name and Last Name columns, and there are also duplicate customer rows. Describe the two-step approach you'd take.",
+    placeholder: "Describe your cleaning steps in order...",
+    response: "A solid approach: First, use Text-to-Columns on the Full Name column, splitting on the comma delimiter, to get Last Name and First Name into two separate columns (note the order — 'Smith, John' splits to Last, then First). Then run Remove Duplicates, likely matching on a unique identifier like Customer ID rather than the full row, since two genuinely different orders from the same customer shouldn't be treated as duplicates. Doing the split first makes it easier to spot duplicates correctly, since inconsistent name formatting could otherwise hide true duplicates or create false ones."
+  },
+  {
+    type: 'lesson',
+    tag: 'Messy exports',
+    emoji: '📥',
+    title: "The specific headaches of CSV and system exports",
+    body: `
+      <p>Data exported from another system (a CRM, an ERP, a government database) tends to bring its own specific problems, separate from general messiness.</p>
+      <table>
+        <tr><th>Issue</th><th>What happens</th></tr>
+        <tr><td>Leading zeros dropped</td><td>A ZIP code like "07030" becomes 7030, losing meaning</td></tr>
+        <tr><td>Dates read as text or wrong format</td><td>"03/04/2024" imported from a European system means April 3rd, not March 4th</td></tr>
+        <tr><td>Encoding issues</td><td>Special characters like é or — turn into garbled symbols</td></tr>
+        <tr><td>Numbers stored as text</td><td>Exported financial figures sometimes carry hidden text formatting from the source system</td></tr>
+      </table>
+      <div class="callout green">✅ <strong>The fix for leading zeros:</strong> Format the column as Text before importing, or import via Data → From Text/CSV with the column type explicitly set to Text, rather than letting Excel auto-detect it as a number.</div>
+    `
+  },
+  {
+    type: 'quiz',
+    tag: 'Final check ✏️',
+    emoji: '🎯',
+    title: "Data cleaning wrap-up",
+    question: "You import a CSV of customer ZIP codes and notice several show as 4-digit numbers instead of 5-digit codes (e.g. 7030 instead of 07030). What's the root cause?",
+    options: [
+      "The customers actually have invalid ZIP codes",
+      "Excel auto-detected the column as numeric on import and dropped the leading zero, since it's not meaningful in a number",
+      "This is a random glitch with no consistent cause",
+      "The CSV file itself is corrupted"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly. 🎯 Leading zeros are meaningless to a number (007 and 7 are the same value), so when Excel auto-detects a ZIP code column as numeric during import, it drops them. Setting the column type to Text before or during import prevents this.",
+      wrong: "The answer is B. This is a very common and predictable import issue: numeric auto-detection strips leading zeros because they don't affect a number's value. Explicitly importing that column as Text is the standard fix."
+    }
+  }
+]
+;
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+  if(currentLesson >= lessons.length) { renderScore(); return; }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  const backBtn = currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : '';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag level-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'quiz') {
+    const answered = quizAnswered[currentLesson];
+    const letters = ['A','B','C','D'];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = '';
+      if(answered !== undefined) { if(i === l.correct) cls = 'correct'; else if(i === answered) cls = 'wrong'; else cls = 'disabled'; }
+      return `<button class="quiz-option ${cls}" onclick="answerQuiz(${i})"><div class="option-letter">${letters[i]}</div>${o}</button>`;
+    }).join('');
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="5" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">${backBtn}<button class="btn-next" onclick="nextLesson()">Next →</button></div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const el = document.getElementById('try-response');
+  el.textContent = lessons[currentLesson].response;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() { currentLesson++; renderLesson(); }
+function goBack() { if(currentLesson > 0) { currentLesson--; renderLesson(); } }
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🧹'; title = "You can turn messy exports into usable data."; sub = "Text-to-Columns, duplicate handling, validation, and export-specific quirks like leading zeros — this unglamorous skill is what most real analyst work quietly runs on."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid grasp!"; sub = "You've got the core cleaning patterns down. A second pass on the CSV/export-specific issues will round it out."; }
+  else { emoji = '💪'; title = "Keep digging!"; sub = "Data cleaning clicks with hands-on repetition more than any other topic here. Revisiting Lessons 2 and 4 with a real messy file will help a lot."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout accent">
+          <strong>What you now know:</strong><br><br>
+          
+          🗑️ <strong>Why data is messy</strong> — spaces, inconsistent case, mixed types<br>
+          ✂️ <strong>Text-to-Columns & Flash Fill</strong> — splitting and reshaping fast<br>
+          🔁 <strong>Duplicates & validation</strong> — clean up the past, prevent the future<br>
+          📥 <strong>Export quirks</strong> — leading zeros, date formats, encoding issues
+    
+        </div>
+        <div class="callout cyan">
+          <strong>The one rule that ties it all together:</strong><br>
+          Every cleaning technique in this module exists to answer one question before any real analysis starts: does this data actually mean what it appears to mean? Assume it doesn't until you've checked.
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="excel_learn.html">← Back to Learn Excel</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
