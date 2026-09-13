@@ -1,0 +1,597 @@
+[
+  {
+    "chunkId": "101-1",
+    "moduleId": "101",
+    "moduleTitle": "🤖 Claude 101",
+    "sectionTitle": "So... what even is Claude?",
+    "text": "Okay, real talk. You've probably heard words like \"AI\" and \"chatbot\" thrown around a lot lately. Maybe your coworker won't stop talking about it. Maybe you've seen it on TikTok. Either way — you're here, and that's what matters. Claude is an AI assistant made by a company called Anthropic. Think of it like a really smart text buddy you can ask literally anything — and it actually gives you useful answers. 💡 Not a robot. Not Siri. Not Google. Claude is something different — it can have a real back-and-forth conversation with you and help you think through problems. By the end of this, you'll know exactly what Claude can do, how to talk to it, and how to get the most out of it. Let's go. 🚀"
+  },
+  {
+    "chunkId": "101-2",
+    "moduleId": "101",
+    "moduleTitle": "🤖 Claude 101",
+    "sectionTitle": "What can Claude actually do?",
+    "text": "Short answer: a LOT. Here's a taste of what people use it for every day: ✅ Write stuff — emails, cover letters, captions, essays, texts to your ex (kidding... or are we?) ✅ Answer questions — explain a concept, summarize an article, help you understand something confusing ✅ Brainstorm — stuck on an idea? Just ask. Claude will throw out 10 options in seconds ✅ Edit your work — paste something you wrote and ask it to make it better ✅ Help you plan — meal prep, trips, workouts, budgets — you name it Here's what a real conversation looks like: You Can you help me write a text to cancel plans without sounding flaky? C Sure! Here's one: \"Hey, I'm so sorry but I have to bail tonight — something came up. Can we reschedule? I really do want to hang soon.\" Want me to make it more casual or more formal? See? It's like texting a friend who's also weirdly good at everything."
+  },
+  {
+    "chunkId": "101-3",
+    "moduleId": "101",
+    "moduleTitle": "🤖 Claude 101",
+    "sectionTitle": "How to talk to Claude (it's easier than texting your crush)",
+    "text": "Here's the thing most people get wrong: they treat AI like a search engine. They type three words and expect magic. That's not how this works. Claude understands full sentences. The more context you give it, the better the answer. 🚫 Weak prompt: \"email\" ✅ Better prompt: \"Write a short professional email asking my landlord to fix the leaking faucet in my kitchen. Keep it polite but firm.\" Three things that always make your prompts better: 1️⃣ Tell it what you want — be specific about the task 2️⃣ Give it context — who's it for? what's the situation? 3️⃣ Tell it the format — short? long? bullet points? casual tone? You don't need to be perfect. Claude will ask follow-up questions if it needs more info. It's a conversation, not a command."
+  },
+  {
+    "chunkId": "101-4",
+    "moduleId": "101",
+    "moduleTitle": "🤖 Claude 101",
+    "sectionTitle": "Your turn — write a prompt",
+    "text": "Practice writing a good prompt below. Ask Claude to help you write a short text message canceling dinner plans tonight. Remember: be specific!"
+  },
+  {
+    "chunkId": "101-5",
+    "moduleId": "101",
+    "moduleTitle": "🤖 Claude 101",
+    "sectionTitle": "3 tips that'll make you a Claude power user",
+    "text": "These three things alone will put you ahead of 90% of people using AI right now. Tip 1: Ask it to try again 🔄 If you don't love the first answer, just say \"try again\" or \"make it more casual\" or \"shorter please.\" Claude doesn't get offended. It just adjusts. Tip 2: Tell it who you are 🙋 Context helps. \"I'm a nurse explaining this to a patient\" or \"I'm a college student writing a paper\" gives Claude way more to work with and makes the output way more relevant. Tip 3: Ask follow-up questions 🔍 Claude remembers your conversation. So if it gives you something close but not perfect, just keep the convo going. \"Can you make that sound less formal?\" or \"What if I want to add a joke?\" — all fair game. You Hmm, can you make that a little funnier? C Absolutely — here's a version with a little more personality to it... [rewrites with humor]"
+  },
+  {
+    "chunkId": "102-6",
+    "moduleId": "102",
+    "moduleTitle": "🔄 Claude 102 — Coming from ChatGPT?",
+    "sectionTitle": "So you've used ChatGPT. Cool. Now let's talk about Claude.",
+    "text": "You already know the drill — type something, AI responds. You're past the \"wait this is magic\" phase. Good. That means we can skip the basics and get into what actually matters. Claude is not just another ChatGPT. Same category, very different personality, different strengths, different approach. Think of it like switching from one streaming service to another — same concept, but the content, the interface, and the vibe are all different. 💡 This module covers what makes Claude different, where it shines compared to other AIs, and how to adjust your habits to get the most out of it. If you've been using ChatGPT like a search engine that writes stuff — this is going to change how you think about AI entirely. Let's get into it."
+  },
+  {
+    "chunkId": "102-7",
+    "moduleId": "102",
+    "moduleTitle": "🔄 Claude 102 — Coming from ChatGPT?",
+    "sectionTitle": "Claude vs ChatGPT — what's actually different?",
+    "text": "Both are large language models. Both can write, answer questions, and help you think. But here's where they diverge: Feature ChatGPT Claude Tone Efficient, direct Warm, conversational Long documents Good Excellent — handles very long inputs Nuanced writing Good Stronger — picks up on tone and style Safety approach Rules-based Values-based — thinks through context Made by OpenAI Anthropic ⚠️ Neither is universally \"better.\" They're different tools. By the end of this you'll know when to reach for Claude specifically."
+  },
+  {
+    "chunkId": "102-8",
+    "moduleId": "102",
+    "moduleTitle": "🔄 Claude 102 — Coming from ChatGPT?",
+    "sectionTitle": "Claude actually has opinions. Here's what that means for you.",
+    "text": "One thing that surprises ChatGPT users: Claude will push back. If you ask it to do something it's not comfortable with, it won't just silently refuse or give you a bland disclaimer. It'll tell you why, often suggest an alternative, and engage with you like an actual person. ChatGPT-style response to a risky request: G I'm sorry, I can't help with that. Claude-style response: C I'm not going to help with that specific thing, but here's what I think you might actually be trying to do — and here's how I can help with that instead. This also means Claude will: ✅ Tell you when it thinks you might be wrong ✅ Share its perspective when you ask for it ✅ Engage with nuance instead of just giving you the \"safe\" answer ✅ Be honest if it's uncertain about something 💡 Think of it less like a tool and more like a smart collaborator who has its own point of view."
+  },
+  {
+    "chunkId": "102-9",
+    "moduleId": "102",
+    "moduleTitle": "🔄 Claude 102 — Coming from ChatGPT?",
+    "sectionTitle": "Claude's superpower: it can read a LOT at once",
+    "text": "Here's something most people coming from other AIs don't know: Claude can handle extremely long conversations and documents. You can paste in an entire contract, a research paper, a 50-page report — and Claude will actually read and understand all of it, not just the first few paragraphs. 🔥 What this unlocks for you: 📋 Paste your entire resume and ask for a full rewrite 📑 Drop in a long contract and ask \"what should I watch out for?\" 📧 Paste a whole email thread and ask \"what's the tension here?\" 📚 Share a long article and ask for a summary with key takeaways With other AI tools you often have to break things up or worry about it \"forgetting\" earlier parts of the conversation. Claude's long context window means you can work on bigger, more complex things in one go. 💡 Pro move: start your conversation by pasting in all the context upfront, then ask your questions. You'll get dramatically better answers."
+  },
+  {
+    "chunkId": "102-10",
+    "moduleId": "102",
+    "moduleTitle": "🔄 Claude 102 — Coming from ChatGPT?",
+    "sectionTitle": "Put it into practice",
+    "text": "You're used to giving short prompts. Now try writing a prompt that gives Claude context AND asks for something specific. Example scenario: you want Claude to review an important email you're about to send to your boss. Write the prompt you'd use — include what the email is about and what kind of feedback you want."
+  },
+  {
+    "chunkId": "102-11",
+    "moduleId": "102",
+    "moduleTitle": "🔄 Claude 102 — Coming from ChatGPT?",
+    "sectionTitle": "3 ChatGPT habits to drop when using Claude",
+    "text": "If you're bringing habits from other AI tools, some of them will hold you back. Here's what to unlearn: ❌ Habit 1: Restarting conversations constantly With Claude, staying in the same conversation is usually better. It remembers everything said earlier and uses it to give you more relevant answers over time. Don't start fresh every time — keep the thread going. ❌ Habit 2: Short, keyword-style prompts \"Email for client\" doesn't cut it. Claude thrives on context. The more you tell it — who's involved, what the goal is, what tone you want — the better the output. Write prompts like you're briefing a smart colleague. ❌ Habit 3: Accepting the first answer Claude is built for back and forth. If the first answer is 80% there, just say what's missing. \"Make it shorter.\" \"More formal.\" \"Add a joke.\" It iterates fast and doesn't lose context between turns. ✅ The new habit: treat it like a conversation, not a command line. Brief it, react to it, redirect it. That's when Claude is at its best."
+  },
+  {
+    "chunkId": "103-12",
+    "moduleId": "103",
+    "moduleTitle": "🧠 Claude 103 — Prompting Techniques & Use Cases",
+    "sectionTitle": "You know the basics. Now let's make you dangerous.",
+    "text": "You've used Claude. You know how to ask it stuff. But there's a gap between using AI and getting the most out of it — and that gap is almost entirely about how you write your prompts. This module is about closing that gap. We're covering: 🎯 Prompting techniques — specific frameworks that consistently produce better output 💼 Real use cases — actual workflows where Claude saves serious time ⚠️ Where Claude falls short — knowing the limits is just as important as knowing the strengths 🔁 The iteration mindset — how to treat prompting like a skill you practice By the end of this you'll prompt differently. Let's go."
+  },
+  {
+    "chunkId": "103-13",
+    "moduleId": "103",
+    "moduleTitle": "🧠 Claude 103 — Prompting Techniques & Use Cases",
+    "sectionTitle": "5 prompting techniques that actually work",
+    "text": "These aren't tricks — they're frameworks. Use them intentionally and you'll see a measurable difference in output quality. 1. Role assignment Tell Claude who to be. It changes the tone, depth, and frame of the entire response. Example prompt \"You are a senior marketing strategist reviewing this campaign brief. Give me your honest critique — what's strong, what's weak, and what's missing.\" 2. Format specification Tell Claude exactly how you want the output structured. Don't leave it to guess. Example prompt \"Give me your answer as a numbered list, max 5 items, each with one sentence of explanation. No intro paragraph.\" 3. Chain of thought Ask Claude to think out loud before giving the final answer. Better for complex problems. Example prompt \"Walk me through your reasoning step by step before you give me your recommendation.\" 4. Few-shot examples Show Claude an example of what you want before asking it to do the thing. Example prompt \"Here's an example of the tone I want: [paste example]. Now write a product description for [product] in the same style.\" 5. Constraint setting Tell Claude what NOT to do. Negative constraints are often more powerful than positive ones. Example prompt \"Write this email. Do not use corporate jargon. Do not start with 'I hope this email finds you well.' Keep it under 100 words.\""
+  },
+  {
+    "chunkId": "103-14",
+    "moduleId": "103",
+    "moduleTitle": "🧠 Claude 103 — Prompting Techniques & Use Cases",
+    "sectionTitle": "Where Claude actually saves you time",
+    "text": "Here are the use cases where people consistently report the biggest time savings. These aren't theoretical — they're what people are actually doing with Claude right now. 📧 Difficult emails Paste the situation, ask for a draft. Saves 20–30 min of staring at a blank screen. 📋 Meeting prep Feed it the agenda and background, ask for questions to ask and things to watch out for. 🧹 Editing your own writing Paste your draft, ask for specific improvements. Keep your voice, fix the weak spots. 🔍 Research summaries Paste articles or reports, ask for the key points and what it means for your situation. 🧠 Thinking out loud Describe a problem you're stuck on. Use Claude as a sounding board to think it through. 📝 SOPs and templates Describe a repeatable process, ask Claude to turn it into a clean, reusable template. 💡 The pattern: any task that's repetitive, that requires a first draft, or that involves synthesizing a lot of information is a Claude use case."
+  },
+  {
+    "chunkId": "103-15",
+    "moduleId": "103",
+    "moduleTitle": "🧠 Claude 103 — Prompting Techniques & Use Cases",
+    "sectionTitle": "Prompting is a skill. Here's how to practice it.",
+    "text": "The difference between someone who gets mediocre AI output and someone who gets great output isn't talent — it's iteration. They tweak, they refine, they experiment. Here's the iteration loop that works: Step 1: Write your first prompt Don't overthink it. Get something out there. Step 2: Evaluate the output What's right? What's wrong? What's missing? Be specific. Step 3: Give targeted feedback Not \"that's bad\" — tell it exactly what to fix. \"Too formal.\" \"Make the opening punchier.\" \"Cut the last paragraph.\" Step 4: Repeat until it's right Most great AI outputs take 3–5 rounds of back and forth. That's normal — not a failure. Real iteration in action You Write a LinkedIn post about my promotion. C Excited to share that I've been promoted to Senior Manager at [Company]! Grateful for the opportunities and the incredible team... You Too generic. Make it more personal — mention that it took 3 years, and add something genuine about what the team means to me. Less corporate. C Three years ago I wasn't sure this was the right move. Today I got promoted to Senior Manager — and honestly the team is the whole reason... See how the second version is actually usable? That's iteration at work."
+  },
+  {
+    "chunkId": "103-16",
+    "moduleId": "103",
+    "moduleTitle": "🧠 Claude 103 — Prompting Techniques & Use Cases",
+    "sectionTitle": "Where Claude falls short — be honest with yourself",
+    "text": "No tool is perfect. Knowing where Claude struggles is just as valuable as knowing where it shines. Here's the honest rundown: ❌ Real-time information Claude's knowledge has a cutoff date. Don't ask it for today's stock price, yesterday's news, or anything time-sensitive without giving it the information yourself. ❌ Math and calculations It can do basic math, but it can make arithmetic errors on complex calculations. Always verify numbers. Use a calculator for anything important. ❌ Hallucination Claude can confidently state something that isn't true — especially specific facts, citations, stats, or names. If something sounds slightly off, verify it. This is the big one. ❌ Your niche domain knowledge Claude knows a lot but not everything. For highly specialized or proprietary information, it's only as good as what you give it. Feed it context, don't assume it already knows. 💡 The golden rule: Claude is a thinking partner and a first draft machine — not a source of truth. Verify anything that matters."
+  },
+  {
+    "chunkId": "103-17",
+    "moduleId": "103",
+    "moduleTitle": "🧠 Claude 103 — Prompting Techniques & Use Cases",
+    "sectionTitle": "Apply a technique",
+    "text": "Pick any one of the 5 techniques from Lesson 2 and apply it to a real task. Write a prompt that clearly uses role assignment, format specification, chain of thought, few-shot examples, or constraint setting. Label which technique you're using at the start."
+  },
+  {
+    "chunkId": "104-18",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "You made it to the deep end. Let's break the whole thing open.",
+    "text": "Most people use AI the way most people use their microwave — they know what buttons to press but have no idea what's actually happening inside. That's fine for reheating leftovers. It's less fine when you're trying to get the most out of one of the most powerful tools ever built. This module is about what's actually happening under the hood. No PhD required. We're going to cover: 🧩 What tokens are — and why they matter more than you think 🪟 The context window — the thing that determines what Claude can and can't \"see\" 🏋️ How training actually works — where Claude's knowledge comes from 🎲 Why Claude is probabilistic — why it gives different answers to the same question 🚫 Common myths — things people believe about AI that are just wrong ⚙️ What this means for how you use it — the practical takeaways This is the module that makes everything else click. Let's go."
+  },
+  {
+    "chunkId": "104-19",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "Tokens: Claude doesn't read words. It reads chunks.",
+    "text": "Here's something most people don't know: Claude doesn't process text the way you read it. It doesn't see words — it sees tokens . A token is roughly a chunk of text, somewhere between a character and a word. Analogy Think of tokens like puzzle pieces If text is a puzzle image, tokens are the individual pieces. Some pieces are whole words. Some are parts of words. Some are punctuation. The model processes pieces, not the whole image at once. Here's how the sentence \"Claude is surprisingly good at this\" gets tokenized: Each colored block = one token Cl aude is surprisingly good at this Notice \"Claude\" splits into two tokens. Common words like \"is\" are one token. Rarer words get broken into smaller pieces. This is why Claude sometimes struggles with things like counting letters — it's working with token chunks, not individual characters. 💡 Why this matters: AI pricing, speed, and context limits are all measured in tokens — not words. 1,000 words is roughly 1,300–1,500 tokens. If you've ever hit a \"too long\" limit, that's a token limit."
+  },
+  {
+    "chunkId": "104-20",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "The context window: Claude's working memory",
+    "text": "Every conversation Claude has happens inside something called a context window — think of it as Claude's working memory for that conversation. Everything it can \"see\" at once fits inside this window. Analogy Like a whiteboard in a meeting room Everything written on the whiteboard is visible and usable. But the whiteboard has a fixed size. Once it's full, you have to erase something to write something new. Claude's context window works the same way. Here's what takes up space in a typical conversation: System Conversation history Your message Available System instructions Prior messages Your new message Still available As a conversation gets longer, the history section fills up more and more. This is why very long conversations can sometimes feel like Claude \"forgets\" things from way earlier — it's because the earliest messages literally no longer fit in the window. 💡 Practical takeaways: • For very long projects, periodically summarize what's been decided so far and paste it in • Paste important context upfront — don't assume Claude will remember something from three conversations ago (it won't — each conversation starts fresh) • Longer context = more tokens = slower and more expensive on paid APIs"
+  },
+  {
+    "chunkId": "104-21",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "How Claude learned everything it knows",
+    "text": "Claude didn't get smart by someone programming in facts. It learned by processing an enormous amount of text — books, articles, websites, code, conversations — and learning the statistical patterns of how language works. 1. Pre-training — reading the internet (basically) Claude processed hundreds of billions of words of text. It learned grammar, facts, reasoning patterns, writing styles, code syntax — all by predicting what word comes next, billions of times, across billions of examples. 2. Fine-tuning — learning to be helpful After pre-training, Claude was refined using human feedback. People rated responses as good or bad, and the model learned to produce responses that humans actually preferred — helpful, accurate, clear. 3. Constitutional AI — learning values Anthropic used a technique called Constitutional AI where Claude was trained against a set of principles — to be honest, harmless, and helpful. This is what shapes Claude's personality and ethical guardrails. 4. Knowledge cutoff — learning stops at a date Training data has an end date. Everything after that cutoff is unknown to Claude unless you tell it. This is why it can't tell you yesterday's news — it literally wasn't trained on it. 💡 The weights — billions of numerical parameters — are what get saved after training. When you talk to Claude, you're not triggering a search or a lookup. You're running a mathematical function that was shaped by all that training."
+  },
+  {
+    "chunkId": "104-22",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "Claude isn't deterministic. Here's what that means.",
+    "text": "Ask Claude the same question twice and you might get two different answers. That's not a bug. It's how it works at a fundamental level. When Claude generates a response, it's essentially making a series of probabilistic choices — at each step, it picks the next token based on probability weights. It doesn't calculate the right answer and retrieve it. It generates a likely-to-be-good answer based on patterns from training. Analogy Autocomplete on steroids Your phone's autocomplete predicts the next word based on what words usually follow. Claude does the same thing, except with billions of parameters, across hundreds of tokens, with an understanding of context deep enough to write a novel. Same fundamental mechanism — wildly different scale. 💡 A setting called \"temperature\" controls randomness: 🌡️ Low temperature — more predictable, consistent, focused answers 🌡️🌡️ High temperature — more creative, varied, sometimes surprising answers By default Claude is somewhere in the middle — reliable but not robotic. What this means practically: • If Claude gives you a bad answer, try again — you might get a better one • For creative tasks, variation is a feature not a bug — run it multiple times and pick the best • For factual tasks, variation is a warning sign — always verify outputs that matter"
+  },
+  {
+    "chunkId": "104-23",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "5 things people believe about AI that are just wrong",
+    "text": "There's a lot of noise out there about what AI is and isn't. Let's clear up the most common ones. ❌ Myth \"Claude is just searching the internet for answers.\" ✅ Reality Claude isn't searching anything. It's running a mathematical function shaped by training data. It has no internet connection by default and no ability to look things up in real time. ❌ Myth \"Claude remembers our previous conversations.\" ✅ Reality Each conversation starts completely fresh. Claude has no memory of what you talked about yesterday. Everything it knows about you in a given session is only what you've told it in that session. ❌ Myth \"If Claude says it confidently, it's probably right.\" ✅ Reality Confidence and accuracy are not correlated in LLMs. Claude can hallucinate specific facts, dates, names, and citations with complete confidence. Sounding sure is a style choice — not a reliability signal. ❌ Myth \"Claude is conscious / has feelings / is sentient.\" ✅ Reality This is genuinely uncertain and actively debated — but current scientific consensus is that LLMs are sophisticated pattern matchers, not conscious beings. Claude's expressions of curiosity or enthusiasm are outputs, not experiences. ❌ Myth \"Claude knows everything up to its cutoff date.\" ✅ Reality Training data is not evenly distributed. Very recent events near the cutoff are underrepresented because the internet hadn't fully processed them yet. Niche topics may be barely covered at all. Knowledge is patchy, not complete."
+  },
+  {
+    "chunkId": "104-24",
+    "moduleId": "104",
+    "moduleTitle": "⚡ Claude 104 — How LLMs Actually Work",
+    "sectionTitle": "Apply the deep knowledge",
+    "text": "You now understand tokens, context windows, training, probabilistic output, and common myths. Write a short explanation (3–5 sentences) of why Claude sometimes gives wrong answers — as if you're explaining it to a friend who thinks Claude is just 'searching the internet.' Use what you've learned."
+  },
+  {
+    "chunkId": "105-25",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "Claude isn't just a chatbot anymore. It can act.",
+    "text": "Up to now, you've probably thought of Claude as something you talk to — you type a question, it types back an answer. That's true, but it's only half the picture. Claude can also use tools — search the web, run code, read files, browse websites, edit documents, and call other software — all in service of actually completing a task, not just describing how you might do it yourself. 🔧 What tool use actually is — Claude calling outside systems mid-conversation 🔁 The agent loop — how Claude decides what to do, does it, and checks its work 📊 The agentic spectrum — from simple tool calls to fully autonomous agents 🛡️ Trust and permissions — why some actions need your approval and others don't ⚙️ Where this shows up — real examples you've probably already used By the end you'll understand not just what \"agentic AI\" means, but why it's such a big shift from the chatbot era."
+  },
+  {
+    "chunkId": "105-26",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "Tool use: giving Claude hands, not just a voice",
+    "text": "On its own, an AI model is really good at one thing: predicting the next chunk of text based on everything it's seen before. That's powerful for writing and reasoning, but it has a hard limit — it can't check today's weather, can't run your code, can't look inside a file you uploaded five minutes ago. Analogy Think of Claude as a very smart consultant in a sealed room Without tools, that consultant can only give advice based on what they already knew walking in. Tool use is like handing them a phone, a laptop, and a set of keys — now they can look things up, run the numbers, and go check something themselves instead of guessing. A \"tool\" in this context is just a defined action Claude can trigger — a function it can call, with specific inputs, that does something in the real world and returns a result. Web search is a tool. Running Python code is a tool. Reading a spreadsheet is a tool. 💡 The key shift: Instead of Claude guessing an answer from memory, it can go get the actual, current, verified answer — and show its work along the way."
+  },
+  {
+    "chunkId": "105-27",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "How Claude actually decides what to do",
+    "text": "When Claude has tools available, it doesn't just blurt out an answer. It runs through a loop — think, act, observe, repeat — until the task is actually done. 1 Think Claude reads the request and decides what's actually needed to answer it well — does this need a tool, and if so, which one? 2 Act Claude calls the tool — say, a web search — with specific inputs, like a search query. 3 Observe The tool returns a result — search snippets, code output, file contents — and Claude reads it. 4 Decide Is that enough to answer well? If yes, respond. If not, loop back to step 1 — maybe a different search, or a second tool. ↻ This can repeat many times before you see a final answer This is very different from a single text prediction. It's closer to how a person actually solves an open-ended problem — try something, look at what happened, adjust, try again. 💡 Why this matters: When you see Claude searching multiple times, or running code and then fixing an error, that's the loop in action — not Claude struggling, but Claude iterating the way a careful person would."
+  },
+  {
+    "chunkId": "105-28",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "The toolbox: what Claude can actually reach for",
+    "text": "Different tools unlock different capabilities. Here are some of the most common ones you'll run into: 🔍 Web search Finds current information beyond the training cutoff — news, prices, current events, recent releases. 💻 Code execution Actually runs code rather than just writing it — meaning math, data analysis, and file processing can be verified, not guessed at. 📄 File & document tools Reads uploaded files (PDFs, spreadsheets, images) and creates new ones — reports, slide decks, spreadsheets. 🌐 Browser control Navigates real websites, clicks buttons, fills forms — for tasks that require interacting with a live site, not just reading it. 🔌 Connected apps (MCP) Talks to external services — calendars, project trackers, databases — through a standardized connection protocol. 💡 Key idea: None of these are built into the model itself. They're external systems Claude is given permission to call. Swap the toolset, and the same underlying model can do very different jobs."
+  },
+  {
+    "chunkId": "105-29",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "\"Agentic\" isn't one thing — it's a spectrum",
+    "text": "People throw around the word \"agent\" a lot, but it's not a single on/off switch. It's more like a dial, from a plain chatbot on one end to a fully autonomous system on the other. Least agentic Most agentic Plain chatbot: answers using only what it already knows, no tools at all Single tool call: uses one tool, once, to answer a specific question (e.g. one web search) Multi-step tool use: chains several tool calls together, adjusting based on results, to complete a task Autonomous agent: given a broad goal, plans its own steps, and works largely unsupervised toward completion Most of what you interact with day-to-day sits in the middle — multi-step tool use. Fully autonomous agents (the far right) are newer, more powerful, and require a lot more trust, since they're making more decisions with less human checking in along the way. 💡 Practical takeaway: When evaluating any \"AI agent\" product or claim, ask where on this spectrum it actually sits. A lot of \"agentic\" marketing describes something closer to a single tool call than genuine autonomy."
+  },
+  {
+    "chunkId": "105-30",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "Why some actions need your OK — and some don't",
+    "text": "Not all tool actions carry the same risk. Reading a public webpage is very different from sending an email on your behalf or spending your money. Responsible agentic systems reflect that with different levels of oversight. Low risk — usually automatic Read-only, reversible actions Searching the web, reading a file, running a calculation. Nothing changes in the outside world, so these typically don't need explicit permission each time. Medium risk — often confirmed Actions with real but limited consequences Drafting an email (not sending), creating a file, modifying a document you're actively working on. Usually shown to you before anything is finalized. High risk — should always require approval Irreversible or high-stakes actions Sending a message on your behalf, making a purchase, deleting data, agreeing to terms. Good agentic systems are designed to pause and ask before crossing this line — not act first and explain later. ⚠️ Why this matters for you: As AI agents get more capable, understanding this permission boundary is genuinely useful — it's the difference between a tool that saves you time and one that takes unwanted action in the real world. Good systems make this boundary clear and give you control over it."
+  },
+  {
+    "chunkId": "105-31",
+    "moduleId": "105",
+    "moduleTitle": "🤖 Claude 105 — AI Agents & Tool Use",
+    "sectionTitle": "Spot the risk level",
+    "text": "Imagine an AI agent is helping you plan a birthday party. It searches for venue options, drafts an invitation, and is about to send that invitation to your guest list via email. In your own words, explain which of these three steps should require your explicit approval before happening, and why."
+  },
+  {
+    "chunkId": "106-32",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "Claude, GPT, Gemini, Llama... what's actually different between them?",
+    "text": "By now you understand how Claude works under the hood — tokens, context windows, training, tool use. But Claude is just one of many AI models out there. This module zooms out to the bigger landscape. We'll cover: 🏗️ Architecture families — why most modern AI models are more similar than you'd think 📏 What \"model size\" actually means — and why bigger isn't automatically better 📊 Benchmarks — how models get compared, and why you should be skeptical of leaderboards 🔓 Open vs. closed models — what that distinction really means for you 🎯 Choosing the right tool — how to actually pick a model for a task, not just chase a name This isn't about picking a \"winner.\" It's about understanding what actually varies between models, so you can make informed choices instead of going on brand reputation alone."
+  },
+  {
+    "chunkId": "106-33",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "Most modern AI models share the same basic blueprint",
+    "text": "Here's something that surprises people: Claude, GPT, Gemini, and most other major language models are all built on the same core architecture, called the Transformer . It was introduced in a 2017 research paper and has become the foundation almost everyone builds on. Analogy Think of it like car engines Nearly every modern car uses an internal combustion or electric engine — the basic blueprint is shared. What makes a Toyota drive differently from a Tesla isn't a totally different kind of engine, it's the engineering choices, tuning, and materials built on top of that shared foundation. AI models work similarly. So if the underlying architecture is largely the same, what actually makes models different from each other? Training data What text (and images, code, etc.) the model learned from — the quality, diversity, and recency of that data shapes what the model knows and how it \"thinks.\" Fine-tuning approach How the raw model gets shaped into something helpful and safe — the specific techniques and values baked in during this stage vary a lot between companies. Scale & efficiency How large the model is, and how efficiently it was trained — this affects both capability and cost. Product design What tools are connected, what interface it's wrapped in, what guardrails exist — this is often where the day-to-day experience differs most. 💡 Key takeaway: The differences between AI models are less about a secret architecture and more about training choices, scale, and product decisions layered on a shared foundation."
+  },
+  {
+    "chunkId": "106-34",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "What \"parameters\" actually mean — and why bigger isn't automatically better",
+    "text": "You've probably seen models described by their parameter count — \"a 70 billion parameter model\" or similar. Parameters are the adjustable internal values a model learns during training — very roughly, its capacity to store patterns. More parameters generally means more capacity to learn complex patterns. But it's not a simple \"bigger number wins\" situation: Small model Fast, cheap Medium model Balanced Large model Capable, slower, pricier Companies typically offer a family of model sizes — like Claude Haiku, Sonnet, and Opus — precisely because bigger isn't always better for the task at hand . A small model that responds instantly and cheaply is often the right choice for simple, high-volume tasks, while a large model earns its cost on genuinely hard problems. 💡 Common misconception: \"The biggest model is always the best choice.\" In practice, training quality, data, and fine-tuning often matter more than raw size — and a smaller, well-tuned model can outperform a larger, poorly-tuned one on specific tasks."
+  },
+  {
+    "chunkId": "106-35",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "Benchmarks: useful, but easy to misread",
+    "text": "You'll often see models compared using benchmarks — standardized tests measuring things like reasoning, coding, or math ability, with models scored on a leaderboard. They're genuinely useful for tracking progress, but they get misread constantly. 🧮 MMLU (Massive Multitask Language Understanding) Tests broad knowledge across dozens of academic subjects, from history to law to physics. ⚠️ High-knowledge recall doesn't always translate to good real-world reasoning or writing. 💻 HumanEval / coding benchmarks Measures whether a model can write correct, working code for defined programming problems. ⚠️ Real-world coding involves messy, ambiguous requirements — very different from clean benchmark problems. 🗣️ Chatbot Arena / human preference rankings Real people compare two anonymous model responses side by side and vote for the better one. ⚠️ People often prefer confident-sounding or longer answers, which isn't the same as more accurate ones. ⚠️ Why skepticism matters: Benchmarks can be optimized for directly (\"teaching to the test\"), and a model that tops one leaderboard might perform worse on your specific, real task. Leaderboard rank is a data point, not a verdict."
+  },
+  {
+    "chunkId": "106-36",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "Open-weight vs. closed models: what the distinction actually means",
+    "text": "You'll hear models described as \"open source\" or \"open-weight\" versus \"closed\" or \"proprietary.\" This is really about access , not necessarily quality. 🔓 Open-weight models Model files can be downloaded and run on your own hardware Can be inspected, modified, and fine-tuned by anyone No per-request cost once you're running it yourself You're responsible for hosting, safety tuning, and updates Examples: Llama, Mistral, DeepSeek 🔒 Closed models Accessed only through the provider's API or app Internal weights and training details stay private Provider handles hosting, updates, and safety work Usually the most capable models at any given time Examples: Claude, GPT, Gemini Neither approach is universally \"better\" — it depends what you need. Open-weight models offer control, privacy (nothing leaves your own servers), and no per-use fees, but require real technical work to run well. Closed models are easier to use and often more capable, but you depend entirely on the provider. 💡 Real-world relevance: A company with strict data privacy needs might choose an open-weight model they can run entirely in-house, even if it's less capable, simply because nothing leaves their own infrastructure."
+  },
+  {
+    "chunkId": "106-37",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "Match the model to the job",
+    "text": "Imagine you're advising a small business with three different needs: (1) a chatbot that answers simple FAQ questions thousands of times a day, (2) a tool that drafts complex legal contract summaries, and (3) an internal tool handling sensitive medical records that can't leave the company's own servers. In your own words, explain what kind of model (size and open/closed) would make sense for each, and why."
+  },
+  {
+    "chunkId": "106-38",
+    "moduleId": "106",
+    "moduleTitle": "⚖️ Claude 106 — Comparing AI Models",
+    "sectionTitle": "How to actually pick a model for a task",
+    "text": "Pulling this all together — here's a practical framework instead of chasing whichever model is trending: Question to ask What it tells you How complex is the task? Simple/repetitive → smaller model. Nuanced/high-stakes → larger model. How much does speed matter? Real-time or high-volume → prioritize smaller, faster models. Are there data privacy requirements? Strict privacy needs may point toward open-weight, self-hosted models. What's the actual cost at your volume? Cost scales with usage — test smaller/cheaper options before defaulting to the priciest tier. Does it need to use tools? Confirm the model and platform actually support the tool use your task needs. Notice none of these questions are \"which model has the best reputation.\" That's the trap — reputation is a starting point for research, not a substitute for it. 💡 The habit worth building: Before defaulting to whatever model is most talked about, ask what your specific task actually needs. Often the right answer is \"the cheapest model that reliably gets this specific job done\" — not the most powerful one available."
+  },
+  {
+    "chunkId": "107-39",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "AI can be confidently, fluently wrong. Here's how to catch it.",
+    "text": "This might be the single most important module in the whole series, because it's the one that protects you from the biggest real-world risk of using AI: trusting something false because it was stated with total confidence. We'll cover: 👻 What a \"hallucination\" actually is — and why the term is a little misleading 🧠 Why it happens — the mechanical reason AI states false things confidently 🚦 Risk levels — when hallucination risk is low-stakes vs. genuinely dangerous ✅ A practical verification habit — how to actually check AI output before relying on it 🎯 Where AI is most and least reliable — so you know where to be most careful None of this means \"don't trust AI.\" It means knowing exactly where the trust should — and shouldn't — go unquestioned."
+  },
+  {
+    "chunkId": "107-40",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "What \"hallucination\" actually means",
+    "text": "In AI, a hallucination is when a model states something false, made-up, or unsupported — a fake citation, a nonexistent event, a wrong statistic — but delivers it with the same fluent confidence as something true. Analogy Think of an overconfident student on an exam A student who doesn't know an answer sometimes writes something plausible-sounding anyway, in the same handwriting and tone as their confident answers. If you didn't already know the subject, you couldn't tell the guess from the fact just by reading it. That's exactly the problem with AI hallucinations — the delivery gives you no signal about the reliability. Common examples: making up a book that doesn't exist, citing a court case or statistic that was never real, or getting a date, name, or number confidently wrong. 💡 Why the name is a bit misleading: \"Hallucination\" makes it sound like a rare glitch. In reality, it's a predictable side effect of how these models generate text in the first place — worth understanding at a mechanical level, which is what the next lesson covers."
+  },
+  {
+    "chunkId": "107-41",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "Why this happens: it's about prediction, not lying",
+    "text": "It helps to remember what a language model is actually doing under the hood: at each step, it's predicting the most statistically likely next chunk of text based on patterns learned during training. It's not retrieving a fact from a database and checking it — it's generating plausible-sounding text. 📉 Gaps in training data If a topic was rarely or never covered in training, the model may still generate a confident-sounding answer by pattern-matching to similar things it has seen. 🎯 Optimized for plausibility, not truth The model's core skill is producing text that sounds right, grammatically and structurally — that's a different goal than verifying something is factually correct. 🕰️ Knowledge cutoffs Ask about something after the model's training cutoff and, without a tool like web search, it may guess based on old patterns rather than say \"I don't know.\" 🔗 Specific, obscure details Broad, well-covered topics are more reliable than highly specific ones — exact citations, niche statistics, or narrow technical specs are where hallucination risk climbs. 💡 Key mental model: The model isn't trying to deceive you — it doesn't have an internal fact-checker running by default. It's generating the most statistically plausible continuation of text, which is usually accurate but isn't guaranteed to be."
+  },
+  {
+    "chunkId": "107-42",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "Not all hallucination risk is equal — know when to worry",
+    "text": "The right amount of caution depends heavily on what you're actually using the answer for. Here's a useful way to think about it: Low stakes Brainstorming, drafts, casual questions Coming up with blog post ideas, a first draft of an email, casual trivia. Being wrong here costs little — you're the editor, not blindly trusting a final output. Medium stakes Work deliverables, research summaries A report you'll show colleagues, a summary you'll act on, code that will run in a real system. Errors here have real cost and should be spot-checked before you rely on them. High stakes Legal, medical, financial, safety-critical Legal citations, medical guidance, financial figures, anything safety-related. These demand independent verification from authoritative sources every time — no exceptions, regardless of how confident the AI sounds. ⚠️ The rule of thumb: The more consequential the decision built on the answer, the more independent verification it deserves — completely separate from how confident or detailed the AI's response sounds."
+  },
+  {
+    "chunkId": "107-43",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "A simple verification checklist you can actually use",
+    "text": "You don't need to fact-check every single AI response — that would defeat the purpose of using it. But building a quick verification habit for anything that matters is genuinely valuable: 1 Ask \"does this matter if it's wrong?\" If the stakes are low, move on. If not, keep going. 2 Check for suspiciously specific details. Exact quotes, precise statistics, and named sources are the most common hallucination hotspots — verify these first. 3 Cross-reference with a real search or source. If AI cites a study, statistic, or fact, a quick search to confirm it exists takes seconds and catches most fabrications. 4 Use tools that can actually verify, not just generate. AI with live web search access is meaningfully more reliable for current facts than one relying purely on training memory. 5 Ask the AI to show its reasoning or sources. This doesn't guarantee accuracy, but it gives you something concrete to check rather than a bare assertion. 💡 The habit worth building: Treat AI output the way you'd treat a knowledgeable but occasionally overconfident colleague — genuinely useful, worth listening to, but still worth double-checking before it goes into something important."
+  },
+  {
+    "chunkId": "107-44",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "Rate the risk",
+    "text": "You're using AI for three tasks: (1) brainstorming names for a new pet, (2) summarizing a 10-page contract before you sign it, (3) writing a product description for your online shop. For each, explain in your own words how much verification effort you'd apply and why."
+  },
+  {
+    "chunkId": "107-45",
+    "moduleId": "107",
+    "moduleTitle": "⚠️ Claude 107 — AI Hallucinations & Reliability",
+    "sectionTitle": "Where AI tends to be strong vs. where to stay cautious",
+    "text": "Broad patterns worth knowing, though individual cases always vary: 💪 Generally reliable Well-known, widely-documented topics; general reasoning and explanation; grammar and language tasks; brainstorming and idea generation; summarizing text you provide directly. ⚠️ Use with caution Exact quotes and citations; precise statistics and dates; very recent events (unless using live search); niche or highly specialized technical details; anything from memory rather than a provided source. Notice the pattern: AI is strongest at reasoning, synthesis, and working with information you give it directly. It's weakest when asked to recall a very specific fact purely from memory, with nothing to check it against. 💡 Practical tip: When accuracy really matters, try giving the AI the source material directly (a document, article, or dataset) rather than asking it to recall facts unaided. Working from provided text is far more reliable than working from memory alone."
+  },
+  {
+    "chunkId": "108-46",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "\"Custom AI\" gets thrown around a lot. Here's what it actually means.",
+    "text": "You've probably heard phrases like \"we fine-tuned our own AI\" or \"train a custom model on your data.\" These sound impressive, but they cover a huge range of very different things — from a five-minute setup to a multi-million dollar undertaking. This module breaks down: 🪜 The customization ladder — from prompting to full training, and everything between 💬 Prompting vs. fine-tuning — the most common confusion, cleared up 📚 What fine-tuning actually requires — data, cost, and effort realistically 🏗️ Training from scratch — why almost nobody actually does this 🎯 How to choose — a practical framework for matching the approach to the need By the end, you'll be able to cut through \"custom AI\" marketing claims and understand what's actually being offered."
+  },
+  {
+    "chunkId": "108-47",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "There isn't one way to 'customize' AI — there's a ladder",
+    "text": "Think of customizing AI behavior as a ladder with increasing effort, cost, and control as you climb: 1 Prompting Just describing what you want in plain language — instructions, examples, context — every time you ask. Effort: minutes · Cost: free-to-low 2 System prompts / custom instructions Setting standing instructions once so they apply automatically across a conversation or account, without repeating yourself each time. Effort: minutes · Cost: free-to-low 3 Retrieval (giving the model your data to reference) Connecting documents, databases, or files so the model can look up your specific information rather than relying purely on training memory. Effort: hours-to-days · Cost: low-to-medium 4 Fine-tuning Taking an existing trained model and further training it on your specific examples, so its behavior shifts to match a particular style, format, or domain. Effort: days-to-weeks · Cost: medium-to-high 5 Training from scratch Building an entirely new model from raw data with no starting point — essentially what Anthropic, OpenAI, and Google do. Effort: months-to-years · Cost: millions to billions 💡 Key insight: The vast majority of \"custom AI\" you'll encounter in business — probably over 95% of it — happens at rungs 1-3. Fine-tuning is real but much less common than the marketing suggests, and training from scratch is essentially never done outside a handful of major AI labs."
+  },
+  {
+    "chunkId": "108-48",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "Prompting vs. fine-tuning: the distinction that matters most",
+    "text": "This is the confusion worth clearing up first, since it comes up constantly: prompting and fine-tuning are fundamentally different operations. Prompting Fine-tuning What changes Nothing in the model — you just phrase your request well each time The model's internal weights are adjusted through additional training Where it lives In your instructions/conversation Baked permanently into the model itself Reusability Has to be included every time (or set as a standing instruction) Behavior persists automatically, no repeated instructions needed Data needed None, or a few examples in the prompt itself Typically hundreds to thousands of examples Cost/effort Low — mostly your time to write good instructions Higher — data prep, training runs, evaluation Analogy Prompting is giving directions. Fine-tuning is teaching a new habit. Prompting is like giving someone turn-by-turn directions each time they drive somewhere — effective, but you're providing guidance every trip. Fine-tuning is more like actually training them until the route becomes second nature, so they no longer need directions at all. One is a repeated instruction, the other is a lasting behavior change. 💡 Practical rule: If good prompting can achieve the behavior you want, you almost never need fine-tuning. It's the more expensive, more complex option — worth reaching for only when prompting genuinely can't get you there."
+  },
+  {
+    "chunkId": "108-49",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "What fine-tuning actually takes, realistically",
+    "text": "When fine-tuning genuinely is the right call, here's what it actually involves — useful to know so you can evaluate whether a project or vendor claim is realistic: 📊 A real, quality dataset Typically hundreds to thousands of high-quality example input/output pairs that demonstrate exactly the behavior you want. Garbage or inconsistent examples produce a worse model, not a better one — data quality matters more than raw quantity. 💰 Real compute cost Running additional training passes over a model costs real money and time, scaling with model size and dataset size. Far cheaper than training from scratch, but not free or instant. 🔬 Evaluation, not just training After fine-tuning, you need a way to actually measure whether the new model performs better on your task than the original — skipping this step means you can't tell if the fine-tuning helped or quietly made things worse in some areas. 🔁 Maintenance over time A fine-tuned model is a snapshot. If the base model gets updated, or your needs change, you may need to redo the fine-tuning process rather than it updating automatically. ⚠️ Red flag to know: If someone claims they can \"fine-tune you a custom AI\" in an afternoon with no discussion of your data quality or evaluation plan, be skeptical — that's more likely a prompting/retrieval setup being marketed as fine-tuning."
+  },
+  {
+    "chunkId": "108-50",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "Training from scratch: why almost nobody actually does this",
+    "text": "At the far end of the ladder is training an entirely new foundation model from raw data — no existing model to start from. This is what companies like Anthropic, OpenAI, and Google actually do, and the scale involved explains why virtually no one else attempts it. Training a modern frontier model requires: Massive, carefully curated datasets — often trillions of words of text Enormous compute infrastructure — thousands of specialized processors running for weeks or months Costs typically in the tens to hundreds of millions of dollars, sometimes more for the largest models Deep research expertise in model architecture, training stability, and safety 💡 Why this matters practically: When you hear \"we built our own AI model,\" it's worth asking what that actually means. In the overwhelming majority of cases, it means building on top of an existing model — through prompting, retrieval, or at most fine-tuning — not training a new one from the ground up. That's not a lesser achievement, it's just accurately describing what actually happened."
+  },
+  {
+    "chunkId": "108-51",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "Diagnose the claim",
+    "text": "A company's marketing says: 'We built a proprietary AI model trained specifically on our industry's data.' In reality, they connected an existing AI model to their internal documents and wrote detailed instructions about their industry. In your own words, explain what's misleading about this description and what would be a more accurate way to describe it."
+  },
+  {
+    "chunkId": "108-52",
+    "moduleId": "108",
+    "moduleTitle": "🛠️ Claude 108 — Fine-tuning & Custom AI",
+    "sectionTitle": "A practical framework for choosing the right approach",
+    "text": "Pulling this together into a decision process: 1️⃣ Start with prompting, always Write clear, detailed instructions with a few good examples. This solves the majority of customization needs on its own, at minimal cost. 2️⃣ Add retrieval if you need specific knowledge If the AI needs to know your specific documents, policies, or data — connect that information rather than trying to cram it all into a prompt or, worse, assuming fine-tuning is required. 3️⃣ Consider fine-tuning only for a persistent, specific behavior gap If prompting and retrieval genuinely can't achieve a specific, consistent behavior — a very particular output format at scale, for example — and you have quality training data, fine-tuning becomes worth the investment. 4️⃣ Training from scratch: essentially never, for almost everyone Unless you're a major AI lab with massive resources, this isn't a realistic option — and it's very rarely actually necessary even for ambitious custom AI projects. 💡 The mindset worth having: Climb the ladder only as far as you actually need to. Most impressive \"custom AI\" results come from thoughtful prompting and good data connections — not from the most technically complex option available."
+  },
+  {
+    "chunkId": "109-53",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "Buying AI tools is easy. Getting a team to actually use them well is the hard part.",
+    "text": "Every previous module in this series focused on understanding AI itself. This one is different — it's about what happens when AI meets real teams, real workflows, and real human resistance to change. This is genuinely one of the most practical modules if you're involved in bringing AI into any organization, however small. 📈 The adoption curve — how AI actually spreads through a team over time ❌ Common failure modes — the predictable ways AI rollouts stall or fail 🙅 Understanding resistance — why people push back, and what actually helps ✅ What good rollouts look like — patterns from adoption that actually sticks 🎯 Realistic use cases — separating genuine value from hype-driven pilots None of this requires technical expertise — it's fundamentally about change management, applied to AI specifically."
+  },
+  {
+    "chunkId": "109-54",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "AI adoption in a team almost always follows the same curve",
+    "text": "Whether it's a five-person team or a thousand-person company, AI adoption tends to move through predictable stages: ~15% Early enthusiasts A small group experiments on their own initiative, often before any official rollout. They find real value fast, but their workflow doesn't automatically transfer to others. ~35% Cautious majority Will adopt if given clear guidance, real examples, and reassurance it won't backfire. This group needs structure, not just access to the tool. ~35% Skeptical majority Needs to see clear, credible proof it actually helps before investing effort — often burned before by tools that overpromised. ~15% Resistant holdouts May have genuine, valid concerns (job security, quality control, trust) that deserve real engagement — not dismissal as simply \"resistant to change.\" 💡 Key insight: A rollout that only works for the first 15% (the enthusiasts) and stalls there hasn't actually succeeded — it's just found the people who needed the least convincing. Real adoption means designing specifically for the cautious and skeptical majority."
+  },
+  {
+    "chunkId": "109-55",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "The predictable ways AI rollouts fail",
+    "text": "Most failed AI adoptions fail for a handful of recurring, predictable reasons: 🎯 No clear use case, just \"use AI more\" Handing people a powerful tool with no specific problem to solve leads to confusion, not adoption. People need a concrete \"use this for X,\" not an abstract mandate. 😨 Unaddressed job security fears If people believe AI adoption threatens their role, they will rationally under-engage or even quietly resist — no amount of training fixes a trust problem underneath. 🐌 Underestimating the learning curve Even intuitive tools take real time to integrate into existing habits. Expecting instant fluency after a single training session sets adoption up to look like it failed when it just needed more time. 📉 No way to measure actual impact Without tracking real outcomes — time saved, quality improved, tasks completed — it's impossible to tell if the rollout is working, and leadership support tends to fade without visible proof. 🔧 Tool doesn't fit the actual workflow AI added on top of an already-clunky process just adds another step. The most successful adoptions replace friction, they don't add to it."
+  },
+  {
+    "chunkId": "109-56",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "Resistance to AI usually isn't irrational — it's a signal",
+    "text": "It's tempting to write off pushback as people being \"resistant to change\" in general. In practice, resistance usually falls into a few specific, legitimate categories worth actually addressing: 😰 Job security concerns Fear that AI adoption is a precursor to headcount reduction or role elimination. ✅ Helps: Honest, direct communication about intent — AI as augmentation for this role vs. any planned changes — rather than vague reassurance. 🎯 Quality and trust concerns Worry that AI output will be lower quality, and that they'll be blamed for errors it introduces. ✅ Helps: Clear guidance on when human review is still required, and psychological safety around catching AI mistakes without blame. ⏱️ \"I don't have time to learn this\" Valid when workloads are already at capacity — learning a new tool is itself an investment of scarce time. ✅ Helps: Protected time explicitly set aside for learning, not an expectation to absorb it on top of an already full plate. 🤷 \"I don't see how this helps me specifically\" Generic training that doesn't map to their actual daily tasks feels irrelevant, regardless of how powerful the tool is in the abstract. ✅ Helps: Role-specific examples showing the tool solving a problem they actually recognize from their own work. 💡 The mindset shift: Treat resistance as information about a gap in the rollout, not an obstacle to push through with more mandates. Every one of these concerns has a legitimate, addressable root cause."
+  },
+  {
+    "chunkId": "109-57",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "What separates rollouts that stick from ones that fizzle",
+    "text": "Comparing patterns from successful vs. unsuccessful AI adoption efforts: ✅ Tends to work Starts with one specific, painful problem Uses real examples from actual team workflows Involves the skeptics early, not just enthusiasts Tracks and shares real outcomes, even small wins Gives explicit permission to say \"AI got this wrong\" Provides protected time to learn and experiment ❌ Tends to fizzle Vague mandate to \"use AI more\" with no target Generic training disconnected from real tasks Only reaches the people already excited about it No measurement, so momentum quietly fades Implicit pressure to never criticize the new tool Treated as a side project on top of full workloads 💡 The through-line: Successful rollouts treat adoption as a genuine change-management project with real people's concerns in mind — not a software deployment where flipping on access is the finish line."
+  },
+  {
+    "chunkId": "109-58",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "Diagnose the rollout",
+    "text": "A mid-size company gives every employee access to an AI writing assistant, sends one email announcing it, and expects usage to grow organically. Three months later, usage is flat and mostly limited to a few early adopters. Using what you've learned, identify at least two specific things likely missing from this rollout, and what you'd suggest instead."
+  },
+  {
+    "chunkId": "109-59",
+    "moduleId": "109",
+    "moduleTitle": "🏢 Claude 109 — AI in the Workplace",
+    "sectionTitle": "Separating genuine value from hype-driven pilots",
+    "text": "Not every AI use case is equally mature or equally valuable yet. Being realistic about this actually builds more credibility and trust than overselling. ✅ Generally solid, proven value today Drafting and editing written content, summarizing long documents, brainstorming and ideation, answering questions about provided reference material, repetitive data formatting and cleanup. ⚠️ Promising but needs real human oversight Complex decision support, customer-facing automated responses, code generation for production systems, anything involving sensitive judgment calls. 🚫 Often overhyped relative to current reality \"Fully autonomous\" business processes with zero human oversight, replacing entire specialized roles outright, guaranteed accuracy on high-stakes decisions without verification. 💡 Why this matters for adoption: Setting realistic expectations up front — \"this will help you draft faster, it won't replace your judgment\" — builds more durable trust than overpromising and then quietly walking it back after disappointing results."
+  },
+  {
+    "chunkId": "110-60",
+    "moduleId": "110",
+    "moduleTitle": "🖥️ Claude 110 — Claude Desktop",
+    "sectionTitle": "Claude Desktop: same Claude, a lot more reach",
+    "text": "If you've only ever used Claude in a browser tab, you've been using one surface of a much bigger app. Claude Desktop is a downloadable application for macOS and Windows that gives Claude direct access to things the browser simply can't reach — your local files, your terminal, other apps on your screen. This module covers: 🗂️ The three modes — Chat, Cowork, and Code, and what each is actually for 🌐 Desktop vs. the browser — what genuinely changes when you switch 🔌 Local file and app access — why this is the core unlock 🧩 Real use cases — concrete tasks each mode handles well 🎯 When to actually switch — so you're not just downloading it for no reason None of this requires any technical background — Desktop is built for exactly the kind of everyday work you're probably already doing in the browser, just with fewer walls around it."
+  },
+  {
+    "chunkId": "110-61",
+    "moduleId": "110",
+    "moduleTitle": "🖥️ Claude 110 — Claude Desktop",
+    "sectionTitle": "Three modes, three different jobs",
+    "text": "Claude Desktop organizes everything into three tabs. They share the same underlying Claude, but each is tuned for a different kind of work. 💬 Chat Familiar Works just like claude.ai in the browser — conversation, projects, memory, artifacts. No local file access. Good for questions, brainstorming, and generating text. 🤝 Cowork Autonomous An agent that runs multi-step tasks on your actual files — organizing folders, building a spreadsheet from a stack of invoices, drafting a document from scattered notes. You describe the outcome; Cowork handles the steps. 💻 Code Developer Agentic coding at the project level — reads your codebase, edits multiple files, runs commands, works with git. Built for people writing or maintaining software. 💡 Key distinction: Chat is for conversation. Cowork and Code are for actual execution — they take real action on your files rather than just describing what you could do."
+  },
+  {
+    "chunkId": "110-62",
+    "moduleId": "110",
+    "moduleTitle": "🖥️ Claude 110 — Claude Desktop",
+    "sectionTitle": "What actually changes when you leave the browser",
+    "text": "It's tempting to think of Desktop as \"the browser app, but in a window.\" That undersells it. Here's what's genuinely different: Browser (claude.ai) Desktop app Local file access None — you upload files manually Direct — Claude reads and writes files on your computer Multi-step autonomous tasks Limited Full Cowork support Coding at project level Not available Built-in Code mode Other app control Not available Available on supported systems, with per-action approval Quick access Requires opening a browser tab Global keyboard shortcut from anywhere Analogy Browser Claude is a visitor. Desktop Claude has a key to the building. A visitor can talk to you about the building, look at things you show them, and give advice — but they can't open a filing cabinet on their own. Desktop hands Claude a key: it can open the drawer itself, read what's inside, and put something new in, all with your approval at each step. 💡 Worth knowing: More reach means more responsibility on your end too — actions on your local system typically ask for approval, and it's worth paying attention to what you're approving, especially for anything that changes or deletes real files."
+  },
+  {
+    "chunkId": "110-63",
+    "moduleId": "110",
+    "moduleTitle": "🖥️ Claude 110 — Claude Desktop",
+    "sectionTitle": "What people actually use each mode for",
+    "text": "Concrete examples make this click faster than abstract descriptions: 📁 Cowork: organizing a messy downloads folder \"Sort this folder by file type and rename anything with a generic filename based on its content.\" Cowork opens each file, understands what it is, and reorganizes — something that would take you an hour manually. 📊 Cowork: turning scattered notes into a report Point it at a folder of meeting notes and ask for a single, formatted summary document — Cowork reads everything and produces one coherent output. 🐛 Code: fixing a bug across multiple files Describe a bug in plain language; Code traces it through the actual codebase, identifies the root cause, and proposes or makes the fix across however many files are involved. 💬 Chat: everyday questions and drafting No local file work needed — just the same conversational Claude you'd use in a browser, but with the convenience of a dedicated app and global quick-access shortcut. 💡 Pattern to notice: The more a task involves \"go do this thing to my actual files/system\" rather than \"tell me about this,\" the more it's a Cowork or Code job rather than a Chat job."
+  },
+  {
+    "chunkId": "110-64",
+    "moduleId": "110",
+    "moduleTitle": "🖥️ Claude 110 — Claude Desktop",
+    "sectionTitle": "Match the task to the mode",
+    "text": "You have three tasks: (1) asking for feedback on a paragraph you wrote, (2) going through 200 photos on your desktop and organizing them into dated folders, (3) adding a new feature to an existing app's codebase. For each, explain which Claude Desktop mode fits and why."
+  },
+  {
+    "chunkId": "110-65",
+    "moduleId": "110",
+    "moduleTitle": "🖥️ Claude 110 — Claude Desktop",
+    "sectionTitle": "When it's actually worth switching to Desktop",
+    "text": "Desktop isn't strictly better for everything — it's better for specific kinds of work. Here's a practical way to decide: ✅ Switch to Desktop when... You need Claude to work directly with files already on your computer, run a multi-step task without narrating every step yourself, work with code across a real project, or you find yourself constantly uploading the same kinds of files to the browser version. 🌐 The browser is still fine when... You're just having a conversation, need quick access from a device without the app installed, or you're doing lightweight work that doesn't touch your local file system at all. 💡 Bottom line: Desktop earns its place when the task is really about doing something to files, folders, or code that live on your machine — not just talking about them. If you've never once wished Claude could \"just go check that file for me,\" you may not need it yet — but once you do wish that, Desktop is the answer."
+  },
+  {
+    "chunkId": "111-66",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "Claude Design: visual work without a design degree",
+    "text": "Claude Design is Anthropic's product for creating visual work — prototypes, mockups, slide decks, one-pagers — through conversation rather than a traditional design tool. It's built for a specific gap: you can picture an idea, but you don't have the design background (or the time) to build it yourself. This module covers: 🎯 Who it's actually for — and who it isn't meant to replace 🔁 The iteration loop — how you go from a rough idea to a polished result 🧩 What it can produce — the range of real deliverables 🔗 Handoff to Claude Code — turning a design into working software ⚠️ Honest limitations — where it's a strong fit and where it isn't Note: Claude Design is a newer product still labeled a research preview at the time of writing — some specifics may evolve, but the core workflow described here is well established."
+  },
+  {
+    "chunkId": "111-67",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "Built for the gap between idea and execution",
+    "text": "Anthropic built Claude Design with five specific kinds of people in mind: designers, product managers, founders, marketers, and account executives. Notice that only one of those five — designers — typically has formal design training. That's the point. Analogy Think of it as a sketch you can hand off, not a finished blueprint Someone without design training can describe what they want and get a real, visual first draft — something concrete to react to, share, and refine. It's the difference between saying \"imagine a landing page with X\" and actually having something on screen to point at during a meeting. For designers specifically, the value is different: it's about exploration speed. Even an experienced designer usually has to ration how many directions they explore, since prototyping each one by hand takes real time. Claude Design lets a designer generate a wide range of directions quickly, then apply their judgment to pick and refine the best one. 💡 Key framing: Claude Design isn't trying to make designers obsolete — it's trying to compress the distance between \"I have an idea\" and \"I have something to look at,\" for both non-designers and designers alike."
+  },
+  {
+    "chunkId": "111-68",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "How you actually go from idea to polished result",
+    "text": "Claude Design follows a conversational refinement loop rather than a one-shot generation: 1 Describe what you need A prompt, an existing image or document, a codebase, or even elements pulled directly from your own live website using a web capture tool. 2 Claude builds a first version A real, visual draft — not a text description of what it would look like. 3 Refine through multiple methods Conversation, inline comments on specific elements, direct text edits, or custom sliders Claude generates for fine-tuning things like color, spacing, or layout live. 4 Apply your brand automatically Once given access to your team's design system, Claude can apply it consistently across new projects — so output matches the rest of your company's visual identity without manual re-styling. 💡 Why this matters: The refinement step is what separates this from a simple image generator. You're not stuck with the first draft — the sliders and inline comments give you real, precise control without needing to know a traditional design tool."
+  },
+  {
+    "chunkId": "111-69",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "What it can actually produce",
+    "text": "The range of deliverables is genuinely broad — here are the main categories teams are using it for: 🖱️ Realistic, interactive prototypes Static mockups turned into clickable prototypes for feedback or user testing — without needing a code review or pull request. 📐 Product wireframes and mockups A product manager sketches a feature flow, then hands it directly to Claude Code for implementation, or to a designer for further refinement. 🔀 Design explorations Multiple distinct creative directions generated quickly, to compare and choose from rather than committing early to one idea. 📊 Pitch decks and presentations A rough outline becomes a complete, on-brand deck, exportable as PPTX or sent directly to Canva. 📣 Marketing collateral Landing pages, social assets, and campaign visuals a marketer can create directly, then loop in a designer to polish. 💡 Export flexibility: Output isn't locked into one format — depending on the deliverable, it can be exported to Canva, PDF, PPTX, or as a standalone HTML file, so it fits into whatever workflow your team already uses."
+  },
+  {
+    "chunkId": "111-70",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "From design to working software",
+    "text": "One of the more distinctive parts of Claude Design is how directly it connects to Claude Code. Once a design is ready to build, it can be handed off for actual implementation — closing the gap between \"here's what it should look like\" and \"here's the working version.\" Analogy A blueprint that comes with the construction crew already briefed Traditionally, a designer hands a static mockup to an engineer, who then has to interpret and rebuild it from scratch — a process where details get lost or reinterpreted. A design-to-code handoff aims to preserve more of the original intent directly, since the same underlying system produced both. This matters most for product managers and founders who can sketch out a feature flow themselves, then move straight to implementation without needing a separate design step in between — or for teams who want prototypes to more closely reflect what the final built product will actually look like. 💡 Practical note: This handoff is a genuine workflow improvement, but it doesn't eliminate the value of a real design review — it shifts where that review happens, from \"does this look right\" earlier in the process to \"does this work right\" once it's real software."
+  },
+  {
+    "chunkId": "111-71",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "Pick the right tool for the job",
+    "text": "You're a founder with an idea for a new feature but no design background. You want to (1) get a rough visual to react to, (2) refine it until it feels right, and (3) eventually have it actually built. Walk through, in your own words, how Claude Design (and its handoff to Claude Code) would support all three steps."
+  },
+  {
+    "chunkId": "111-72",
+    "moduleId": "111",
+    "moduleTitle": "🎨 Claude 111 — Claude Design",
+    "sectionTitle": "Where Claude Design is a strong fit — and where it isn't",
+    "text": "Being clear-eyed about limitations makes the tool more useful, not less. A few honest caveats worth knowing: 🎨 Output quality depends on setup Claude Design works best once an experienced designer has set up the organization's design system first. Without that groundwork, output can still be functional, but is more likely to look generic rather than distinctly on-brand. 🚫 Not a replacement for design review It's best understood as a design acceleration layer — a way to get to a reviewable direction faster — not a substitute for design judgment, systems maintenance, or a production-quality review process. 📋 Governance features are still developing As of its current documentation, Claude Design does not provide audit logs or usage tracking — worth knowing if your organization has strict governance requirements around who changed what and when. 🧮 Not the right fit for every kind of work Tasks that are mostly text strategy, mostly spreadsheet logic, or already deep inside a mature, established design-file workflow are generally a poor match — Claude Design shines specifically at visual drafting and alignment, not at everything adjacent to design work. ⚠️ The honest bottom line: Claude Design is a strong fit when the bottleneck is alignment or getting to a first reviewable direction quickly — not when the bottleneck is craft perfection or governance-heavy production work."
+  },
+  {
+    "chunkId": "112-73",
+    "moduleId": "112",
+    "moduleTitle": "⌨️ Claude 112 — Claude Code",
+    "sectionTitle": "Claude Code: an agent that actually works inside your codebase",
+    "text": "This module builds directly on Module 5 (AI Agents & Tool Use) — if that one isn't fresh, it's worth a quick review, since everything here assumes you understand the agent loop and trust boundaries already. Claude Code is an agentic coding tool: it reads your codebase, edits files, runs commands, and integrates with your development tools. It's aimed at developers, but also at technically-curious non-engineers who want to build or fix something real. 🖥️ Where it runs — terminal, IDE, desktop app, and browser 🔁 How a real task actually flows — from plain-language request to working code 🔧 Git and MCP integration — connecting to your existing workflow and tools 🛡️ Trust and approval in practice — applying what Module 5 covered, concretely 🎯 When to reach for it — vs. a quick chat-based coding question"
+  },
+  {
+    "chunkId": "112-74",
+    "moduleId": "112",
+    "moduleTitle": "⌨️ Claude 112 — Claude Code",
+    "sectionTitle": "One tool, several surfaces",
+    "text": "Claude Code isn't tied to one interface — it's designed to fit into wherever you already work: ⌨️ Terminal The original and most common surface — run claude from your project directory and start describing what you need in plain language. 🧩 IDE (VS Code, JetBrains) Works as an extension inside the editor you already use, so changes and context stay visible alongside your normal coding environment. 🖥️ Desktop app Lives in the Code tab of Claude Desktop (see Module 10), with the same underlying capability as the terminal version. 🌐 Browser / Web A web-accessible surface for cases where installing a local tool isn't practical or desired. 💡 Practical note: Most surfaces require a Claude subscription or an Anthropic Console account to use — it's worth confirming your specific plan supports the surface you want before diving in."
+  },
+  {
+    "chunkId": "112-75",
+    "moduleId": "112",
+    "moduleTitle": "⌨️ Claude 112 — Claude Code",
+    "sectionTitle": "From plain language to a working fix",
+    "text": "Here's what a real Claude Code interaction typically looks like, tying directly back to the agent loop from Module 5: 1 Describe the goal in plain language \"Add a dark mode toggle to the settings page\" or paste an error message and describe the symptom. 2 Claude Code reads the relevant parts of your codebase It doesn't need you to specify every file — it explores the project to find what's relevant, the way a new team member would when investigating an issue. 3 It plans an approach, then writes the code Changes may span multiple files — this isn't a single-line autocomplete, it's coordinated editing across a real project. 4 It verifies the work Running tests or checking that the change behaves as expected, rather than just handing you unverified code and moving on. $ claude > Add a dark mode toggle to the settings page 💡 This is the agent loop from Module 5, made concrete: think (understand the request and codebase) → act (write and edit code) → observe (run tests, check results) → decide (done, or loop back and adjust)."
+  },
+  {
+    "chunkId": "112-76",
+    "moduleId": "112",
+    "moduleTitle": "⌨️ Claude 112 — Claude Code",
+    "sectionTitle": "Working with git and your existing tools via MCP",
+    "text": "Two integrations matter a lot for how Claude Code fits into a real workflow: Git integration It works directly with version control, not around it Claude Code can stage changes, write commit messages, create branches, and open pull requests — meaning it participates in your actual development process rather than producing code you then have to manually integrate yourself. $ claude \"commit my changes with a descriptive message\" The second integration is MCP (Model Context Protocol) — an open standard for connecting AI tools to external systems. This is the same underlying concept from Module 5's discussion of connected apps, applied specifically to development work. With MCP, Claude Code can read design docs in Google Drive, update tickets in a project tracker like Jira, pull data from Slack, or connect to custom internal tooling your team has built — extending what it can access well beyond just the code files in front of it. 💡 Why this matters: Real development work rarely lives in code alone — it touches tickets, docs, and team communication. MCP is what lets Claude Code participate in that fuller picture instead of being isolated to just the files on disk."
+  },
+  {
+    "chunkId": "112-77",
+    "moduleId": "112",
+    "moduleTitle": "⌨️ Claude 112 — Claude Code",
+    "sectionTitle": "Apply the trust framework",
+    "text": "Recall Module 5's trust levels (low/medium/high risk actions). Using that same framework, classify these three Claude Code actions and explain your reasoning: (1) reading through your codebase to understand its structure, (2) writing a fix for a bug in a local branch, (3) opening a pull request that merges directly into your production branch."
+  },
+  {
+    "chunkId": "112-78",
+    "moduleId": "112",
+    "moduleTitle": "⌨️ Claude 112 — Claude Code",
+    "sectionTitle": "When to reach for Claude Code vs. a quick chat question",
+    "text": "Not every coding question needs the full agentic tool. Here's a practical way to decide: Quick chat is enough Isolated questions and small snippets \"What does this regex do?\" or \"write a function that reverses a string\" — no need to touch your actual project files for this. Claude Code starts to make sense Fixing a bug that requires understanding how multiple files interact, adding a feature that touches several parts of a real codebase, or anything where \"explore first, then act\" is genuinely needed. Definitely Claude Code Full project-level work Refactoring across a codebase, working with git history and branches, or any task where the integration with your actual development tools and workflow matters. 💡 The deciding question: Does this task need Claude to actually see and act on your real project — reading real files, running real commands, working with real git history? If yes, that's Claude Code. If it's a self-contained question you could answer on a whiteboard, plain chat is simpler and faster."
+  },
+  {
+    "chunkId": "113-79",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "Claude Cowork: agentic AI for people who don't touch a terminal",
+    "text": "Claude Code (Module 12) brought agentic, multi-step AI capability to developers. Claude Cowork takes that same underlying idea and brings it to everyone else — knowledge workers who need real work done on their files and folders, without ever opening a command line. This module covers: 🎯 What Cowork actually is — and how it differs from Chat and from Code 📁 The folder-permission model — how it gets access, and what that means 🧩 Real use cases — the kind of work it's built to handle ⚠️ Honest risks — a real reported incident worth understanding 🛡️ Using it responsibly — practical habits that keep you in control This one connects directly to Module 5's agent concepts and Module 10's Desktop overview — worth having both fresh if you haven't covered them yet."
+  },
+  {
+    "chunkId": "113-80",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "Cowork in one sentence: an AI coworker, not a chat window",
+    "text": "Claude Cowork is an autonomous agent mode within Claude Desktop that plans, executes, and completes multi-step tasks on your local files with minimal supervision — built on the same underlying architecture as Claude Code, but designed for people who don't write code. Analogy Chat answers questions. Cowork gets assigned work. Talking to Chat is like asking a knowledgeable colleague a question at their desk — they answer, you act on it. Working with Cowork is like handing a task to a capable assistant and walking away — they figure out the steps, do the work, and bring you the finished result. The shift in mental model matters: instead of writing a prompt and getting a response, you're describing an outcome and delegating the execution. This is the same \"think → act → observe → decide\" agent loop from Module 5, just applied to everyday knowledge work like spreadsheets and documents instead of code. 💡 Where it fits: Chat = conversation. Cowork = autonomous execution for general knowledge work. Code = autonomous execution specifically for software projects. Same underlying agentic capability, different audiences and file types."
+  },
+  {
+    "chunkId": "113-81",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "The folder-permission model",
+    "text": "Cowork doesn't get free rein over your entire computer. It operates through a folder-permission model: you explicitly grant it read, write, and create access to specific directories, and it works within that boundary. 1 You choose the folder Point Cowork at a specific directory — not your whole file system — where the relevant files for the task actually live. 2 You describe the task In plain language — \"organize these invoices into a spreadsheet,\" \"summarize these meeting notes into one document.\" 3 It plans and executes autonomously Within that granted folder, it reads files, creates new ones, and organizes content — without needing you to approve each individual action along the way. 💡 Why the scoping matters: Granting access to one project folder rather than your entire Documents directory limits the blast radius if something goes wrong — the same principle as giving someone a key to one room rather than the whole building."
+  },
+  {
+    "chunkId": "113-82",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "The kind of work Cowork is actually built for",
+    "text": "Concrete examples make this land better than the abstract description: 🧾 Turning invoices into a spreadsheet Point it at a folder of PDF invoices and ask for a formatted spreadsheet with the totals extracted — Cowork reads each file and builds the working output. 📝 Consolidating scattered notes into one document A folder of loose meeting notes becomes a single, organized summary document, without you manually piecing it together. 📊 Pulling metrics into a formatted report Gathering scattered figures into one coherent, presentable report — the kind of task that's simple in concept but tedious to assemble by hand. 🗂️ Organizing a messy folder by content Sorting files based on what's actually inside them, not just filenames — something that requires actually reading each file to do well. 💡 The common thread: Every one of these tasks involves real files, multiple steps, and a defined outcome — exactly the shape of work that benefits from delegation rather than a single conversational answer."
+  },
+  {
+    "chunkId": "113-83",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "A real incident worth knowing about",
+    "text": "Being clear-eyed about risk makes a tool more useful, not less. One documented example is worth understanding directly: early user reports described a case where Cowork consumed a large volume of files (reported as around 11GB) during testing, unintentionally. ⚠️ Why this happened, most likely: Cowork operates with real read/write/create access within its granted folder and works autonomously — meaning a misunderstood instruction or an edge case in a task can result in real, unintended changes to real files, not just a wrong text answer you can simply disregard. This connects directly to Module 5's trust-boundary framework: reading files is low-risk and reversible. But writing, overwriting, or deleting files is a different category — those actions have real, sometimes hard-to-reverse consequences, which is exactly why backup practices matter here in a way they don't for a purely conversational tool. Low risk Reading and analyzing files Reversible by nature — nothing is altered. Medium-to-high risk Creating, modifying, or reorganizing files Real changes to real data. Worth having backups before granting broad access, especially for a new or unfamiliar task."
+  },
+  {
+    "chunkId": "113-84",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "Design a safe first task",
+    "text": "You want to try Cowork for the first time, on a folder of 50 old project files you don't fully remember the contents of. Using what you've learned about the folder-permission model and honest risks, describe how you'd set up this first task responsibly."
+  },
+  {
+    "chunkId": "113-85",
+    "moduleId": "113",
+    "moduleTitle": "🤝 Claude 113 — Claude Cowork",
+    "sectionTitle": "Practical habits for staying in control",
+    "text": "None of the risk above means avoiding Cowork — it means using it with the same reasonable caution you'd apply to any tool with real access to your files. A few concrete habits: 💾 Back up before granting access to anything important Especially for a new or unfamiliar type of task — a backup turns a potential disaster into a minor inconvenience. 🔍 Scope folder access narrowly Grant access to the specific project folder the task needs, not a broad parent directory \"just in case.\" 🏢 In a workplace setting, governance is a real responsibility Anthropic itself has been clear that while some oversight tooling exists, organizations rolling out Cowork broadly are responsible for their own governance and controls — this isn't something to assume is fully handled for you. ✅ Review results before treating them as final Especially early on, or for anything consequential — the same \"verify before you fully trust\" habit from Module 7's discussion of AI reliability. 💡 The mindset that ties it together: Cowork's power comes from autonomous, real-world file access — which is exactly why the same care that applies to any powerful tool with real consequences applies here too."
+  }
+]

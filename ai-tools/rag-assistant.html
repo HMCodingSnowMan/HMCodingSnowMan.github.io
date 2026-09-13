@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Learn Claude Assistant — RAG Demo</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --fg: #1a1a1a;
+    --muted: #6b6b6b;
+    --border: #dcdcdc;
+    --accent: #2f5d50;
+    --card-bg: #f7f7f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121212;
+      --fg: #ededed;
+      --muted: #9a9a9a;
+      --border: #2e2e2e;
+      --accent: #6fb8a2;
+      --card-bg: #1a1a1a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+
+  main {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 20px 80px;
+  }
+
+  .intro {
+    margin-bottom: 40px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow-note {
+    color: var(--accent);
+    font-size: 0.85rem;
+    margin: 0 0 8px;
+  }
+
+  .lede {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin: 12px 0 20px;
+    max-width: 56ch;
+  }
+
+  .stack-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .stack-pill {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .how-it-works {
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+  }
+
+  .how-it-works summary {
+    cursor: pointer;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+
+  .how-it-works ol {
+    color: var(--muted);
+    padding-left: 20px;
+    margin: 8px 0 0;
+  }
+
+  .how-it-works li {
+    margin-bottom: 6px;
+  }
+
+  .build-story {
+    color: var(--muted);
+    margin: 8px 0 12px;
+    max-width: 60ch;
+  }
+
+  section.tool h2 {
+    font-size: 1.15rem;
+    margin: 0 0 4px;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 4px;
+  }
+
+  p.subtitle {
+    color: var(--muted);
+    margin: 0 0 32px;
+    font-size: 0.95rem;
+  }
+
+  .key-row {
+    margin-bottom: 8px;
+  }
+
+  .key-row input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.95rem;
+  }
+
+  .key-note {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin: 0 0 20px;
+  }
+
+  form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+
+  input[type="text"] {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 1rem;
+  }
+
+  input[type="text"]:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+
+  button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+
+  #answer-area {
+    display: none;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+  }
+
+  #answer-text {
+    white-space: pre-wrap;
+    margin: 0 0 16px;
+  }
+
+  .sources {
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .sources ul {
+    margin: 6px 0 0;
+    padding-left: 18px;
+  }
+
+  .status {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .error {
+    color: #b3452c;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="intro">
+    <p class="eyebrow-note">AI / RAG project</p>
+    <h1>Learn Claude Assistant</h1>
+    <p class="lede">
+      A retrieval-augmented question box built over my 13-module Learn
+      Claude course. Instead of guessing, it searches the actual module
+      text for the most relevant passages, then answers using only what
+      it finds there.
+    </p>
+
+    <div class="stack-row">
+      <span class="stack-pill">Voyage AI embeddings</span>
+      <span class="stack-pill">Claude API</span>
+      <span class="stack-pill">Vercel serverless</span>
+      <span class="stack-pill">Vanilla JS</span>
+    </div>
+
+    <details class="how-it-works">
+      <summary>How it works</summary>
+      <ol>
+        <li>Each module is split into chunks and converted into embeddings — numeric representations of meaning — using Voyage AI.</li>
+        <li>Your question gets embedded the same way, and the closest-matching chunks are found by comparing vectors.</li>
+        <li>Those chunks are handed to Claude as grounding context, so the answer is based on the actual course material, not general knowledge.</li>
+      </ol>
+    </details>
+
+    <details class="how-it-works">
+      <summary>Why I built this</summary>
+      <p class="build-story">
+        The Learn Claude series started as a set of interactive lesson
+        modules I built to teach AI basics — lessons, quizzes, and try-it
+        exercises, all client-side JavaScript. This project reuses that
+        same content as the corpus for a small RAG system: the lesson
+        text was extracted from each module, split into topic-sized
+        chunks, and converted into embeddings so a question can be
+        matched to the passages that actually answer it, instead of
+        relying on a model's general training.
+      </p>
+      <p class="build-story">
+        A few deliberate choices shaped the build. There's no vector
+        database — at 13 modules, a flat JSON file of embeddings and a
+        brute-force similarity search is simpler and fast enough. The
+        assistant will also work without any API key on your end: it
+        falls back to returning the raw matching excerpts instead of a
+        written answer, so the retrieval side always works, and a
+        written answer is available if you add your own Anthropic key
+        for that one request.
+      </p>
+      <p class="build-story">
+        Stack: Voyage AI for embeddings, the Claude API for generation,
+        a Vercel serverless function for retrieval and orchestration,
+        and plain HTML/CSS/JS for the interface — no framework, to keep
+        it consistent with the rest of this site.
+      </p>
+    </details>
+  </header>
+
+  <section class="tool">
+  <h2>Ask it something</h2>
+  <p class="subtitle">
+    Answers are grounded in the module text, not general knowledge.
+  </p>
+
+  <div class="key-row">
+    <input
+      type="password"
+      id="api-key-input"
+      placeholder="Your Anthropic API key (optional)"
+      autocomplete="off"
+    />
+  </div>
+  <p class="key-note">
+    Add your own key for a written answer. Without one, you'll get the
+    raw matching excerpts instead — nothing is sent anywhere except this
+    one request, and it's never stored.
+  </p>
+
+  <form id="ask-form">
+    <input
+      type="text"
+      id="question-input"
+      placeholder="e.g. What causes hallucinations?"
+      autocomplete="off"
+      required
+    />
+    <button type="submit" id="ask-button">Ask</button>
+  </form>
+
+  <p id="status" class="status" aria-live="polite"></p>
+
+  <div id="answer-area">
+    <p id="answer-text"></p>
+    <div class="sources">
+      <span>Drawn from:</span>
+      <ul id="source-list"></ul>
+    </div>
+  </div>
+  </section>
+</main>
+
+<script>
+  const form = document.getElementById("ask-form");
+  const input = document.getElementById("question-input");
+  const apiKeyInput = document.getElementById("api-key-input");
+  const button = document.getElementById("ask-button");
+  const statusEl = document.getElementById("status");
+  const answerArea = document.getElementById("answer-area");
+  const answerText = document.getElementById("answer-text");
+  const sourceList = document.getElementById("source-list");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const question = input.value.trim();
+    if (!question) return;
+
+    const apiKey = apiKeyInput.value.trim();
+
+    button.disabled = true;
+    answerArea.style.display = "none";
+    statusEl.textContent = apiKey ? "Searching modules and writing an answer…" : "Searching modules…";
+    statusEl.classList.remove("error");
+
+    try {
+      const res = await fetch("/api/rag-query", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(apiKey ? { question, apiKey } : { question }),
+      });
+
+      if (!res.ok) {
+        throw new Error(`Request failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      answerText.textContent = data.answer;
+      sourceList.innerHTML = "";
+      (data.sources || []).forEach((s) => {
+        const li = document.createElement("li");
+        li.textContent = `${s.moduleTitle} — ${s.sectionTitle}`;
+        sourceList.appendChild(li);
+      });
+
+      answerArea.style.display = "block";
+      statusEl.textContent = "";
+    } catch (err) {
+      statusEl.textContent = "Couldn't get an answer — try again in a moment.";
+      statusEl.classList.add("error");
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>
