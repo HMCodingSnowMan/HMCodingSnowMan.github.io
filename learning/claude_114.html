@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude 114 — Learn AI the Easy Way</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f5f4ff;
+  --card: #ffffff;
+  --border: #e0deff;
+  --purple: #7c6af7;
+  --purple-dark: #5b4de0;
+  --purple-light: #ede9fe;
+  --green: #10b981;
+  --green-light: #d1fae5;
+  --red: #ef4444;
+  --red-light: #fee2e2;
+  --gold: #f59e0b;
+  --gold-light: #fef3c7;
+  --text: #1e1b4b;
+  --muted: #6b6880;
+}
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* HEADER */
+header {
+  background: var(--purple-dark);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+header h1 { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.02em; }
+.header-hub-link { font-size: 0.78rem; font-weight: 500; color: var(--muted); text-decoration: none; white-space: nowrap; transition: color 0.15s; }
+.header-hub-link:hover { color: var(--text); }
+.header-left { display: flex; align-items: center; gap: 1rem; min-width: 0; }
+.progress-wrap { display: flex; align-items: center; gap: 0.75rem; }
+.progress-track { width: 140px; height: 8px; background: rgba(255,255,255,0.2); border-radius: 8px; overflow: hidden; }
+.progress-fill { height: 100%; background: #a5f3fc; border-radius: 8px; transition: width 0.4s; }
+.progress-label { font-size: 0.75rem; opacity: 0.8; white-space: nowrap; }
+
+/* MAIN */
+.main { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+/* LESSON CARD */
+.lesson-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  display: none;
+  animation: slideIn 0.3s ease;
+}
+.lesson-card.active { display: block; }
+@keyframes slideIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: translateY(0); } }
+
+.lesson-tag {
+  display: inline-block;
+  font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  background: var(--purple-light); color: var(--purple-dark);
+  padding: 0.25rem 0.65rem; border-radius: 20px;
+  margin-bottom: 0.875rem;
+}
+.lesson-tag.quiz-tag { background: var(--gold-light); color: #92400e; }
+.lesson-tag.tip-tag { background: var(--green-light); color: #065f46; }
+
+.lesson-emoji { font-size: 2.5rem; margin-bottom: 0.75rem; display: block; }
+.lesson-title { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; line-height: 1.25; }
+.lesson-body { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+.lesson-body p { margin-bottom: 0.75rem; }
+.lesson-body p:last-child { margin-bottom: 0; }
+.lesson-body strong { color: var(--text); }
+
+/* CALLOUT */
+.callout {
+  border-radius: 12px; padding: 0.875rem 1rem;
+  margin: 1rem 0; font-size: 0.875rem; line-height: 1.6;
+}
+.callout.purple { background: var(--purple-light); border-left: 4px solid var(--purple); color: var(--purple-dark); }
+.callout.green { background: var(--green-light); border-left: 4px solid var(--green); color: #065f46; }
+.callout.gold { background: var(--gold-light); border-left: 4px solid var(--gold); color: #92400e; }
+
+/* EXAMPLE CHAT */
+.chat-example { background: var(--bg); border-radius: 12px; padding: 1rem; margin: 1rem 0; }
+.chat-msg { display: flex; gap: 0.6rem; margin-bottom: 0.6rem; align-items: flex-start; }
+.chat-msg:last-child { margin-bottom: 0; }
+.chat-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+.chat-avatar.user { background: var(--purple); color: white; }
+.chat-avatar.claude { background: var(--text); color: white; }
+.chat-bubble { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.75rem; font-size: 0.82rem; line-height: 1.5; flex: 1; }
+.chat-bubble.user-bubble { background: var(--purple-light); border-color: var(--purple-light); }
+
+/* QUIZ */
+.quiz-options { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1.25rem; }
+.quiz-option {
+  background: var(--bg); border: 2px solid var(--border);
+  border-radius: 12px; padding: 0.875rem 1rem;
+  font-size: 0.875rem; font-weight: 500;
+  cursor: pointer; text-align: left;
+  transition: all 0.15s; display: flex; align-items: center; gap: 0.75rem;
+}
+.quiz-option:hover { border-color: var(--purple); background: var(--purple-light); }
+.quiz-option.correct { border-color: var(--green); background: var(--green-light); color: #065f46; pointer-events: none; }
+.quiz-option.wrong { border-color: var(--red); background: var(--red-light); color: #7f1d1d; pointer-events: none; }
+.quiz-option.disabled { pointer-events: none; opacity: 0.5; }
+.option-letter {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--border); color: var(--muted);
+  font-size: 0.75rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.quiz-option.correct .option-letter { background: var(--green); color: white; }
+.quiz-option.wrong .option-letter { background: var(--red); color: white; }
+
+.quiz-feedback {
+  margin-top: 1rem; padding: 0.875rem 1rem;
+  border-radius: 12px; font-size: 0.875rem; line-height: 1.6;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.correct { background: var(--green-light); color: #065f46; }
+.quiz-feedback.wrong { background: var(--red-light); color: #7f1d1d; }
+
+/* TRY IT */
+.try-it { margin-top: 1.25rem; }
+.try-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 0.5rem; }
+.try-input { width: 100%; border: 2px solid var(--border); border-radius: 12px; padding: 0.75rem 1rem; font-size: 0.875rem; font-family: inherit; resize: none; outline: none; background: var(--bg); color: var(--text); transition: border-color 0.15s; }
+.try-input:focus { border-color: var(--purple); background: white; }
+.try-submit { margin-top: 0.5rem; background: var(--purple); color: white; border: none; border-radius: 10px; padding: 0.6rem 1.25rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.try-submit:hover { background: var(--purple-dark); }
+.try-response { display: none; margin-top: 0.75rem; background: var(--purple-light); border-radius: 12px; padding: 0.875rem 1rem; font-size: 0.875rem; line-height: 1.6; color: var(--purple-dark); }
+.try-response.show { display: block; }
+
+/* NAV BUTTONS */
+.nav-row { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.btn-next {
+  background: var(--purple); color: white;
+  border: none; border-radius: 12px;
+  padding: 0.75rem 1.75rem;
+  font-size: 0.9rem; font-weight: 700;
+  cursor: pointer; transition: background 0.15s;
+  display: flex; align-items: center; gap: 0.5rem;
+}
+.btn-next:hover { background: var(--purple-dark); }
+.btn-next:disabled { opacity: 0.35; cursor: default; }
+.btn-back {
+  background: none; color: var(--muted);
+  border: 1px solid var(--border); border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; transition: all 0.15s;
+}
+.btn-back:hover { color: var(--text); border-color: var(--muted); }
+
+/* SCORE CARD */
+.score-card { text-align: center; padding: 1rem 0; }
+.score-emoji { font-size: 4rem; margin-bottom: 0.75rem; }
+.score-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+.score-sub { font-size: 0.9rem; color: var(--muted); margin-bottom: 1.5rem; }
+.score-badge { display: inline-block; background: var(--purple-light); color: var(--purple-dark); border-radius: 20px; padding: 0.5rem 1.5rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1.5rem; }
+.restart-btn { background: var(--purple); color: white; border: none; border-radius: 12px; padding: 0.75rem 2rem; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+.back-to-hub-btn { display: inline-block; margin-left: 0.75rem; background: none; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 0.75rem 1.5rem; font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.back-to-hub-btn:hover { color: var(--text); }
+
+@media (max-width: 480px) {
+  .lesson-card { padding: 1.25rem; }
+  header { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <a class="header-hub-link" href="claude_learn.html">← Hub</a>
+<h1>🔍 Claude 114 — RAG Basics</h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="progress-label" id="progress-label">Lesson 1 of 8</div>
+  </div>
+</header>
+
+<div class="main" id="main"></div>
+
+<script>
+let currentLesson = 0;
+let quizScore = 0;
+let quizTotal = 0;
+let quizAnswered = {};
+
+const lessons = [
+  // 0 - INTRO
+  {
+    type: 'lesson',
+    tag: 'Welcome',
+    emoji: '🔍',
+    title: "What's this 'RAG' thing everyone keeps mentioning?",
+    body: `
+      <p>If you've spent any time around AI tools, you've probably heard "RAG" thrown around like everyone's supposed to already know what it means. You don't, and that's fine — most people saying it couldn't explain it clean either.</p>
+      <p><strong>RAG stands for Retrieval-Augmented Generation.</strong> Three words, three jobs: retrieve the relevant info, add it into the prompt, then let the model generate an answer using it.</p>
+      <div class="callout purple">💡 Here's the simplest possible version: imagine you paste a document into a chat and ask "based on this text, can you answer my question?" That's RAG. The model reads what you gave it and answers from that, not from guessing.</div>
+      <p>The only difference between that and "real" RAG is scale — what happens when there's way too much text to paste in by hand. That's exactly what this module is about. Let's go. 🚀</p>
+    `
+  },
+
+  // 1 - WHY RAG EXISTS
+  {
+    type: 'lesson',
+    tag: 'Why it matters',
+    emoji: '🧩',
+    title: "Why not just ask the model directly?",
+    body: `
+      <p>Language models learn everything they know during training, on a fixed cutoff date. After that, they're frozen. Ask about something that happened last week, or about your company's internal wiki, or about a private document — and the model simply has nothing to draw on.</p>
+      <p>Two options fix this: retrain the model (expensive, slow, impractical for most use cases) or <strong>give it the missing information at the moment you ask</strong>, packed into the prompt. RAG is the second option, automated.</p>
+      <div class="callout green">
+        ✅ <strong>Fresh info</strong> — news, prices, anything that changed after training<br><br>
+        ✅ <strong>Private info</strong> — your own documents, a company knowledge base, internal notes<br><br>
+        ✅ <strong>Grounded answers</strong> — the model answers from real text instead of its best guess, cutting down on made-up-sounding responses
+      </div>
+      <p>Here's what that looks like in practice:</p>
+      <div class="chat-example">
+        <div class="chat-msg">
+          <div class="chat-avatar user">You</div>
+          <div class="chat-bubble user-bubble">What's our refund policy for orders over 90 days old?</div>
+        </div>
+        <div class="chat-msg">
+          <div class="chat-avatar claude">C</div>
+          <div class="chat-bubble">Based on your policy document: refunds after 90 days are handled case-by-case by a manager, and store credit is offered by default instead of a cash refund.</div>
+        </div>
+      </div>
+      <p>No model was trained on that company's private policy. RAG is how it still gets the right answer.</p>
+    `
+  },
+
+  // 2 - QUIZ 1
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🤔',
+    title: "Pop quiz — no pressure!",
+    question: "What problem is RAG mainly solving?",
+    options: [
+      "Making the model type faster",
+      "Giving the model access to information it wasn't trained on",
+      "Making the model's personality more fun",
+      "Reducing the cost of every single API call to zero"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly! 🎉 RAG exists to hand the model current, private, or specific information it never saw during training — by retrieving it and putting it right in the prompt.",
+      wrong: "Not quite — RAG is all about information access. It retrieves relevant text and feeds it to the model so the answer is grounded in real, often private or recent, information instead of the model's frozen training data."
+    }
+  },
+
+  // 3 - HOW RETRIEVAL WORKS
+  {
+    type: 'lesson',
+    tag: 'Under the hood',
+    emoji: '⚙️',
+    title: "How does the 'retrieval' part actually find the right text?",
+    body: `
+      <p>If you only have one short document, retrieval is easy — you just paste the whole thing in. The real trick is when you have hundreds of documents, or a huge knowledge base, way too much to paste into a single prompt.</p>
+      <p>That's solved in three steps:</p>
+      <div class="callout purple">
+        1️⃣ <strong>Chunking</strong> — break big documents into smaller pieces (a paragraph, a section) so each chunk covers one focused idea<br><br>
+        2️⃣ <strong>Embedding</strong> — convert each chunk into a list of numbers (a "vector") that represents its meaning, using an embedding model<br><br>
+        3️⃣ <strong>Similarity search</strong> — when a question comes in, embed the question the same way, then find which chunks' vectors are numerically closest to it
+      </div>
+      <p><strong>This is the part people find magical:</strong> it's not keyword matching. A chunk can match a question even if it doesn't share a single exact word, because embeddings capture meaning, not spelling. Ask "how do I get my money back" and it can still match a chunk about "refund eligibility" — no shared words, same idea.</p>
+      <p>Once the closest-matching chunks are found, they get stuffed into the prompt as context, and the model answers using just those chunks.</p>
+    `
+  },
+
+  // 4 - TRY IT
+  {
+    type: 'tryit',
+    tag: 'Try it! 🎮',
+    emoji: '✍️',
+    title: "Your turn — spot the chunk",
+    instruction: "Imagine a company FAQ split into these three chunks: (1) shipping times, (2) return policy, (3) how to reset your password. If a customer asks 'I want to send this back, how does that work?' — which chunk should retrieval pull up? Type your answer and why.",
+    placeholder: "Type which chunk you'd retrieve, and why...",
+    responses: {
+      good: ["Right idea! Even though the question never says the word 'return,' it's clearly asking about sending something back — which is exactly what the return policy chunk covers. That's the embeddings doing their job: matching meaning, not exact words.",
+             "Exactly the instinct to have. Retrieval isn't about spotting keywords — it's about matching what the question is actually asking. 'Send this back' and 'return policy' mean the same thing, even with zero words in common."],
+      default: "The return policy chunk is the one you'd want. Even though the question doesn't use the word 'return,' the meaning of 'send this back' lines up closely with a return policy — which is exactly the kind of match embeddings are built to catch."
+    }
+  },
+
+  // 5 - QUIZ 2
+  {
+    type: 'quiz',
+    tag: 'Quick check ✏️',
+    emoji: '🧠',
+    title: "Test your retrieval knowledge",
+    question: "Why does RAG use embeddings instead of just searching for matching keywords?",
+    options: [
+      "Embeddings are cheaper to store than plain text",
+      "Keyword search can't run on a serverless function",
+      "Embeddings capture meaning, so a chunk can match even without sharing exact words with the question",
+      "Embeddings make the model respond faster, nothing else"
+    ],
+    correct: 2,
+    feedback: {
+      correct: "Yes! 🙌 That's the whole point of embeddings — they represent meaning as numbers, so semantically similar text matches even when the wording is completely different.",
+      wrong: "Close, but the real reason is meaning-matching. Embeddings let a question like 'get my money back' match a chunk about 'refund policy' even though they don't share a single word — plain keyword search would miss that connection entirely."
+    }
+  },
+
+  // 6 - THE STACK
+  {
+    type: 'lesson',
+    tag: 'The toolkit',
+    emoji: '🛠️',
+    title: "What actually builds a RAG system?",
+    body: `
+      <p>You don't need exotic infrastructure to build a small RAG system — the pieces are pretty modest at a small scale, and they scale up as the dataset grows.</p>
+      <div class="callout green">
+        <strong>An embedding model</strong><br>
+        Turns text into vectors. Common choices: Voyage AI, OpenAI's embeddings, Cohere. (Note: Claude itself doesn't generate embeddings — you pair it with a dedicated embedding model.)
+      </div>
+      <div class="callout gold">
+        <strong>Somewhere to store the vectors</strong><br>
+        For a small project, a flat JSON file with brute-force similarity search works fine. At real scale — millions of chunks — that gets replaced with a proper vector database (Pinecone, pgvector, FAISS, and others).
+      </div>
+      <div class="callout purple">
+        <strong>A generation model</strong><br>
+        Takes the retrieved chunks plus the question and writes the final answer — this is where Claude or another LLM does the actual "generation" half of the name.
+      </div>
+      <p>You'll also hear the name <strong>LangChain</strong> come up constantly. It's a framework that packages all of the above — chunking, embedding, retrieval, and generation — into reusable building blocks, so teams don't hand-roll every piece from scratch. It doesn't do anything conceptually new; it just standardizes the plumbing.</p>
+    `
+  },
+
+  // 7 - FINAL QUIZ
+  {
+    type: 'quiz',
+    tag: 'Final quiz ✏️',
+    emoji: '🏆',
+    title: "Last one — you've got this!",
+    question: "Your dataset is only 10 short documents that easily fit in one prompt. Do you need a full RAG pipeline?",
+    options: [
+      "Yes, always use RAG no matter the size",
+      "No — at that size you can likely just paste the documents directly into the prompt; RAG earns its keep once the data is too big to paste in",
+      "No, small datasets can't be searched at all",
+      "Yes, but only if you're using LangChain"
+    ],
+    correct: 1,
+    feedback: {
+      correct: "Exactly! 💪 RAG is a solution to a scale problem. If everything fits in one prompt, you're already doing the 'generation with context' part manually — no retrieval pipeline needed yet.",
+      wrong: "Actually, the answer is B. RAG's whole reason for existing is handling datasets too large to paste into a single prompt. At 10 short documents, you can just include them directly — that's simpler and works just as well."
+    }
+  }
+];
+
+function renderProgress() {
+  const pct = (currentLesson / (lessons.length - 1)) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-label').textContent = `Lesson ${currentLesson + 1} of ${lessons.length}`;
+}
+
+function renderLesson() {
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  renderProgress();
+
+  if(currentLesson >= lessons.length) {
+    renderScore();
+    return;
+  }
+
+  const l = lessons[currentLesson];
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+
+  if(l.type === 'lesson') {
+    card.innerHTML = `
+      <div class="lesson-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body">${l.body}</div>
+      <div class="nav-row">
+        ${currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+        <button class="btn-next" onclick="nextLesson()">Next <span>→</span></button>
+      </div>
+    `;
+  } else if(l.type === 'quiz') {
+    quizTotal++;
+    const answered = quizAnswered[currentLesson];
+    const optionsHTML = l.options.map((o, i) => {
+      let cls = 'quiz-option';
+      if(answered !== undefined) {
+        if(i === l.correct) cls += ' correct';
+        else if(i === answered && answered !== l.correct) cls += ' wrong';
+        else cls += ' disabled';
+      }
+      const letters = ['A','B','C','D'];
+      return `<button class="quiz-option ${answered!==undefined?(i===l.correct?'correct':(i===answered?'wrong':'disabled')):''}" onclick="answerQuiz(${i})">${'<div class="option-letter">'+letters[i]+'</div>'}${o}</button>`;
+    }).join('');
+
+    const feedbackCls = answered !== undefined ? (answered === l.correct ? 'correct' : 'wrong') : '';
+    const feedbackText = answered !== undefined ? (answered === l.correct ? l.feedback.correct : l.feedback.wrong) : '';
+
+    card.innerHTML = `
+      <div class="lesson-tag quiz-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.question}</p></div>
+      <div class="quiz-options">${optionsHTML}</div>
+      <div class="quiz-feedback ${answered!==undefined?'show':''} ${feedbackCls}">${feedbackText}</div>
+      <div class="nav-row" id="quiz-nav" style="${answered===undefined?'display:none':''}">
+        ${currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+        <button class="btn-next" onclick="nextLesson()">Next <span>→</span></button>
+      </div>
+    `;
+  } else if(l.type === 'tryit') {
+    card.innerHTML = `
+      <div class="lesson-tag tip-tag">${l.tag}</div>
+      <span class="lesson-emoji">${l.emoji}</span>
+      <div class="lesson-title">${l.title}</div>
+      <div class="lesson-body"><p>${l.instruction}</p></div>
+      <div class="try-it">
+        <div class="try-label">Your answer</div>
+        <textarea class="try-input" id="try-input" rows="3" placeholder="${l.placeholder}"></textarea>
+        <button class="try-submit" onclick="submitTryIt()">Submit answer →</button>
+        <div class="try-response" id="try-response"></div>
+      </div>
+      <div class="nav-row" id="tryit-nav" style="display:none">
+        ${currentLesson > 0 ? '<button class="btn-back" onclick="goBack()">← Back</button>' : ''}
+        <button class="btn-next" onclick="nextLesson()">Next <span>→</span></button>
+      </div>
+    `;
+  }
+
+  main.appendChild(card);
+  window.scrollTo(0, 0);
+}
+
+function answerQuiz(selected) {
+  const l = lessons[currentLesson];
+  if(quizAnswered[currentLesson] !== undefined) return;
+  quizAnswered[currentLesson] = selected;
+  if(selected === l.correct) quizScore++;
+  renderLesson();
+}
+
+function submitTryIt() {
+  const input = document.getElementById('try-input').value.trim();
+  if(!input) return;
+  const l = lessons[currentLesson];
+  const resp = l.responses.default;
+  const el = document.getElementById('try-response');
+  el.textContent = resp;
+  el.classList.add('show');
+  document.getElementById('tryit-nav').style.display = 'flex';
+  document.querySelector('.try-submit').disabled = true;
+}
+
+function nextLesson() {
+  currentLesson++;
+  renderLesson();
+}
+
+function goBack() {
+  if(currentLesson > 0) { currentLesson--; renderLesson(); }
+}
+
+function renderScore() {
+  const main = document.getElementById('main');
+  const quizCount = Object.keys(quizAnswered).length;
+  const pct = quizCount > 0 ? Math.round((quizScore / quizCount) * 100) : 0;
+  let emoji, title, sub;
+  if(pct === 100) { emoji = '🏆'; title = "Perfect score!"; sub = "Okay you're basically a RAG expert now. Seriously, go tell someone."; }
+  else if(pct >= 66) { emoji = '🎉'; title = "Solid work!"; sub = "You've got the fundamentals down. Now go look at an actual RAG pipeline and see how it clicks."; }
+  else { emoji = '💪'; title = "Good effort!"; sub = "Not bad for a first run. Go back through the lessons and you'll nail it next time."; }
+
+  const card = document.createElement('div');
+  card.className = 'lesson-card active';
+  card.innerHTML = `
+    <div class="score-card">
+      <div class="score-emoji">${emoji}</div>
+      <div class="score-title">${title}</div>
+      <div class="score-sub">${sub}</div>
+      <div class="score-badge">Quiz score: ${quizScore} / ${quizCount} correct</div>
+      <br>
+      <div class="lesson-body" style="text-align:left;margin-bottom:1.5rem">
+        <div class="callout purple">
+          <strong>What's next?</strong><br><br>
+          🔗 See RAG in action in the Learn Claude Assistant tool (under AI Tools on the site)<br>
+          💬 It's a working RAG system built over this very module series<br>
+          🛠️ Notice the retrieval + generation split while you use it — that's everything from this module, live
+        </div>
+      </div>
+      <button class="restart-btn" onclick="restartModule()">Start over 🔄</button> <a class="back-to-hub-btn" href="claude_learn.html">← Back to Learn Claude</a>
+    </div>
+  `;
+  main.appendChild(card);
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('progress-label').textContent = 'Complete! 🎉';
+  window.scrollTo(0, 0);
+}
+
+function restartModule() {
+  currentLesson = 0; quizScore = 0; quizTotal = 0; quizAnswered = {};
+  renderLesson();
+}
+
+renderLesson();
+</script>
+</body>
+</html>
