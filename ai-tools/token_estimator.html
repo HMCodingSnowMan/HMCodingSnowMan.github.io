@@ -369,12 +369,48 @@
 
   .info-note strong { color: var(--accent); }
 
+  /* How it works */
+  .how-it-works-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .how-it-works { font-size: 13px; }
+
+  .how-it-works summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .how-it-works ol {
+    color: var(--text-dim);
+    padding-left: 18px;
+    margin: 8px 0 0;
+  }
+
+  .how-it-works li { margin-bottom: 6px; line-height: 1.5; }
+
+  .build-story {
+    color: var(--text-dim);
+    margin: 8px 0 10px;
+    max-width: 62ch;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+
   @media (max-width: 720px) {
     main { grid-template-columns: 1fr; padding: 16px; }
     .right-panel { position: static; }
     header { padding: 16px; }
     header p { display: none; }
     .token-big { font-size: 40px; }
+    .how-it-works-wrap { padding: 16px 16px 0; }
   }
 </style>
 </head>
@@ -387,6 +423,26 @@
   </div>
   <p>Estimate tokens and costs across AI models</p>
 </header>
+
+<div class="how-it-works-wrap">
+  <details class="how-it-works">
+    <summary>How it works</summary>
+    <ol>
+      <li>Text you paste is never sent anywhere — token counts are approximated locally in your browser, using a heuristic modeled on how real tokenizers tend to split text (word length, punctuation, newlines), not an exact BPE implementation.</li>
+      <li>That estimate is checked against a static table of per-model context windows and per-token prices for Anthropic, OpenAI, and Google models to show context usage and input cost.</li>
+      <li>Picking (or auto-detecting) an expected response length estimates output tokens too, so the combined cost row accounts for both sides of the exchange.</li>
+    </ol>
+  </details>
+  <details class="how-it-works">
+    <summary>Why I built this</summary>
+    <p class="build-story">
+      I wanted a fast way to sanity-check "how many tokens is this, and what would it cost across models" without pasting text into a paid API console. The estimator is intentionally approximate — it won't match an exact tokenizer count — but it's close enough for planning prompts and comparing providers at a glance.
+    </p>
+    <p class="build-story">
+      Stack: a vanilla JS heuristic tokenizer and a static pricing table — no backend or API calls involved.
+    </p>
+  </details>
+</div>
 
 <main>
 
@@ -482,7 +538,7 @@
 
     <!-- Info -->
     <div class="info-note">
-      <strong>How tokens work:</strong> Most AI models break text into chunks called tokens — roughly 4 characters or ¾ of a word on average for English. Prices are per 1 million tokens. Output token estimates use typical response lengths; combined cost uses 5× input rate as an approximate output multiplier (varies by model). Prices are approximate and may change.
+      Prices shown are per 1 million tokens and approximate — check each provider's pricing page for current rates. Combined cost estimates assume a 5× input rate for output tokens (the actual multiplier varies by model).
     </div>
 
   </div>

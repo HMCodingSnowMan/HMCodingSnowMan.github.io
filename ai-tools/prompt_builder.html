@@ -379,11 +379,47 @@
     text-align: right;
   }
 
+  /* How it works */
+  .how-it-works-wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 16px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .how-it-works { font-size: 13px; }
+
+  .how-it-works summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .how-it-works ol {
+    color: var(--text-dim);
+    padding-left: 18px;
+    margin: 8px 0 0;
+  }
+
+  .how-it-works li { margin-bottom: 6px; line-height: 1.5; }
+
+  .build-story {
+    color: var(--text-dim);
+    margin: 8px 0 10px;
+    max-width: 62ch;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+
   @media (max-width: 720px) {
     main { grid-template-columns: 1fr; padding: 16px; }
     .preview-panel { position: static; }
     header { padding: 16px; }
     header p { display: none; }
+    .how-it-works-wrap { padding: 16px 16px 0; }
   }
 </style>
 </head>
@@ -396,6 +432,26 @@
   </div>
   <p>Build better AI prompts with structure</p>
 </header>
+
+<div class="how-it-works-wrap">
+  <details class="how-it-works">
+    <summary>How it works</summary>
+    <ol>
+      <li>Each labeled box (Role, Task, Context, Format, Constraints, Examples) is a plain text field — nothing is sent anywhere; everything runs in your browser.</li>
+      <li>As you type, the filled-in sections are assembled into one structured prompt with [LABEL] headers, shown live in the preview panel on the right.</li>
+      <li>A quality score is calculated from a simple weighted heuristic — whether Task is filled in and detailed, how many other sections you've used, and overall length — to nudge you toward a more complete prompt.</li>
+    </ol>
+  </details>
+  <details class="how-it-works">
+    <summary>Why I built this</summary>
+    <p class="build-story">
+      Good prompts tend to share a shape: who the AI should act as, exactly what to do, what background it needs, how to format the answer, and what to avoid. PromptCraft turns that shape into fill-in-the-blank fields — with quick-start templates for common tasks like emails, summaries, and code — so you build a well-organized prompt without having to remember the structure yourself.
+    </p>
+    <p class="build-story">
+      Stack: vanilla HTML/CSS/JS, entirely client-side — no API calls or server involved.
+    </p>
+  </details>
+</div>
 
 <main>
 

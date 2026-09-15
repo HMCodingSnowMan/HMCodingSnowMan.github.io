@@ -284,10 +284,46 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* How it works */
+  .how-it-works-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 16px 24px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .how-it-works { font-size: 13px; }
+
+  .how-it-works summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .how-it-works ol {
+    color: var(--text-dim);
+    padding-left: 18px;
+    margin: 8px 0 0;
+  }
+
+  .how-it-works li { margin-bottom: 6px; line-height: 1.5; }
+
+  .build-story {
+    color: var(--text-dim);
+    margin: 8px 0 10px;
+    max-width: 62ch;
+    line-height: 1.6;
+    font-size: 13px;
+  }
+
   @media (max-width: 720px) {
     header { padding: 16px; }
     header p { display: none; }
     main { padding: 16px; }
+    .how-it-works-wrap { padding: 16px 16px 0; }
   }
 </style>
 </head>
@@ -300,6 +336,27 @@
   </div>
   <p>Compare prompts and models on the same inputs, side by side</p>
 </header>
+
+<div class="how-it-works-wrap">
+  <details class="how-it-works">
+    <summary>How it works</summary>
+    <ol>
+      <li>Set a task description, a few test inputs, and multiple prompt variants — each with its own system prompt and model choice (Haiku 4.5, Sonnet 5, Opus 5).</li>
+      <li>In Live mode, "Run all" calls the Anthropic Messages API directly from your browser once per variant × input pair, using the key you paste in — it goes straight to api.anthropic.com and is never sent to this site's server — filling a results grid with each output, latency, and token usage.</li>
+      <li>You can score each output yourself with a 1–5 star click, or run "Judge all outputs" to have Sonnet 5 act as an LLM judge — it scores every result 1–5 against the stated task with a one-sentence reason.</li>
+      <li>A summary table averages your scores and the judge's scores per variant, highlighting whichever prompt/model combination came out on top.</li>
+    </ol>
+  </details>
+  <details class="how-it-works">
+    <summary>Why I built this</summary>
+    <p class="build-story">
+      Comparing prompts or models usually turns into manual copy-pasting between chat windows. EvalBench runs the same inputs against every variant side by side and scores them two ways — your own judgment and an LLM-as-judge pass — so you can actually see which change helped. It's bring-your-own-key by design, so the tool ships with one real pre-recorded run — actual Claude outputs, captured once — as a canned demo, letting you see the whole workflow, including judge scoring, before you paste in a key.
+    </p>
+    <p class="build-story">
+      Stack: vanilla JS, calling the Anthropic Messages API directly from the browser (BYOK, live mode only) — no backend server involved.
+    </p>
+  </details>
+</div>
 
 <main>
 

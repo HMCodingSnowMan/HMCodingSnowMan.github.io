@@ -97,9 +97,18 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
 .model-status.loading { color: var(--gold); }
 .model-status.error { color: var(--red); }
 
+/* HOW IT WORKS */
+.how-it-works-wrap { max-width: 900px; margin: 0.75rem auto 0; padding: 0 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.how-it-works { font-size: 0.82rem; }
+.how-it-works summary { cursor: pointer; color: var(--accent); font-weight: 600; margin-bottom: 0.5rem; }
+.how-it-works ol { color: var(--muted); padding-left: 1.1rem; margin: 0.5rem 0 0; }
+.how-it-works li { margin-bottom: 0.35rem; line-height: 1.5; }
+.build-story { color: var(--muted); margin: 0.5rem 0 0.75rem; max-width: 62ch; font-size: 0.82rem; line-height: 1.55; }
+
 @media (max-width: 640px) {
   .main { grid-template-columns: 1fr; }
   .sidebar { order: -1; }
+  .how-it-works-wrap { padding: 0 1rem; }
 }
 </style>
 </head>
@@ -111,6 +120,26 @@ input:checked + .toggle-slider:before { transform: translateX(16px); }
   </div>
   <div class="header-sub">West Coast Swing Dance Line Analyzer</div>
 </header>
+
+<div class="how-it-works-wrap">
+  <details class="how-it-works">
+    <summary>How it works</summary>
+    <ol>
+      <li>BodyLine loads Google's MoveNet pose-detection model through TensorFlow.js directly in your browser — your photo is never uploaded anywhere.</li>
+      <li>When you click "Analyze pose," the model locates 17 body keypoints (shoulders, elbows, wrists, hips, knees, ankles...) in the image, each with a confidence score.</li>
+      <li>Keypoints above your confidence threshold get connected into WCS-specific overlays — arm line, spine line, hip line, leg lines — drawn straight onto the canvas so you can check extension and shape.</li>
+    </ol>
+  </details>
+  <details class="how-it-works">
+    <summary>Why I built this</summary>
+    <p class="build-story">
+      West Coast Swing dancers care a lot about "line" — arm extension, spine alignment, hip and leg shape in a photo or freeze frame. Pose-estimation models can find body keypoints in a still image, so I built a small tool that turns those raw keypoints into the specific lines dancers actually look at, instead of a generic skeleton overlay.
+    </p>
+    <p class="build-story">
+      Stack: TensorFlow.js with the MoveNet (SINGLEPOSE_LIGHTNING) pose-detection model, plain Canvas/JS for drawing — everything runs client-side, no backend or upload involved.
+    </p>
+  </details>
+</div>
 
 <div class="main">
 

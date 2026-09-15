@@ -134,12 +134,53 @@
     font-size: 0.88rem;
     margin-top: 1rem;
   }
+  .how-it-works {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+  }
+  .how-it-works summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .how-it-works ol {
+    color: var(--text-muted);
+    padding-left: 1.25rem;
+    margin: 0.5rem 0 0;
+  }
+  .how-it-works li { margin-bottom: 0.4rem; line-height: 1.5; }
+  .build-story {
+    color: var(--text-muted);
+    margin: 0.5rem 0 0.75rem;
+    max-width: 62ch;
+    line-height: 1.55;
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <h1>Resume Tailoring Agent</h1>
   <p class="sub">A 4-step agentic chain: extract requirements → compare against your resume → suggest truthful rewrites → explain each change.</p>
+
+  <details class="how-it-works">
+    <summary>How it works</summary>
+    <ol>
+      <li><strong>Extract</strong> — Claude reads the job posting and pulls out structured requirements: role title, must-have and nice-to-have keywords, core responsibilities.</li>
+      <li><strong>Compare</strong> — Claude checks your resume against those requirements and sorts each one into covered, weak (mentioned but not clearly stated), or missing.</li>
+      <li><strong>Rewrite</strong> — Claude suggests bullet-point rewrites aligned to the posting, under a hard rule: it can only rephrase, reorder, or emphasize what's already true in your resume, never invent skills or metrics. Requirements it can't honestly address land in a separate "unresolvable gaps" list instead of being fabricated.</li>
+      <li><strong>Explain</strong> — Claude writes a short rationale for each rewrite, tying it back to the specific requirement it addresses.</li>
+    </ol>
+  </details>
+  <details class="how-it-works">
+    <summary>Why I built this</summary>
+    <p class="build-story">
+      I wanted to see whether a chain of small, single-purpose Claude calls could tailor a resume more reliably than one big prompt — and whether a "don't fabricate experience" rule would actually hold up split across steps. Narrowing each call's job (extract, then compare, then rewrite under a hard constraint, then explain) makes each step easy to constrain tightly and makes the reasoning visible instead of buried in one long response.
+    </p>
+    <p class="build-story">
+      Stack: the Claude API chained across 4 calls, a Vercel serverless function for orchestration, bring-your-own key (sent per-request, never stored or logged), and plain HTML/CSS/JS for the interface.
+    </p>
+  </details>
 
   <div class="card">
     <div class="field">
