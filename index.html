@@ -374,10 +374,53 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; letter-spacing: 0.02em;
 }
-.bio-name { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.4rem; }
+.bio-name { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
 .bio-text p { font-size: 0.855rem; color: var(--muted); line-height: 1.7; margin-bottom: 0.75rem; }
 .bio-links { display: flex; gap: 1rem; flex-wrap: wrap; }
 .bio-links a { font-size: 0.8rem; font-weight: 500; color: var(--text); text-decoration: underline; text-underline-offset: 3px; }
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.ai-badge:hover {
+  background: var(--border);
+  border-color: #c8c8c5;
+}
+
+/* AI DISCLOSURE */
+.disclosure-section {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 0 2rem 3rem;
+}
+.disclosure-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.75rem;
+}
+.disclosure-card h2 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.6rem;
+}
+.disclosure-card p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
 
 .skills-row {
   display: flex; flex-wrap: wrap; gap: 0.5rem;
@@ -396,6 +439,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   .hero { padding: 3rem 1rem 2rem; }
   .apps-section { padding: 2rem 1rem 3rem; }
   .apps-grid { grid-template-columns: 1fr; }
+  .disclosure-section { padding: 0 1rem 3rem; }
   .hero-meta { flex-direction: column; gap: 0.5rem; }
 }
 </style>
@@ -437,7 +481,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   <div class="bio-card">
     <div class="bio-avatar">HM</div>
     <div class="bio-text">
-      <div class="bio-name">Hans Marasigan</div>
+      <div class="bio-name">Hans Marasigan <a href="#ai-disclosure" class="ai-badge" title="Learn how AI is used on this site">AI-Assisted Development</a></div>
       <p>I'm a data analyst and AI workflow consultant based in Los Angeles. My background spans GIS, DevOps, and data analysis — I've spent years turning messy information into clear decisions and manual processes into automated ones. These apps are a reflection of how I work: I'd rather show you a working solution than talk through a concept. Most recently, that meant digging into 34,000+ Steam games with SQL and Tableau to see what actually drives a game's success — see the Data Analysis section below. When I'm not in the data, you'll find me on the West Coast Swing dance floor.</p>
       <div class="skills-row">
         <span class="skill-tag">Python</span>
@@ -777,6 +821,13 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
         <span class="form-status" id="cf-status"></span>
       </div>
     </form>
+  </div>
+</section>
+
+<section class="disclosure-section" id="ai-disclosure">
+  <div class="disclosure-card">
+    <h2>On AI-Assisted Development</h2>
+    <p>Claude, Anthropic's AI assistant, is used throughout my development process for planning, code generation, debugging, and content creation. I treat AI tooling as a professional instrument, applying the same standards of review and judgment I would to any other resource, and disclose its use here in the interest of transparency.</p>
   </div>
 </section>
 
