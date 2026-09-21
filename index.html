@@ -397,6 +397,24 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   background: var(--border);
   border-color: #c8c8c5;
 }
+.ai-callout {
+  display: inline-block;
+  margin-bottom: 0.9rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--tag-text);
+  background: var(--tag-bg);
+  border: 1px solid var(--border);
+  text-decoration: none;
+  line-height: 1.5;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.ai-callout:hover {
+  background: var(--border);
+  border-color: #c8c8c5;
+}
 
 /* AI DISCLOSURE */
 .disclosure-section {
@@ -482,7 +500,8 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
     <div class="bio-avatar">HM</div>
     <div class="bio-text">
       <div class="bio-name">Hans Marasigan <a href="#ai-disclosure" class="ai-badge" title="Learn how AI is used on this site">AI-Assisted Development</a></div>
-      <p>I'm a data analyst and AI workflow consultant based in Los Angeles. My background spans GIS, DevOps, and data analysis — I've spent years turning messy information into clear decisions and manual processes into automated ones. These apps are a reflection of how I work: I'd rather show you a working solution than talk through a concept. Most recently, that meant digging into 34,000+ Steam games with SQL and Tableau to see what actually drives a game's success — see the Data Analysis section below. When I'm not in the data, you'll find me on the West Coast Swing dance floor.</p>
+      <a href="#ai-disclosure" class="ai-callout">Every project on this site is built using Claude — AI-assisted development, disclosed and detailed below.</a>
+      <p>I'm a data analyst and AI workflow consultant based in Los Angeles. My background spans GIS, DevOps, and data analysis — I've spent years turning messy information into clear decisions and manual processes into automated ones. These apps are a reflection of how I work: I'd rather show you a working solution than talk through a concept. Most recently, that meant digging into 34,000+ Steam games with SQL and Tableau to see what actually drives a game's success — see the Data Analysis section below. I've also built a retrieval-augmented assistant (RAG, with Voyage AI embeddings) and a multi-step agentic pipeline that tailors resumes against job postings using chained Claude API calls — see the AI Tools section below. When I'm not in the data, you'll find me on the West Coast Swing dance floor.</p>
       <div class="skills-row">
         <span class="skill-tag">Python</span>
         <span class="skill-tag">SQL</span>
@@ -522,6 +541,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
         <span class="tag">Tableau</span>
         <span class="tag">Data Cleaning</span>
         <span class="tag">10 findings</span>
+        <span class="tag">Built with Claude Code</span>
       </div>
       <div class="app-launch">View project <span class="arrow">→</span></div>
     </a>
@@ -629,15 +649,41 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
   <div class="section-label" id="section-ai">AI Tools</div>
   <div class="apps-grid" style="margin-bottom:2.5rem">
 
-    <a class="app-card" href="ai-tools/line_analyzer.html">
-      <div class="app-card-accent" style="background:#7c6af7"></div>
-      <div class="app-icon">🕺</div>
-      <div class="app-name">BodyLine</div>
-      <div class="app-desc">A pose analysis tool for West Coast Swing dancers. Upload a photo and get an instant skeletal overlay highlighting arm, spine, hip, and leg lines — the key lines judges and coaches look for.</div>
+    <a class="app-card" href="ai-tools/resume-tailor.html">
+      <div class="app-card-accent" style="background:#db2777"></div>
+      <div class="app-icon">🎯</div>
+      <div class="app-name">Resume Tailoring Agent</div>
+      <div class="app-desc">A 4-step agentic chain that reads a job posting and a resume, then extracts requirements, flags coverage gaps, and suggests truthful bullet-point rewrites with a rationale for each change. Orchestrated server-side across four chained Claude API calls, with a cost estimate shown before the chain runs.</div>
       <div class="app-tags">
-        <span class="tag">AI / ML</span>
-        <span class="tag">Dance</span>
-        <span class="tag">Pose detection</span>
+        <span class="tag">AI</span>
+        <span class="tag">Agentic</span>
+        <span class="tag">Claude API</span>
+      </div>
+      <div class="app-launch">Launch app <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="ai-tools/rag-assistant.html">
+      <div class="app-card-accent" style="background:#0d9488"></div>
+      <div class="app-icon">🔍</div>
+      <div class="app-name">Learn Claude Assistant</div>
+      <div class="app-desc">A retrieval-augmented (RAG) question box built over the Learn Claude module series. Content is chunked and embedded with Voyage AI, matched by semantic similarity to each question, then answered by Claude using only the retrieved passages — grounded in the actual course material instead of general knowledge.</div>
+      <div class="app-tags">
+        <span class="tag">AI</span>
+        <span class="tag">RAG</span>
+        <span class="tag">Embeddings</span>
+      </div>
+      <div class="app-launch">Ask it something <span class="arrow">→</span></div>
+    </a>
+
+    <a class="app-card" href="ai-tools/prompt_eval.html">
+      <div class="app-card-accent" style="background:#3ecf8e"></div>
+      <div class="app-icon">⚖️</div>
+      <div class="app-name">EvalBench</div>
+      <div class="app-desc">A prompt/model evaluation harness — define test inputs and prompt variants (Haiku, Sonnet, Opus), run them side by side, and score outputs by hand or with an LLM-as-judge pass. Opens in a pre-recorded demo; switch to live mode with your own Anthropic API key to run it for real.</div>
+      <div class="app-tags">
+        <span class="tag">AI</span>
+        <span class="tag">Evals</span>
+        <span class="tag">Model comparison</span>
       </div>
       <div class="app-launch">Launch app <span class="arrow">→</span></div>
     </a>
@@ -668,41 +714,15 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
       <div class="app-launch">Launch app <span class="arrow">→</span></div>
     </a>
 
-    <a class="app-card" href="ai-tools/prompt_eval.html">
-      <div class="app-card-accent" style="background:#3ecf8e"></div>
-      <div class="app-icon">⚖️</div>
-      <div class="app-name">EvalBench</div>
-      <div class="app-desc">A prompt/model evaluation harness — define test inputs and prompt variants (Haiku, Sonnet, Opus), run them side by side, and score outputs by hand or with an LLM-as-judge pass. Opens in a pre-recorded demo; switch to live mode with your own Anthropic API key to run it for real.</div>
+    <a class="app-card" href="ai-tools/line_analyzer.html">
+      <div class="app-card-accent" style="background:#7c6af7"></div>
+      <div class="app-icon">🕺</div>
+      <div class="app-name">BodyLine</div>
+      <div class="app-desc">A pose analysis tool for West Coast Swing dancers. Upload a photo and get an instant skeletal overlay highlighting arm, spine, hip, and leg lines — the key lines judges and coaches look for.</div>
       <div class="app-tags">
-        <span class="tag">AI</span>
-        <span class="tag">Evals</span>
-        <span class="tag">Model comparison</span>
-      </div>
-      <div class="app-launch">Launch app <span class="arrow">→</span></div>
-    </a>
-
-    <a class="app-card" href="ai-tools/rag-assistant.html">
-      <div class="app-card-accent" style="background:#0d9488"></div>
-      <div class="app-icon">🔍</div>
-      <div class="app-name">Learn Claude Assistant</div>
-      <div class="app-desc">A retrieval-augmented (RAG) question box built over the Learn Claude module series. Content is chunked and embedded with Voyage AI, matched by semantic similarity to each question, then answered by Claude using only the retrieved passages — grounded in the actual course material instead of general knowledge.</div>
-      <div class="app-tags">
-        <span class="tag">AI</span>
-        <span class="tag">RAG</span>
-        <span class="tag">Embeddings</span>
-      </div>
-      <div class="app-launch">Ask it something <span class="arrow">→</span></div>
-    </a>
-
-    <a class="app-card" href="ai-tools/resume-tailor.html">
-      <div class="app-card-accent" style="background:#db2777"></div>
-      <div class="app-icon">🎯</div>
-      <div class="app-name">Resume Tailoring Agent</div>
-      <div class="app-desc">A 4-step agentic chain that reads a job posting and a resume, then extracts requirements, flags coverage gaps, and suggests truthful bullet-point rewrites with a rationale for each change. Orchestrated server-side across four chained Claude API calls, with a cost estimate shown before the chain runs.</div>
-      <div class="app-tags">
-        <span class="tag">AI</span>
-        <span class="tag">Agentic</span>
-        <span class="tag">Claude API</span>
+        <span class="tag">AI / ML</span>
+        <span class="tag">Dance</span>
+        <span class="tag">Pose detection</span>
       </div>
       <div class="app-launch">Launch app <span class="arrow">→</span></div>
     </a>
@@ -757,6 +777,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
         <span class="tag">Productivity</span>
         <span class="tag">Gamification</span>
         <span class="tag">Habit tracking</span>
+        <span class="tag">Built with Claude Code</span>
       </div>
       <div class="app-launch">Launch app <span class="arrow">→</span></div>
     </a>
@@ -770,6 +791,7 @@ footer a { color: var(--muted); text-decoration: underline; text-underline-offse
         <span class="tag">Game</span>
         <span class="tag">Incremental</span>
         <span class="tag">Deck building</span>
+        <span class="tag">Built with Claude Code</span>
       </div>
       <div class="app-launch">Launch app <span class="arrow">→</span></div>
     </a>
