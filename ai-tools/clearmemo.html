@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ClearMemo — AI Email Assistant for Accountants</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a18;
+    --paper: #f5f2eb;
+    --cream: #ede9df;
+    --gold: #b8953f;
+    --gold-light: #d4b46a;
+    --muted: #7a7567;
+    --rule: #d4cfc4;
+    --success: #3a6b4a;
+    --surface: #ffffff;
+    --error: #b91c1c;
+    --error-bg: #fff5f5;
+    --error-border: #fecaca;
+    --error-edge: #ef4444;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #ece7dc;
+      --paper: #17160f;
+      --cream: #26241c;
+      --gold: #d4b46a;
+      --gold-light: #e2c88a;
+      --muted: #a39d8e;
+      --rule: #3a372d;
+      --success: #6fae82;
+      --surface: #1f1d16;
+      --error: #fca5a5;
+      --error-bg: #2b1414;
+      --error-border: #5c2323;
+      --error-edge: #f87171;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Ledger line texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      transparent,
+      transparent 27px,
+      rgba(180,170,150,0.15) 27px,
+      rgba(180,170,150,0.15) 28px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 52px;
+    padding-bottom: 32px;
+    border-bottom: 2px solid var(--ink);
+    position: relative;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0; right: 0;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-icon svg { width: 20px; height: 20px; }
+
+  .logo-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.01em;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 36px 40px;
+    margin-bottom: 20px;
+    position: relative;
+    box-shadow: 4px 4px 0 var(--cream);
+  }
+
+  .card-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  /* Form fields */
+  .field {
+    margin-bottom: 24px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  label span {
+    font-weight: 300;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  textarea, select {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    resize: vertical;
+    appearance: none;
+  }
+
+  textarea:focus, select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,149,63,0.12);
+  }
+
+  textarea {
+    min-height: 140px;
+    line-height: 1.6;
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7567' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    padding-right: 40px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  @media (max-width: 580px) { .row { grid-template-columns: 1fr; } }
+
+  /* Generate button */
+  .btn-generate {
+    width: 100%;
+    padding: 18px 32px;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-generate::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    transform: translateX(-101%);
+    transition: transform 0.3s ease;
+    z-index: 0;
+  }
+
+  .btn-generate:hover::after { transform: translateX(0); }
+  .btn-generate span { position: relative; z-index: 1; }
+  .btn-generate:active { transform: scale(0.99); }
+  .btn-generate:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-generate:disabled::after { display: none; }
+
+  /* Loading */
+  .loading {
+    display: none;
+    align-items: center;
+    gap: 12px;
+    padding: 20px 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .loading.visible { display: flex; }
+
+  .dots {
+    display: flex;
+    gap: 4px;
+  }
+
+  .dots span {
+    width: 5px;
+    height: 5px;
+    background: var(--gold);
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+
+  .dots span:nth-child(2) { animation-delay: 0.2s; }
+  .dots span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes pulse {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+
+  /* Output */
+  .output-card {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left: 4px solid var(--gold);
+    padding: 36px 40px;
+    position: relative;
+    animation: slideIn 0.4s ease;
+    box-shadow: 4px 4px 0 var(--cream);
+  }
+
+  .output-card.visible { display: block; }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule);
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .output-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .output-title::before {
+    content: '✓';
+    width: 18px;
+    height: 18px;
+    background: var(--success);
+    color: var(--surface);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  .btn-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: var(--cream);
+    border: 1px solid var(--rule);
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-copy:hover {
+    background: var(--ink);
+    color: var(--paper);
+    border-color: var(--ink);
+  }
+
+  .email-output {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* Error */
+  .error-msg {
+    display: none;
+    background: var(--error-bg);
+    border: 1px solid var(--error-border);
+    border-left: 4px solid var(--error-edge);
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--error);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.01em;
+  }
+
+  .error-msg.visible { display: block; }
+
+  /* API key (bring your own key) */
+  .key-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .key-row input {
+    flex: 1;
+    min-width: 0;
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--rule);
+    padding: 12px 16px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .key-row input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(184,149,63,0.12);
+  }
+
+  .key-row .btn-copy { white-space: nowrap; }
+
+  .key-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  .demo-notice {
+    font-size: 12px;
+    color: var(--gold);
+    margin-top: 4px;
+    line-height: 1.5;
+  }
+
+  /* How it works */
+  .how-it-works {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .how-it-works summary {
+    cursor: pointer;
+    color: var(--gold);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .how-it-works ol {
+    color: var(--muted);
+    padding-left: 20px;
+    margin: 8px 0 0;
+  }
+
+  .how-it-works li {
+    margin-bottom: 6px;
+    line-height: 1.6;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+  }
+
+  footer p {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Watermark line */
+  .rule-ornament {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 32px 0;
+    color: var(--rule);
+    font-size: 18px;
+    letter-spacing: 0.3em;
+  }
+
+  .rule-ornament::before, .rule-ornament::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="2" width="14" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="6" y1="7" x2="14" y2="7" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="6" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.2"/>
+          <line x1="6" y1="13" x2="10" y2="13" stroke="#b8953f" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <span class="logo-text">ClearMemo</span>
+    </div>
+    <h1>AI Email Assistant<br>for <em>Accountants</em></h1>
+    <p class="subtitle">Describe a client situation. Get a polished, professional email — instantly.</p>
+  </header>
+
+  <details class="how-it-works">
+    <summary>How it works</summary>
+    <ol>
+      <li>You describe the client situation and pick an email purpose and tone.</li>
+      <li>The app builds a system prompt that casts Claude as a CPA and client-communications specialist, with your chosen tone and firm-style rules: plain language instead of tax jargon, reassuring rather than alarming, a clear next step, 150–250 words, and placeholder greeting and sign-off (<code>[Client Name]</code>, <code>[Your Name]</code>, <code>[Firm Name]</code>).</li>
+      <li>Your purpose and situation go to Claude as the user message, in a single call to the Anthropic Messages API made directly from your browser.</li>
+      <li>Claude returns a ready-to-send email body, with no subject line, which you can copy straight into your mail client.</li>
+      <li>Your API key is kept in this tab's session storage and is sent only to <code>api.anthropic.com</code>. It never goes to this site's server and is cleared when you close the tab.</li>
+    </ol>
+  </details>
+
+  <div class="card">
+    <div class="card-label">Anthropic API Key</div>
+
+    <div class="field" style="margin-bottom:0">
+      <label for="apiKey">Your API key <span>— bring your own Anthropic key</span></label>
+      <div class="key-row">
+        <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+        <button type="button" class="btn-copy" id="clearKeyBtn">Clear key</button>
+      </div>
+      <p class="key-note">Your key stays in this browser tab only and is sent only to api.anthropic.com.</p>
+      <p class="demo-notice">Demo tool — don't paste real client names or confidential details.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-label">Client Situation</div>
+
+    <div class="field">
+      <label>Describe the client situation <span>— be as brief or detailed as you like</span></label>
+      <textarea id="situation" placeholder="e.g. Client is asking about home office deduction. Self-employed, worked from home full year, made $92k. Not sure if they qualify or how much they can deduct."></textarea>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label>Email tone</label>
+        <select id="tone">
+          <option value="professional and warm">Professional & Warm</option>
+          <option value="formal and precise">Formal & Precise</option>
+          <option value="friendly and simple">Friendly & Simple</option>
+          <option value="concise and direct">Concise & Direct</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Email purpose</label>
+        <select id="purpose">
+          <option value="answering a client question">Answer a Client Question</option>
+          <option value="requesting missing documents">Request Missing Documents</option>
+          <option value="delivering tax return results">Deliver Tax Return Results</option>
+          <option value="following up on a pending item">Follow Up on Pending Item</option>
+          <option value="explaining a tax issue or notice">Explain a Tax Issue / Notice</option>
+          <option value="onboarding a new client">New Client Onboarding</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generateEmail()" disabled>
+      <span>Generate Email →</span>
+    </button>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="dots">
+      <span></span><span></span><span></span>
+    </div>
+    Drafting your email...
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="output-card" id="outputCard">
+    <div class="output-header">
+      <div class="output-title">Email Ready</div>
+      <button class="btn-copy" id="copyBtn" onclick="copyEmail()">Copy to Clipboard</button>
+    </div>
+    <div class="email-output" id="emailOutput"></div>
+  </div>
+
+  <div class="rule-ornament">◆</div>
+
+  <footer>
+    <p>Powered by Claude AI &nbsp;·&nbsp; Built for accounting professionals</p>
+  </footer>
+
+</div>
+
+<script>
+const MODEL = 'claude-sonnet-4-6';
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const KEY_STORAGE = 'clearmemo-byok-key';
+
+let generating = false;
+
+// Bring-your-own-key: the key lives in sessionStorage (cleared when the tab
+// closes) and is only ever sent to api.anthropic.com in a request header.
+// `anthropic-dangerous-direct-browser-access` is the header Anthropic's own
+// SDKs set to allow calling the API straight from a browser.
+function saveApiKey(key) {
+  try {
+    if (key) sessionStorage.setItem(KEY_STORAGE, key);
+    else sessionStorage.removeItem(KEY_STORAGE);
+  } catch (e) {}
+}
+function loadApiKey() {
+  try { return sessionStorage.getItem(KEY_STORAGE) || ''; } catch (e) { return ''; }
+}
+function getApiKey() {
+  return document.getElementById('apiKey').value.trim();
+}
+
+function updateGenerateButton() {
+  document.getElementById('generateBtn').disabled = generating || !getApiKey();
+}
+
+function friendlyApiError(status) {
+  if (status === 401) return 'That API key was rejected. Check that you pasted the full key from console.anthropic.com, then try again.';
+  if (status === 403) return "That API key doesn't have permission to use this model. Check your Anthropic account settings.";
+  if (status === 429) return "You've hit Anthropic's rate limit for this key. Wait a moment and try again.";
+  if (status === 529 || status >= 500) return "Anthropic's API is busy or temporarily unavailable. Try again in a minute.";
+  return `The request couldn't be completed (error ${status}). Try again, or shorten the situation description.`;
+}
+
+async function generateEmail() {
+  if (generating) return;
+
+  const apiKey = getApiKey();
+  const situation = document.getElementById('situation').value.trim();
+  const tone = document.getElementById('tone').value;
+  const purpose = document.getElementById('purpose').value;
+
+  if (!apiKey) {
+    showError('Paste your Anthropic API key above to generate an email.');
+    return;
+  }
+
+  if (!situation) {
+    showError('Please describe the client situation before generating.');
+    return;
+  }
+
+  const loading = document.getElementById('loading');
+  const outputCard = document.getElementById('outputCard');
+  const errorMsg = document.getElementById('errorMsg');
+
+  generating = true;
+  updateGenerateButton();
+  loading.classList.add('visible');
+  outputCard.classList.remove('visible');
+  errorMsg.classList.remove('visible');
+
+  const systemPrompt = `You are an expert CPA and accounting communications specialist. Your job is to write professional, clear client emails for accountants.
+
+Guidelines:
+- Write in a ${tone} tone
+- Be clear and jargon-free — clients may not understand tax language
+- Include a proper greeting (use "Dear [Client Name]," as placeholder), body, and sign-off (use "Best regards,\\n[Your Name]\\n[Firm Name]")
+- Be helpful and reassuring, not alarming
+- If relevant, include a clear next step or call to action
+- Keep it concise — 150 to 250 words is ideal
+- Do NOT include subject line — just the email body starting with the greeting`;
+
+  const userPrompt = `Write a client email for the following situation:
+
+Purpose: ${purpose}
+Client situation: ${situation}
+
+Write the complete email now.`;
+
+  try {
+    let response;
+    try {
+      response = await fetch(ANTHROPIC_URL, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+    } catch (networkErr) {
+      showError("Couldn't reach the Anthropic API. Check your internet connection and try again.");
+      return;
+    }
+
+    if (!response.ok) {
+      showError(friendlyApiError(response.status));
+      return;
+    }
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (parseErr) {
+      showError('The response from Anthropic was unreadable. Please try again.');
+      return;
+    }
+
+    const emailText = (data.content || [])
+      .filter(block => block.type === 'text')
+      .map(block => block.text)
+      .join('\n')
+      .trim();
+
+    if (!emailText) {
+      showError('Claude returned an empty draft. Try adding a bit more detail and generate again.');
+      return;
+    }
+
+    document.getElementById('emailOutput').textContent = emailText;
+    outputCard.classList.add('visible');
+    outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  } catch (err) {
+    showError('Something went wrong while drafting the email. Please try again.');
+  } finally {
+    generating = false;
+    updateGenerateButton();
+    loading.classList.remove('visible');
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.classList.add('visible');
+}
+
+async function copyEmail() {
+  const text = document.getElementById('emailOutput').textContent;
+  try {
+    await navigator.clipboard.writeText(text);
+    const btn = document.getElementById('copyBtn');
+    const original = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    setTimeout(() => btn.textContent = original, 2000);
+  } catch {
+    alert('Copy failed — please select and copy the text manually.');
+  }
+}
+
+// Allow Ctrl+Enter to generate
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') generateEmail();
+});
+
+const apiKeyInput = document.getElementById('apiKey');
+apiKeyInput.value = loadApiKey();
+apiKeyInput.addEventListener('input', () => {
+  saveApiKey(getApiKey());
+  updateGenerateButton();
+});
+document.getElementById('clearKeyBtn').addEventListener('click', () => {
+  apiKeyInput.value = '';
+  saveApiKey('');
+  updateGenerateButton();
+  apiKeyInput.focus();
+});
+updateGenerateButton();
+</script>
+</body>
+</html>
